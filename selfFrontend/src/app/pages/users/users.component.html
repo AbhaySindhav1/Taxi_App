@@ -1,0 +1,311 @@
+<div>
+  <h1 class="heading">
+    Users
+    <button
+      type="button"
+      class="btn button"
+      (click)="onSearch()"
+      style="min-width: 100px; background-color: rgb(126, 199, 223)"
+    >
+      {{ isSearchMode ? "Add" : "Search" }}
+    </button>
+  </h1>
+
+  <form
+    class="drop"
+    [formGroup]="UsersForm"
+    (ngSubmit)="onSubmit()"
+    *ngIf="!isSearchMode"
+  >
+    <div class="drop1">
+      <div class="form-outline">
+        <label class="form-label" for="UserFile">User Profile</label>
+        <input
+          type="file"
+          id="UserFile"
+          class="form-control"
+          formControlName="UserFile"
+          (change)="onFileSelected($event)"
+        />
+        <br />
+        <span
+          *ngIf="(f.UserFile.touched || isSubmitted) && f.UserFile.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.UserFile.errors.required"
+            >Profile Picture is required.</span
+          >
+        </span>
+      </div>
+
+      <div class="form-outline">
+        <label class="form-label" for="UserName">UserName</label>
+        <input
+          type="text"
+          id="UserName"
+          class="form-control"
+          formControlName="UserName"
+          placeholder="John Mike"
+        />
+        <br />
+        <span
+          *ngIf="(f.UserName.touched || isSubmitted) && f.UserName.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.UserName.errors.required">Username is required.</span>
+        </span>
+      </div>
+
+      <div class="form-outline">
+        <label class="form-label" for="UserEmail">User Email</label>
+        <input
+          type="text"
+          id="UserEmail"
+          class="form-control"
+          formControlName="UserEmail"
+          placeholder="ex.. example@example.com"
+        />
+        <br />
+        <span
+          *ngIf="(f.UserEmail.touched || isSubmitted) && f.UserEmail.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.UserEmail.errors.required">Email is required.</span>
+          <span *ngIf="f.UserEmail.errors.email"
+            >Please, Enter Valid Email Must includes @, .</span
+          >
+        </span>
+      </div>
+
+      <div class="form-outline">
+        <label class="form-label" for="countrycode">Country Code</label>
+        <input
+          type="number"
+          id="CountryCode"
+          class="form-control"
+          formControlName="CountryCode"
+          onKeyPress="if(this.value.length==2) return false;"
+          placeholder="+91"
+        />
+        <br />
+        <span
+          *ngIf="
+            (f.CountryCode.touched || isSubmitted) && f.CountryCode.invalid
+          "
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.CountryCode.errors.required"
+            >CountryCode is required.</span
+          >
+        </span>
+      </div>
+
+      <div class="form-outline">
+        <label class="form-label" for="flag">UserPhone</label>
+
+        <input
+          type="number"
+          id="UserPhone"
+          class="form-control"
+          formControlName="UserPhone"
+          placeholder="9879856413"
+          onKeyPress="if(this.value.length==10) return false;"
+          />
+        <br />
+        <span
+          *ngIf="(f.UserPhone.touched || isSubmitted) && f.UserPhone.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.UserPhone.errors.required"
+            >Mobile Number is required.</span
+          >
+          <span *ngIf="f.UserPhone.errors.pattern"
+            >Please, Enter 10 digit Mobile Number.</span
+          >
+        </span>
+      </div>
+    </div>
+    <div class="alert alert-danger" *ngIf="error && displayerror" role="alert" style="text-align: center;">
+      {{ error }}
+    </div>
+
+    <div class="btn-container">
+      <button class="btn btn-primary button" *ngIf="!isEditMode">
+        Add User
+      </button>
+      <button
+        class="btn bg-success"
+        type="button"
+        style="min-width: 100px; padding: 10px 0px; cursor: pointer"
+        (click)="onSubmit()"
+        *ngIf="isEditMode"
+      >
+        Save
+      </button>
+      <button
+        class="btn button"
+        type="button"
+        style="background-color: #ff372e"
+        (click)="oncencel()"
+      >
+        Cancel
+      </button>
+    </div>
+  </form>
+  <div class="form-outline SearchBox" *ngIf="isSearchMode">
+    <div class="input-group ps-5 abhay">
+      <div id="navbar-search-autocomplete " class="form-outline">
+        <label
+          for="form1"
+          style="font-size: 17px; font-weight: 500; margin: 10px 0px"
+        >
+          Search Users</label
+        >
+        <input
+          type="search"
+          id="searchBtn"
+          class="form-control form1"
+          placeholder="Search Country"
+          style="vertical-align: baseline; margin: 0px"
+        />
+      </div>
+      <button
+        type="button"
+        class="btn bg-primary"
+        style="margin-top: 40px; border-radius: 8px"
+        (click)="onSearchUsers()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="22"
+          height="22"
+          fill="currentColor"
+          class="bi bi-search"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="ct-table-container">
+    <table class="table-city">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>User Profile</th>
+          <th>
+            <div>
+              Username
+              <button
+                class="btn bg-primary"
+                (click)="onSearchUsers('UserName')"
+                type="button"
+                style="color: white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-sort-down-alt"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </th>
+          <th>
+            <div>
+              UserEmail
+              <button
+                class="btn bg-primary"
+                (click)="onSearchUsers('UserEmail')"
+                type="button"
+                style="color: white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-sort-down-alt"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </th>
+          <th>
+            <div>
+              UserPhone
+              <button
+                class="btn bg-primary"
+                (click)="onSearchUsers('UserPhone')"
+                type="button"
+                style="color: white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-sort-down-alt"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of UsersData; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <div class="d-flex justify-content-center" style="width: 100%">
+              <img
+                class="d-flex img-fluid"
+                src="http://localhost:3000/uploads/Users/{{ user.profile }}"
+                alt=""
+                style="
+                  width: 80px;
+                  height: 80px;
+                  justify-content: center;
+                  align-items: centerimg-fluid;
+                  background-color: #ff372e;
+                "
+              />
+            </div>
+          </td>
+          <td>{{ user.UserName }}</td>
+          <td>{{ user.UserEmail }}</td>
+          <td>{{ user.UserPhone }}</td>
+          <td>
+            <button class="btn btn-success button" (click)="onEditUser(user)">
+              Edit
+            </button>
+            <button
+              class="btn btn-danger button"
+              (click)="onDeleteUser(user._id)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
