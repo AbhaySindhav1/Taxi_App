@@ -278,14 +278,13 @@
             <div class="d-flex justify-content-center" style="width: 100%">
               <img
                 class="d-flex img-fluid"
-                src="http://localhost:3000/uploads/Users/{{ user.profile }}"
+                [src]="getImageSource(user)"
                 alt=""
                 style="
                   width: 80px;
                   height: 80px;
                   justify-content: center;
                   align-items: centerimg-fluid;
-                  background-color: #ff372e;
                 "
               />
             </div>

@@ -1,0 +1,47 @@
+#upper-container {
+  width: 100%;
+  margin: 0;
+  padding: 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+#form-container{
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px dotted black;
+    border-radius: 5%;
+}
+label{
+    font-size: 17px;
+    font-weight: 500;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    margin: 15px 5px 4px  ;
+}
+input{
+    width: 90%;
+}
+
+.controller{
+    width: 100%;
+}
+button{
+    color: aliceblue;
+}
+#btn-container{
+    margin: 30px 0px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction:row ;
+    justify-content:center ;
+    gap: 20px;
+}
+#map-container{
+    height: 500px;
+}
+#map{
+    height: 100%;
+}

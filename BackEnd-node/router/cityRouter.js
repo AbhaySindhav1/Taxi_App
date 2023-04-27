@@ -1,12 +1,14 @@
 const express = require("express");
 const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
-const {handleUpload} = require("../Controller/middleware/multer");
+const { handleUpload } = require("../Controller/middleware/multer");
 const City = require("../Model/cityModel");
 
 /////////////////////////////////////////////////////////          Add City         ////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/city", handleUpload, auth, async (req, res) => {
+  req.body.zone = JSON.parse(req.body.zone)
+  req.body.Location = JSON.parse(req.body.Location)
   try {
     if (req.body.country === "undefined") {
       throw new Error("Country Is Required");
@@ -24,6 +26,7 @@ router.post("/city", handleUpload, auth, async (req, res) => {
       id: city._id,
     });
   } catch (error) {
+    console.log(error);
     if (error.errors && error.errors.city.kind === "required") {
       res.status(400).json("City Is Required");
     } else if (error.errors && error.errors.country.kind === "required") {
@@ -62,9 +65,35 @@ router.get("/CityCountry", auth, async (req, res) => {
   try {
     const cities = await City.find({
       $or: [{ country: regext }],
-    }).select("-_id city").distinct('city');
+    })
+      .select("-_id city")
+      .distinct("city");
     res.status(200).send(cities);
   } catch (error) {
+    res.status(400).send(error);
+  }
+});
+/////////////////////////////////////////////////////////          Get zONES         ////////////////////////////////////////////////////////////////////////////////////
+
+router.get("/CityCountryZone", auth, async (req, res) => {
+  // const searchQuery = req.query.Value || "";
+  // const regext = new RegExp(searchQuery, "i");
+  try {
+    const Zones = await City.find({}).select("-_id zone").distinct("zone");
+    res.status(200).send(Zones);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+/////////////////////////////////////////////////////////          Get Check Zone         ////////////////////////////////////////////////////////////////////////////////////
+
+router.get("/CityCordinates", auth, async (req, res) => {
+  console.log(req.query.loc.split(','));
+  try {
+    const Cord = await City.find({Location:{$geoIntersects:{$geometry:{type:'Point',coordinates:[+req.query.loc.split(',')[0],+req.query.loc.split(',')[1]]}}}})
+    res.status(200).send(Cord);
+  } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 });
@@ -72,6 +101,8 @@ router.get("/CityCountry", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Edit  County         ////////////////////////////////////////////////////////////////////////////////////
 
 router.patch("/city/:id", auth, handleUpload, async (req, res) => {
+  req.body.zone = JSON.parse(req.body.zone)
+  req.body.Location = JSON.parse(req.body.Location)
   const fieldtoupdate = Object.keys(req.body);
   try {
     const city = await City.findById(req.params.id);
@@ -102,7 +133,6 @@ router.patch("/city/:id", auth, handleUpload, async (req, res) => {
 });
 
 //                                                        //   Delete   Country  //                                                                          //
-
 
 router.delete("/city/:id", auth, async (req, res) => {
   try {

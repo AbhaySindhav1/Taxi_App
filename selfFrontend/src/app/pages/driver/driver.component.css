@@ -81,7 +81,7 @@ select {
 }
 
 .button {
-  min-width: 100px;
+  min-width: 70px;
   padding: 10px 15px;
   height: 45px;
   margin: 0px 10px;

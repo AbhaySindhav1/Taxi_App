@@ -23,6 +23,7 @@ import { PricingComponent } from '../pages/pricing/pricing.component';
 import { UsersComponent } from '../pages/users/users.component';
 import { DriverComponent } from '../pages/driver/driver.component';
 import { PagesComponent } from '../pages/pages.component';
+import { CreateRideComponent } from '../pages/create-ride/create-ride.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { PagesComponent } from '../pages/pages.component';
     UsersComponent,
     DriverComponent,
     PagesComponent,
+    CreateRideComponent
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),

@@ -44,17 +44,17 @@ export class CountryComponent implements OnInit {
 
     this.CountryForm = new FormGroup({
       selectedCountry: new FormControl(null, [Validators.required]),
-      timezone: new FormControl({disabled: true }, [
+      timezone: new FormControl({value:null,disabled: true }, [
         Validators.required,
       ]),
-      currency: new FormControl({ disabled: true }, [
+      currency: new FormControl({value:null, disabled: true }, [
         Validators.required,
       ]),
-      countrycode: new FormControl({ disabled: true }, [
+      countrycode: new FormControl({value:null, disabled: true }, [
         Validators.required,
       ]),
       flag: new FormControl(
-        { disabled: true },
+        { value:null ,disabled: true },
         Validators.required
       ),
     });

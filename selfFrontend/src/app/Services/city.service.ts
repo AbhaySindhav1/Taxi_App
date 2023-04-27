@@ -18,23 +18,9 @@ export class CityService {
 
   initGetAllCities(data?: any) {
     if (data) {
-      return this.http.get<any>('http://localhost:3000/Cities', { params: data }).pipe(
-        map((response) => {
-          response.forEach((city:any) => {
-            city.zone = JSON.parse(city.zone);
-          });
-          return response;
-        })
-      );
+      return this.http.get<any>('http://localhost:3000/Cities', { params: data })
     } else {
-      return this.http.get<any>('http://localhost:3000/Cities').pipe(
-        map((response) => {
-          response.forEach((city:any) => {
-            city.zone = JSON.parse(city.zone);
-          });
-          return response;
-        })
-      );
+      return this.http.get<any>('http://localhost:3000/Cities')
     }
   }
 
@@ -60,6 +46,8 @@ export class CityService {
   }
 
   travreseArray(data: any , CountryArray: any[]) {
+    console.log(CountryArray);
+    
     let countryObj = CountryArray.filter((country: any) => {
       return country.name.common === data;
     });

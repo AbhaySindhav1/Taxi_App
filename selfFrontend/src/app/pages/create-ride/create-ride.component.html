@@ -1,0 +1,159 @@
+<div
+  class=""
+  style="margin: 0; padding: 0; box-sizing: border-box; width: 100%"
+>
+  <div id="upper-container" class="row">
+    <form
+      id="form-container"
+      [formGroup]="RideForm"
+      (ngSubmit)="OnRideFormSubmit()"
+      class="col-4"
+    >
+      <div class="controller">
+        <label for="UserPhone">Phone No.</label>
+        <div>
+          <input
+            type="number"
+            name="CountryCode"
+            id="CountryCode"
+            class="form-control"
+            style="width: 18%; display: inline-block"
+            formControlName="CountryCode"
+            onKeyPress="if(this.value.length==2) return false;"
+          />
+
+          <input
+            type="number"
+            name="UserPhone"
+            id="UserPhone"
+            (input)="onInput($event.target)"
+            class="form-control"
+            style="width: 70%; display: inline-block; margin-left: 2%"
+            formControlName="UserPhone"
+            onKeyPress="if(this.value.length==10) return false;"
+          />
+        </div>
+    
+        <div
+        *ngIf="f.UserPhone.touched && !f.CountryCode.touched && !f.CountryCode.value && (f.CountryCode.invalid || isSubmitted)"
+          style="color: #ff372e; display: inline-block"
+        >
+          <span *ngIf="f.CountryCode.errors.required "
+            >CountryCode is required.</span
+          >
+        </div>
+
+        <div
+          *ngIf="(f.UserPhone.touched || isSubmitted) && f.UserPhone.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.UserPhone.errors.required"
+            >Mobile Number is required.</span
+          >
+          <span *ngIf="f.UserPhone.errors.pattern"
+            >Please, Enter 10 digit Mobile Number.</span
+          >
+        </div>
+      </div>
+      <div class="controller">
+        <label for="UserName">Name</label>
+        <input
+          type="text"
+          name="UserName"
+          id="UserName"
+          class="form-control"
+          formControlName="UserName"
+        />
+        <div
+          *ngIf="(f.UserName.touched || isSubmitted) && f.UserName.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.UserName.errors.required">UserName is required.</span>
+        </div>
+      </div>
+
+      <div class="controller">
+        <label for="UserEmail">Email</label>
+        <input
+          type="email"
+          name="UserEmail"
+          id="UserEmail"
+          class="form-control"
+          formControlName="UserEmail"
+        />
+        <div
+          *ngIf="(f.UserEmail.touched || isSubmitted) && f.UserEmail.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.UserEmail.errors.required">Email is required.</span>
+          <span *ngIf="f.UserEmail.errors.email"
+            >Please, Enter Valid Email Must includes @, .</span
+          >
+        </div>
+      </div>
+
+      <div class="controller">
+        <label for="PickupPoint">Pickup Point</label>
+        <input
+          type="text"
+          name="PickupPoint"
+          id="PickupPoint"
+          class="form-control"
+          formControlName="PickupPoint"
+        />
+        <div
+          *ngIf="
+            (f.PickupPoint.touched || isSubmitted) && f.PickupPoint.invalid
+          "
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.PickupPoint.errors.required"
+            >PickupPoint is required.</span
+          >
+        </div>
+      </div>
+
+      <div *ngFor="let stop of stops; let i = index" class="controller">
+        <label for="Drop{{ i + 1 }}">Drop{{ i + 1 }}</label>
+        <input
+          type="text"
+          name="Drop{{ i + 1 }}"
+          id="Drop{{ i + 1 }}"
+          class="form-control"
+          formControlName="Drop{{ i + 1 }}"
+        />
+      </div>
+
+      <div class="controller">
+        <label for="DropPoint">Drop Point</label>
+        <input
+          type="text"
+          name="DropPoint"
+          id="DropPoint"
+          class="form-control"
+          formControlName="DropPoint"
+        />
+        <div
+          *ngIf="(f.DropPoint.touched || isSubmitted) && f.DropPoint.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.DropPoint.errors.required"
+            >DropPoint is required.</span
+          >
+        </div>
+      </div>
+
+      <div id="btn-container" class="controller">
+        <button type="submit" class="btn bg-primary">Submit</button>
+        <button type="button" class="btn bg-danger">Cancel</button>
+        <button type="button" class="btn bg-success" (click)="onAddStop()">
+          Add Stop
+        </button>
+      </div>
+    </form>
+    <div id="map-container" class="col-6">
+      <div id="map"></div>
+    </div>
+  </div>
+  <div id="lower-container"></div>
+</div>

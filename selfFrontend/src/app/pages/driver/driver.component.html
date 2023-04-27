@@ -132,6 +132,32 @@
       </div>
 
       <div class="form-outline">
+        <label class="form-label" for="DriverCity">Country </label>
+        <br />
+        <select
+          name="DriverCountry"
+          id="DriverCountry"
+          formControlName="DriverCountry"
+          (change)="onCountrySelect()"
+        >
+          <option value="null" selected hidden>Select Country</option>
+          <option value="{{ Country }}" *ngFor="let Country of CountryList">
+            {{ Country }}
+          </option>
+        </select>
+        <br />
+        <br />
+        <span
+          *ngIf="
+            (f.DriverCountry.touched || isSubmitted) && f.DriverCountry.invalid
+          "
+          style="color: #ff372e"
+        >
+          Please Select Country
+        </span>
+      </div>
+
+      <div class="form-outline">
         <label class="form-label" for="DriverCity">City </label>
         <br />
         <select name="DriverCity" id="DriverCity" formControlName="DriverCity">
@@ -147,6 +173,31 @@
           style="color: #ff372e"
         >
           Please Select City
+        </span>
+      </div>
+
+      <div class="form-outline">
+        <label class="form-label" for="DriverCity">ServiceType</label>
+        <br />
+        <select
+          name="ServiceType"
+          id="ServiceType"
+          formControlName="ServiceType"
+        >
+          <option value="null" selected hidden>Select ServiceType</option>
+          <option value="{{ Vehicle }}" *ngFor="let Vehicle of VehicleList">
+            {{ Vehicle }}
+          </option>
+        </select>
+        <br />
+        <br />
+        <span
+          *ngIf="
+            (f.ServiceType.touched || isSubmitted) && f.ServiceType.invalid
+          "
+          style="color: #ff372e"
+        >
+          Please Select ServiceType
         </span>
       </div>
     </div>
@@ -307,6 +358,30 @@
           </th>
           <th>
             <div>
+              DriverCountry
+              <button
+                class="btn bg-primary"
+                (click)="onSearchDriver('DriverCountry')"
+                type="button"
+                style="color: white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-sort-down-alt"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </th>
+          <th>
+            <div>
               DriverCity
               <button
                 class="btn bg-primary"
@@ -329,7 +404,9 @@
               </button>
             </div>
           </th>
+          <th>ServiceType</th>
           <th>Approval</th>
+
           <th>Status</th>
           <th>Action</th>
         </tr>
@@ -341,7 +418,7 @@
             <div class="d-flex justify-content-center" style="width: 100%">
               <img
                 class="d-flex img-fluid"
-                src="http://localhost:3000/uploads/Drivers/{{ driver.profile }}"
+                [src]="getImageSource(driver)"
                 alt=""
                 style="
                   width: 80px;
@@ -356,7 +433,9 @@
           <td>{{ driver.DriverName }}</td>
           <td>{{ driver.DriverEmail }}</td>
           <td>{{ driver.DriverPhone }}</td>
+          <td>{{ driver.DriverCountry }}</td>
           <td>{{ driver.DriverCity }}</td>
+          <td>{{ driver.ServiceType }}</td>
           <td>{{ driver.approval }}</td>
           <td>{{ driver.status }}</td>
           <td>
@@ -372,30 +451,41 @@
             >
               Delete
             </button>
-            <div class="dropdown" style="display: inline-block;" (click)="toggleClass($event)">
-              <button class="btn btn-secondary dropdown-toggle button" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+
+            <div class="dropdown" style="display: inline-block">
+              <button
+                class="btn bg-secondary dropdown-toggle button"
+                type="button"
+                id="dropdownMenuButton1"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 Status
               </button>
-            
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" [ngClass]="{'display': showClass}">
-                <li><a class="dropdown-item" (click)="onStatusUpdate(driver._id,'Approve')">Approve</a></li>
-                <li><a class="dropdown-item" (click)="onStatusUpdate(driver._id,'Decline')">Decline</a></li>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    (click)="onStatusUpdate(driver._id, 'Approve')"
+                    >Approve</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    (click)="onStatusUpdate(driver._id, 'Decline')"
+                    >Decline</a
+                  >
+                </li>
               </ul>
             </div>
-
-            <!-- <button
-              class="btn btn-primary button"
-              (click)="onStatusUpdate(driver)"
-            >
-              Status
-            </button> -->
           </td>
-         
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
 <!-- Button trigger modal -->
 
 <!-- Modal -->

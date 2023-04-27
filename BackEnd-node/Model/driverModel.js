@@ -40,11 +40,20 @@ const DriverSchema = mongoose.Schema({
     required: true,
     trim: true,
   },
+  DriverCountry: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   approval:{
     type:String,
     required:true
   },
   status:{
+    type:String,
+    required:true
+  },
+  ServiceType:{
     type:String,
     required:true
   }

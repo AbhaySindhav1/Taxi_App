@@ -5,6 +5,7 @@ import { CityComponent } from '../pages/city/city.component';
 import { PricingComponent } from '../pages/pricing/pricing.component';
 import { UsersComponent } from '../pages/users/users.component';
 import { DriverComponent } from '../pages/driver/driver.component';
+import { CreateRideComponent } from '../pages/create-ride/create-ride.component';
 
 export const DashBoardRoutes: Routes = [
   { path: 'table', component: TableComponent },
@@ -13,6 +14,7 @@ export const DashBoardRoutes: Routes = [
   { path: 'pricing', component: PricingComponent },
   { path: 'users', component: UsersComponent },
   { path: 'driver', component: DriverComponent },
+  { path: 'createRide', component: CreateRideComponent },
 ];
 
 export class AppRoutingModule {}

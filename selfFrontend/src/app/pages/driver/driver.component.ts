@@ -3,11 +3,15 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CityService } from 'src/app/Services/city.service';
 import { DriverService } from 'src/app/Services/driver.service';
 import { Renderer2 } from '@angular/core';
+import { createPopper } from '@popperjs/core';
+
 import {
   MatDialog,
   MAT_DIALOG_DATA,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { CountryService } from 'src/app/Services/country.service';
+import { VehicleService } from 'src/app/Services/vehicle.service';
 
 @Component({
   selector: 'app-driver',
@@ -28,12 +32,17 @@ export class DriverComponent implements OnInit {
   value = false;
   istoggled = false;
   showClass = false;
+ driver:any
+ CountryList:any
+ VehicleList:any
 
   constructor(
     private driverService: DriverService,
     private cityService: CityService,
     private renderer: Renderer2,
-    private elRef: ElementRef
+    private elRef: ElementRef,
+    private countryService: CountryService,
+    private vehicleService: VehicleService,
   ) {
     this.DriverForm = new FormGroup({
       DriverFile: new FormControl(null),
@@ -48,15 +57,60 @@ export class DriverComponent implements OnInit {
         Validators.pattern('^((\\+91-?)|0)?[0-9\\s-]{10}$'),
       ]),
       DriverCity: new FormControl('', [Validators.required]),
+      DriverCountry: new FormControl('', [Validators.required]),
+      ServiceType: new FormControl('', [Validators.required]),
     });
   }
 
   ngOnInit(): void {
     this.getDriverReq();
 
-    this.cityService.initGetAllCountry().subscribe({
+    // this.cityService.initGetAllCountry().subscribe({
+    //   next: (data) => {
+    //     this.CityList = data;
+    //     if (this.CityList.length > 0) {
+    //       this.DriverForm.get('DriverCity')?.setValue(this.CityList[0]);
+    //     }
+    //   },
+    //   error: (error) => {
+    //     this.error = error;
+    //     this.displayerror = true;
+    //   },
+    // });
+
+    this.vehicleService.initGetTypesOfVehicles().subscribe({
+      next: (data) => {
+        this.VehicleList = data;
+        console.log(this.VehicleList);
+        
+      },
+      error: (error) => {
+        this.error = error;
+        this.displayerror = true;
+      },
+    });
+    this.countryService.initonlyCountry().subscribe({
+      next: (data) => {
+        this.CountryList = (data.sort());
+      
+      },
+    });
+  }
+
+  ///   country change
+
+
+  onCountrySelect() {
+    this.error = null;
+    this.DriverForm.get('city')?.setValue('');
+    let value = (document.getElementById("DriverCountry")as HTMLSelectElement).value;
+
+    this.cityService.initGetAllCountry(value).subscribe({
       next: (data) => {
         this.CityList = data;
+        console.log(this.CityList);
+        
+        // Update the value of the city form control to the first item in the list
         if (this.CityList.length > 0) {
           this.DriverForm.get('DriverCity')?.setValue(this.CityList[0]);
         }
@@ -71,6 +125,8 @@ export class DriverComponent implements OnInit {
   /// when form Submitted
 
   onFormSubmit() {
+    console.log(this.DriverForm.value);
+    
     this.isSubmitted = true;
 
     if (!this.DriverForm.valid) {
@@ -85,6 +141,8 @@ export class DriverComponent implements OnInit {
     formData.append('CountryCode', this.DriverForm.get('CountryCode').value);
     formData.append('DriverPhone', this.DriverForm.get('DriverPhone').value);
     formData.append('DriverCity', this.DriverForm.get('DriverCity').value);
+    formData.append('DriverCountry', this.DriverForm.get('DriverCountry').value);
+    formData.append('ServiceType', this.DriverForm.get('ServiceType').value);
 
     if (!this.isEditMode) {
       this.driverService.initDriver(formData).subscribe({
@@ -206,7 +264,7 @@ export class DriverComponent implements OnInit {
   ///  to reset everyThing
 
   initReset() {
-    this.isSearchMode = false;
+    // this.isSearchMode = false;
     this.selectedFile = null;
     this.isSubmitted = false;
     this.isEditMode = false;
@@ -232,10 +290,10 @@ export class DriverComponent implements OnInit {
     });
   }
 
-  onStatusUpdate(id: any,data:any) {
-    this.DriverId =id;
+  onStatusUpdate(id: any, data: any) {
+    this.DriverId = id;
     let formData = new FormData();
-    formData.append('approval',data)
+    formData.append('approval', data);
     this.driverService.initEditDriver(id, formData).subscribe({
       next: (data) => {
         this.getDriverReq();
@@ -254,11 +312,9 @@ export class DriverComponent implements OnInit {
         this.displayerror = true;
       },
     });
-    
   }
-  toggleClass(event:any) {
-   
-    
-    this.showClass = !this.showClass;
+
+  getImageSource(driver:any) {
+    return driver.profile ? `http://localhost:3000/uploads/Drivers/${driver.profile}` : 'http://localhost:3000/uploads/nouser.png';
   }
 }

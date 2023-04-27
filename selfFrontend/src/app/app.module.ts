@@ -9,14 +9,17 @@ import { DashboradModule } from './dashborad/dashborad.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
 import { MatDialog } from '@angular/material/dialog';
+import { ToastrModule } from 'ngx-toastr';
+
 
 @NgModule({
-  declarations: [AppComponent ],
+  declarations: [AppComponent,  ],
   imports: [
     AppRoutingModule,
     DashboradModule,
     BrowserModule,
     BrowserAnimationsModule,
+    ToastrModule.forRoot(),
   ],
   providers: [
     {

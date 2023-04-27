@@ -28,35 +28,42 @@ export class CityComponent implements OnInit {
   zone: any;
   IsEditMode = false;
   UserID: any;
+  coordinates: any = [];
   autocomplete: google.maps.places.Autocomplete | any;
-  constructor(private cityService: CityService , private countryService :CountryService) {}
+  constructor(
+    private cityService: CityService,
+    private countryService: CountryService
+  ) {}
 
   ngOnInit(): void {
     this.changed = true;
-    // this.cityService
-    //   .initGetDataFromUrl('https://restcountries.com/v3.1/all')
-    //   .subscribe((data: any) => {
-    //     this.array = data;
-    //     this.ContryList = data.sort((a: any, b: any) =>
-    //       a.name.common.localeCompare(b.name.common)
-    //     );
-    //   });
-      this.countryService.initonlyCountry().subscribe({
-        next: (data) => {
-          this.ContryList = (data.sort());
-        
-        },
+    this.cityService
+      .initGetDataFromUrl('https://restcountries.com/v3.1/all')
+      .subscribe((data: any) => {
+        this.array = data;
+        // this.ContryDetailList = data.sort((a: any, b: any) =>
+        //   a.name.common.localeCompare(b.name.common)
+        // );
       });
+    this.countryService.initonlyCountry().subscribe({
+      next: (data) => {
+        this.ContryList = data.sort();
+      },
+      
+    });
     this.initMap();
     this.cityService.initGetAllCities().subscribe({
       next: (data) => {
         this.Citylist = data;
       },
       error: (error) => {
+        console.log(error);
+        
         this.error = error;
         this.changed = false;
       },
     });
+
   }
 
   initMap(lat = 23, lng = 73, zoom = 7) {
@@ -89,17 +96,24 @@ export class CityComponent implements OnInit {
         }
         this.isPolygonDrawn = true;
         this.polygon = event.overlay;
-        var coordinates: any = [];
+        var ArrayOfZoneCordinates: any = [];
+        var cordinatesAraa: any = [];
         var path = this.polygon.getPath();
 
         path.forEach((latLng: any) => {
-          coordinates.push({
-            lat: latLng.lat(),
+          ArrayOfZoneCordinates.push({
             lng: latLng.lng(),
+            lat: latLng.lat(),
           });
+
+          this.coordinates = [];
+
+          cordinatesAraa.push([ latLng.lng(),latLng.lat()]);
         });
 
-        this.zone = coordinates;
+        this.coordinates = [...cordinatesAraa, cordinatesAraa[0]];
+
+        this.zone = ArrayOfZoneCordinates;
 
         this.polygon.setEditable(true);
         this.drawingManager.setDrawingMode(null);
@@ -129,21 +143,16 @@ export class CityComponent implements OnInit {
       selectCountry,
       this.array
     );
+
     this.updateAutoComplete(contryobject[0].cca2);
 
     if (!contryobject) {
       return;
     }
-
-    // this.map.setCenter({
-    //   lat: contryobject[0].capitalInfo.latlng[0],
-    //   lng: contryobject[0].capitalInfo.latlng[1],
-    // });
   }
 
   onSubmit() {
     this.changed = false;
-    console.log(this.country);
 
     const city = (document.getElementById('city') as HTMLInputElement).value;
 
@@ -171,12 +180,16 @@ export class CityComponent implements OnInit {
     } else {
       this.error = '';
     }
-    console.log(this.zone);
-
+ 
     let formData = new FormData();
     formData.append('country', this.country);
     formData.append('city', city);
     formData.append('zone', JSON.stringify(this.zone));
+    formData.append(
+      'Location',
+      JSON.stringify({ type: 'Polygon', coordinates: [this.coordinates] })
+    );
+    // formData.append('zone',{type:'Polygon} ,JSON.stringify(this.zone));
 
     if (!this.IsEditMode) {
       this.cityService.initAddCityData(formData).subscribe({
@@ -188,6 +201,8 @@ export class CityComponent implements OnInit {
               this.Citylist = data;
             },
             error: (error) => {
+              console.log(error);
+              
               this.error = error;
               this.changed = false;
             },
@@ -198,17 +213,13 @@ export class CityComponent implements OnInit {
         },
       });
     } else {
-      console.log(this.country);
-      console.log(city);
-      console.log(this.zone);
-      console.log(this.UserID);
-
       this.cityService.initEditCity(this.UserID, formData).subscribe({
         next: (data) => {
           this.cityService.initGetAllCities().subscribe({
             next: (data) => {
               this.Citylist = data;
               this.IsEditMode = false;
+              this.onReset();
             },
             error: (error) => {
               this.error = error;
@@ -305,14 +316,18 @@ export class CityComponent implements OnInit {
   }
 
   getCordinates(path: any) {
-    let coordinates: any = [];
+    let ArrayOfZoneCordinates: any = [];
+    const cord: any = []; //
     path.forEach((latLng: any) => {
-      coordinates.push({
-        lat: latLng.lat(),
+      ArrayOfZoneCordinates.push({
         lng: latLng.lng(),
+        lat: latLng.lat(),
       });
+
+      cord.push([latLng.lng(), latLng.lat()]); ///
     });
-    this.zone = coordinates;
+    this.coordinates = [...cord, cord[0]];
+    this.zone = ArrayOfZoneCordinates;
   }
 
   initAutoComplete(country: string) {
@@ -328,12 +343,13 @@ export class CityComponent implements OnInit {
     // add a listener to handle when a place is selected
     this.autocomplete.addListener('place_changed', () => {
       const place = this.autocomplete.getPlace();
-      console.log(place);
 
       if (!place.geometry) {
         console.error(`No geometry for ${place.name}`);
         return;
       }
+      
+      this.map.fitBounds(place.geometry.viewport);
     });
   }
 
@@ -345,7 +361,9 @@ export class CityComponent implements OnInit {
     this.selectElement.nativeElement.value = null;
     this.country = null;
     this.error = null;
-    this.polygon.setMap(null);
+    if (this.polygon) {
+      this.polygon.setMap(null);
+    }
 
     this.IsEditMode = false;
     this.zone = null;

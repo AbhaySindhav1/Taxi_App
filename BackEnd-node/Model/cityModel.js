@@ -14,7 +14,12 @@ const citySchema = mongoose.Schema({
     type: Array,
     required: true,
   },
+  Location: {
+    type:  Object,
+  },
 });
 const City = mongoose.model("Zone", citySchema);
 
 module.exports = City;
+
+citySchema.index({Location : '2dsphere' });

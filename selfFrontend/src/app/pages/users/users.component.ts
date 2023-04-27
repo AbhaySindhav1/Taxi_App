@@ -161,7 +161,7 @@ export class UsersComponent implements OnInit {
   }
 
   initReset() {
-    this.isSearchMode = false;
+    // this.isSearchMode = false;
     this.selectedFile = null;
     this.isSubmitted = false;
     this.displayerror = false;
@@ -186,4 +186,7 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  getImageSource(user:any) {
+    return user.profile ? `http://localhost:3000/uploads/Users/${user.profile}` : 'http://localhost:3000/uploads/nouser.png';
+  }
 }
