@@ -18,20 +18,23 @@ export class CityService {
 
   initGetAllCities(data?: any) {
     if (data) {
-      return this.http.get<any>('http://localhost:3000/Cities', { params: data })
+      return this.http.get<any>('http://localhost:3000/Cities', {
+        params: data,
+      });
     } else {
-      return this.http.get<any>('http://localhost:3000/Cities')
+      return this.http.get<any>('http://localhost:3000/Cities');
     }
   }
 
-
   initGetAllCountry(data?: any) {
-    const Value = {Value : data}
-    
+    const Value = { Value: data };
+
     if (data) {
-      return this.http.get<any>('http://localhost:3000/CityCountry', { params: Value })
+      return this.http.get<any>('http://localhost:3000/CityCountry', {
+        params: Value,
+      });
     } else {
-      return this.http.get<any>('http://localhost:3000/CityCountry')
+      return this.http.get<any>('http://localhost:3000/CityCountry');
     }
   }
 
@@ -39,19 +42,14 @@ export class CityService {
     return this.http.delete('http://localhost:3000/city/' + id);
   }
 
-
-  initEditCity(id:any,data:any){
-    return this.http.patch("http://localhost:3000/city/"+id,data)
-  
+  initEditCity(id: any, data: any) {
+    return this.http.patch('http://localhost:3000/city/' + id, data);
   }
 
-  travreseArray(data: any , CountryArray: any[]) {
-    console.log(CountryArray);
-    
+  travreseArray(data: any, CountryArray: any[]) {
     let countryObj = CountryArray.filter((country: any) => {
       return country.name.common === data;
     });
     return countryObj;
   }
-  
 }

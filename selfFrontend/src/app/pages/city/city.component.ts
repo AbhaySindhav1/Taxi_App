@@ -91,6 +91,8 @@ export class CityComponent implements OnInit {
       this.drawingManager,
       'overlaycomplete',
       (event: any) => {
+        // console.log(event.path.b[0]);
+        
         if (this.isPolygonDrawn) {
           this.polygon.setMap(null);
         }
@@ -114,6 +116,8 @@ export class CityComponent implements OnInit {
         this.coordinates = [...cordinatesAraa, cordinatesAraa[0]];
 
         this.zone = ArrayOfZoneCordinates;
+        console.log(this.coordinates);
+        
 
         this.polygon.setEditable(true);
         this.drawingManager.setDrawingMode(null);

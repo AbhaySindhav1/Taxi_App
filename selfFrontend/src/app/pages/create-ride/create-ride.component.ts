@@ -4,7 +4,6 @@ import { ToastrService } from 'ngx-toastr';
 import { RideService } from 'src/app/Services/ride.service';
 import { UsersService } from 'src/app/Services/users.service';
 
-
 declare var google: any;
 @Component({
   selector: 'app-create-ride',
@@ -12,6 +11,7 @@ declare var google: any;
   styleUrls: ['./create-ride.component.css'],
 })
 export class CreateRideComponent implements OnInit {
+  [x: string]: any;
   phoneNumber: any;
   user: any;
   countryer = false;
@@ -25,11 +25,12 @@ export class CreateRideComponent implements OnInit {
   isServiceZone: any = null;
   error = false;
   errMassage: any;
+  allPlaces: any = {};
 
   constructor(
     private usersService: UsersService,
     private rideService: RideService,
-    private toastr:ToastrService,
+    private toastr: ToastrService
   ) {
     this.RideForm = new FormGroup({
       UserPhone: new FormControl(null, [
@@ -106,17 +107,18 @@ export class CreateRideComponent implements OnInit {
 
   onAddStop() {
     const newStopIndex = this.stops.length + 1;
-    console.log(newStopIndex);
 
     this.RideForm.addControl(
       `Drop${newStopIndex}`,
       new FormControl(null, [Validators.required])
     );
+    this.RideForm.controls[`Drop${newStopIndex}`].updateValueAndValidity();
 
     if (this.stops.length >= 2) {
       return;
     }
-    this.stops.push({ [`Drop${newStopIndex}`]: null });
+
+    this.stops.push(`Drop${newStopIndex}`);
 
     setTimeout(() => {
       const inputElement = document.getElementById(`Drop${newStopIndex}`);
@@ -124,14 +126,13 @@ export class CreateRideComponent implements OnInit {
         this.setupAutocomplete(inputElement.id);
       }
     }, 1);
-    console.log(this.stops);
   }
 
   OnRideFormSubmit() {
+    if (!this.RideForm.valid) return;
     this.isSubmitted = true;
-    console.log(this.RideForm.valid);
-    
-    console.log(this.RideForm.value);
+
+    console.log(this.allPlaces);
   }
 
   setupAutocomplete(fieldName: string) {
@@ -148,48 +149,39 @@ export class CreateRideComponent implements OnInit {
         return;
       }
 
+      this.RideForm.get(fieldName)?.setValue(
+        (document.getElementById(fieldName) as HTMLInputElement).value
+      );
+
       let lat = place.geometry.location?.lat();
       let lng = place.geometry.location?.lng();
-      if (place.geometry.location?.lat()) {
-        let lat = +place.geometry.location?.lat();
-      }
-      if (place.geometry.location?.lng()) {
-        let lng = +place.geometry.location?.lng();
-      }
+
       const location = [lng, lat];
-      console.log(location);
 
       this.rideService.initGetLocationValidation(location).subscribe({
         next: (data) => {
           if (data.length === 0) {
-            this.errMassage =
-                'For This Location Service is Unavailable';
-                console.log(this.errMassage);
-                
-          } else if (data.length > 0 && !this.isServiceZone) {
-            this.isServiceZone = data[0];
-            this.stops.PickupPoint = data[0].city;
-            console.log(this.isServiceZone);
-            console.log(this.stops);
-          } else if (data.length > 0 && this.isServiceZone) {
-            let isinSameZone = this.isServiceZone._id === data[0]._id;
-            console.log(isinSameZone);
-            if (!isinSameZone) {
-              this.errMassage =
-                'this entered value in not in same zone so please select from same zone';
-                this.toastr.success(this.errMassage, `${fieldName} Error :`)
-            } else {
-              this.stops[`${fieldName}`] = data[0].city;
-            }
-            console.log(this.stops);
-            console.log(this.errMassage);
-          } 
+            this.toastr.error('For This Location Service is Unavailable');
+            return;
+          }
+          this.isServiceZone = data;
+          this.allPlaces[`${fieldName}`] = {
+            place_id: place.place_id,
+            place_name: place.formatted_address,
+          };
+          console.log(this.isServiceZone);
         },
         error: (error) => {
           console.log(error);
-          
+          this.errMassage = error;
+          this.error = true;
         },
       });
     });
+  }
+
+  removeDrop(Id: any) {
+    this.RideForm.removeControl(Id);
+    this.stops.pop(Id);
   }
 }
