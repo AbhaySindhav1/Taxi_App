@@ -16,10 +16,11 @@ const citySchema = mongoose.Schema({
   },
   Location: {
     type:  Object,
+    required: true,
   },
 });
 const City = mongoose.model("Zone", citySchema);
 
 module.exports = City;
 
-citySchema.index({Location : '2dsphere' });
+citySchema.index({ Location: '2dsphere' });

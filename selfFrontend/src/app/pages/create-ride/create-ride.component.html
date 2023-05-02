@@ -6,9 +6,10 @@
     <form
       id="form-container"
       [formGroup]="RideForm"
-      (ngSubmit)="OnRideFormSubmit()"
+      *ngIf="!RideDetailsFormShow"
       class="col-4"
-    >
+      (ngSubmit)="OnRideFormSubmit()"
+      >
       <div class="controller">
         <label for="UserPhone">Phone No.</label>
         <div>
@@ -97,6 +98,21 @@
         </div>
       </div>
 
+      <div id="btn-container">
+        <button type="submit" class="btn bg-primary">Next</button>
+        <button type="button" class="btn bg-danger">Cancel</button>
+      </div>
+    </form>
+
+    <!-- /////                                        /// form Ride tripDetails   ///                                                     ///// -->
+
+    <form
+      id="form-container"
+      [formGroup]="RideDetailsForm"
+      (ngSubmit)="OnRideDetailsFormSubmit()"
+      *ngIf="RideDetailsFormShow"
+      class="col-4"
+    >
       <div class="controller">
         <label for="PickupPoint">Pickup Point</label>
         <input
@@ -108,11 +124,11 @@
         />
         <div
           *ngIf="
-            (f.PickupPoint.touched || isSubmitted) && f.PickupPoint.invalid
+            (d.PickupPoint.touched || isSubmitted) && d.PickupPoint.invalid
           "
           style="color: #ff372e"
         >
-          <span *ngIf="f.PickupPoint.errors.required"
+          <span *ngIf="d.PickupPoint.errors.required"
             >PickupPoint is required.</span
           >
         </div>
@@ -163,17 +179,18 @@
         </button>
         <div
           *ngIf="[
-            ((f['Drop' + (i + 1)] && f['Drop' + (i + 1)].touched) ||
+            ((d['Drop' + (i + 1)] && d['Drop' + (i + 1)].touched) ||
               isSubmitted) &&
-              f['Drop' + (i + 1)] && f['Drop' + (i + 1)].invalid
+              d['Drop' + (i + 1)] &&
+              d['Drop' + (i + 1)].invalid
           ]"
           style="color: #ff372e"
         >
           <span
             *ngIf="
-              f['Drop' + (i + 1)] &&
-              f['Drop' + (i + 1)].errors?.required &&
-              ((f['Drop' + (i + 1)] && f['Drop' + (i + 1)].touched) ||
+              d['Drop' + (i + 1)] &&
+              d['Drop' + (i + 1)].errors?.required &&
+              ((d['Drop' + (i + 1)] && d['Drop' + (i + 1)].touched) ||
                 isSubmitted)
             "
             >Drop{{ i + 1 }} is required.</span
@@ -191,29 +208,50 @@
           formControlName="DropPoint"
         />
         <div
-          *ngIf="(f.DropPoint.touched || isSubmitted) && f.DropPoint.invalid"
+          *ngIf="(d.DropPoint.touched || isSubmitted) && d.DropPoint.invalid"
           style="color: #ff372e"
         >
-          <span *ngIf="f.DropPoint.errors.required"
+          <span *ngIf="d.DropPoint.errors.required"
             >DropPoint is required.</span
           >
         </div>
       </div>
 
-      <div id="btn-container" class="controller">
+      <div id="btn-container">
         <button type="submit" class="btn bg-primary">Submit</button>
         <button type="button" class="btn bg-danger">Cancel</button>
-        <button type="button" class="btn bg-success" (click)="onAddStop()">
+        <button
+          *ngIf="stops.length < 2"
+          type="button"
+          id="AddStop"
+          class="btn bg-success"
+          (click)="onAddStop()"
+        >
           Add Stop
         </button>
-      </div>
-      <div>
-        
+        <br>
+        <a (click)="RideDetailsFormShow = false">Go Back</a>
       </div>
     </form>
+
     <div id="map-container" class="col-6">
       <div id="map"></div>
+      <div class="trip-details" *ngIf="tripDetails">
+        <div id="Distance">Distance : {{tripDetails.Distance}}</div>
+        <div id="time">Time : {{tripDetails.Time}}</div>
+      </div>
     </div>
   </div>
+  <div class="d-flex justify-content-center">
+    <span
+      class="alert alert-danger"
+      role="alert"
+      style="margin: 0px auto"
+      *ngIf="error"
+      style="color: tomato"
+      >{{ errMassage }}</span
+    >
+  </div>
+
   <div id="lower-container"></div>
 </div>

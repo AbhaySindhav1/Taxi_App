@@ -188,12 +188,13 @@ export class CityComponent implements OnInit {
     let formData = new FormData();
     formData.append('country', this.country);
     formData.append('city', city);
+    console.log(this.coordinates);
     formData.append('zone', JSON.stringify(this.zone));
+    
     formData.append(
       'Location',
       JSON.stringify({ type: 'Polygon', coordinates: [this.coordinates] })
     );
-    // formData.append('zone',{type:'Polygon} ,JSON.stringify(this.zone));
 
     if (!this.IsEditMode) {
       this.cityService.initAddCityData(formData).subscribe({
@@ -358,9 +359,10 @@ export class CityComponent implements OnInit {
   }
 
   updateAutoComplete(country: string) {
-    // update the componentRestrictions with the new country
     this.autocomplete.setComponentRestrictions({ country: country });
   }
+
+  
   onReset() {
     this.selectElement.nativeElement.value = null;
     this.country = null;

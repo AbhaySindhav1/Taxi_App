@@ -30,9 +30,10 @@ input{
 }
 button{
     color: aliceblue;
+    /* min-width: 100px; */
 }
 #btn-container{
-    margin: 30px 0px;
+    margin: 60px 0px;
     display: flex;
     flex-wrap: wrap;
     flex-direction:row ;
@@ -40,7 +41,7 @@ button{
     gap: 20px;
 }
 #map-container{
-    height: 500px;
+    height: 450px;
 }
 #map{
     height: 100%;

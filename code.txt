@@ -2,3 +2,123 @@ priceing created = 31
 priceing getting = 32
 priceing editing = 33
 priceing deleting = 34
+
+
+      <div class="controller">
+        <label for="PickupPoint">Pickup Point</label>
+        <input
+          type="text"
+          name="PickupPoint"
+          id="PickupPoint"
+          class="form-control"
+          formControlName="PickupPoint"
+        />
+        <div
+          *ngIf="
+            (f.PickupPoint.touched || isSubmitted) && f.PickupPoint.invalid
+          "
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.PickupPoint.errors.required"
+            >PickupPoint is required.</span
+          >
+        </div>
+      </div>
+
+      <div
+        *ngFor="let stop of stops; let i = index"
+        class="controller"
+        style="position: relative"
+      >
+        <label for="Drop{{ i + 1 }}">Drop{{ i + 1 }}</label>
+        <input
+          type="text"
+          name="Drop{{ i + 1 }}"
+          id="Drop{{ i + 1 }}"
+          class="form-control"
+          formControlName="Drop{{ i + 1 }}"
+        />
+        <button
+          type="button"
+          class="close"
+          aria-label="Close"
+          style="
+            background-color: aliceblue;
+            position: absolute;
+            top: 50px;
+            right: 4%;
+            height: 16px;
+            display: inline-block;
+          "
+          (click)="removeDrop('Drop' + (i + 1))"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-x-circle-fill"
+            viewBox="0 0 16 16"
+            style="color: black"
+          >
+            <path
+              d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"
+            />
+          </svg>
+
+          <br />
+        </button>
+        <div
+          *ngIf="[
+            ((f['Drop' + (i + 1)] && f['Drop' + (i + 1)].touched) ||
+              isSubmitted) &&
+              f['Drop' + (i + 1)] &&
+              f['Drop' + (i + 1)].invalid
+          ]"
+          style="color: #ff372e"
+        >
+          <span
+            *ngIf="
+              f['Drop' + (i + 1)] &&
+              f['Drop' + (i + 1)].errors?.required &&
+              ((f['Drop' + (i + 1)] && f['Drop' + (i + 1)].touched) ||
+                isSubmitted)
+            "
+            >Drop{{ i + 1 }} is required.</span
+          >
+        </div>
+      </div>
+
+      <div class="controller">
+        <label for="DropPoint">Drop Point</label>
+        <input
+          type="text"
+          name="DropPoint"
+          id="DropPoint"
+          class="form-control"
+          formControlName="DropPoint"
+        />
+        <div
+          *ngIf="(f.DropPoint.touched || isSubmitted) && f.DropPoint.invalid"
+          style="color: #ff372e"
+        >
+          <span *ngIf="f.DropPoint.errors.required"
+            >DropPoint is required.</span
+          >
+        </div>
+      </div>
+
+
+       <button
+          *ngIf="stops.length < 2"
+          type="button"
+          id="AddStop"
+          class="btn bg-success"
+          (click)="onAddStop()"
+        >
+          Add Stop
+        </button>
+
+
+          PickupPoint: new FormControl(null, [Validators.required]),
+      DropPoint: new FormControl(null, [Validators.required]),

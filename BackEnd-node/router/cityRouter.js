@@ -7,8 +7,7 @@ const City = require("../Model/cityModel");
 /////////////////////////////////////////////////////////          Add City         ////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/city", handleUpload, auth, async (req, res) => {
-  req.body.zone = JSON.parse(req.body.zone)
-  req.body.Location = JSON.parse(req.body.Location)
+ 
   try {
     if (req.body.country === "undefined") {
       throw new Error("Country Is Required");
@@ -18,7 +17,12 @@ router.post("/city", handleUpload, auth, async (req, res) => {
       throw new Error("Zone Is Required");
     }
 
-    let city = new City(req.body);
+    const city = new City({
+      country: req.body.country,
+      city: req.body.city,
+      zone: JSON.parse(req.body.zone),
+      Location: JSON.parse(req.body.Location)
+    });
     await city.save();
     res.status(200).json({
       message: "City added",
@@ -88,9 +92,20 @@ router.get("/CityCountryZone", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Get Check Zone         ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/CityCordinates", auth, async (req, res) => {
-  console.log(req.query.loc.split(','));
   try {
-    const Cord = await City.find({Location:{$geoIntersects:{$geometry:{type:'Point',coordinates:[+req.query.loc.split(',')[0],+req.query.loc.split(',')[1]]}}}})
+    const Cord = await City.find({
+      Location: {
+        $geoIntersects: {
+          $geometry: {
+            type: "Point",
+            coordinates: [
+              +req.query.loc.split(",")[0],
+              +req.query.loc.split(",")[1],
+            ],
+          },
+        },
+      },
+    });
     res.status(200).send(Cord);
   } catch (error) {
     console.log(error);
@@ -101,8 +116,13 @@ router.get("/CityCordinates", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Edit  County         ////////////////////////////////////////////////////////////////////////////////////
 
 router.patch("/city/:id", auth, handleUpload, async (req, res) => {
-  req.body.zone = JSON.parse(req.body.zone)
-  req.body.Location = JSON.parse(req.body.Location)
+  if (req.body.zone) {
+    req.body.zone = JSON.parse(req.body.zone);
+  }
+  if (req.body.Location) {
+    req.body.Location = JSON.parse(req.body.Location);
+  }
+  
   const fieldtoupdate = Object.keys(req.body);
   try {
     const city = await City.findById(req.params.id);
@@ -112,7 +132,7 @@ router.patch("/city/:id", auth, handleUpload, async (req, res) => {
     fieldtoupdate.forEach((field) => {
       city[field] = req.body[field];
     });
-
+    
     await city.save();
     res.status(200).json({
       message: "City Edited",

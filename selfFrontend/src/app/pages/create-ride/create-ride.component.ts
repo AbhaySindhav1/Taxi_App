@@ -19,6 +19,7 @@ export class CreateRideComponent implements OnInit {
   name: any;
   stops: any = [];
   RideForm: FormGroup | any;
+  RideDetailsForm: FormGroup | any;
   map: google.maps.Map | any;
   isSubmitted = false;
   isServiceAvailable = false;
@@ -26,6 +27,9 @@ export class CreateRideComponent implements OnInit {
   error = false;
   errMassage: any;
   allPlaces: any = {};
+  tripDetails: any = {};
+  RideDetailsFormShow = false;
+  wayPoints: any = [];
 
   constructor(
     private usersService: UsersService,
@@ -40,6 +44,9 @@ export class CreateRideComponent implements OnInit {
       UserName: new FormControl(null, [Validators.required]),
       CountryCode: new FormControl(+91, [Validators.required]),
       UserEmail: new FormControl(null, [Validators.required, Validators.email]),
+    });
+
+    this.RideDetailsForm = new FormGroup({
       PickupPoint: new FormControl(null, [Validators.required]),
       DropPoint: new FormControl(null, [Validators.required]),
     });
@@ -53,30 +60,21 @@ export class CreateRideComponent implements OnInit {
 
   onInput(e: any) {
     if (e.value.length === 10) {
-      console.log(
-        (document.getElementById('CountryCode') as HTMLInputElement).value
-      );
+      e.value = e.value.substring(0, 10);
       const number =
         '+' +
         +(document.getElementById('CountryCode') as HTMLInputElement).value +
         '-' +
         e.value;
-      e.value = e.value.substring(0, 10);
-      console.log(number);
 
       this.usersService.initGetUsers(number).subscribe({
         next: (data) => {
-          console.log(data);
-
           if (data.length === 0) {
-            console.log('2');
-
             return;
           } else {
             if (data[0]) {
               this.user = data[0];
             }
-            console.log(this.user);
 
             this.RideForm.patchValue({
               UserName: data[0].UserName,
@@ -104,15 +102,20 @@ export class CreateRideComponent implements OnInit {
   get f() {
     return this.RideForm.controls;
   }
+  get d() {
+    return this.RideDetailsForm.controls;
+  }
 
   onAddStop() {
     const newStopIndex = this.stops.length + 1;
 
-    this.RideForm.addControl(
+    this.RideDetailsForm.addControl(
       `Drop${newStopIndex}`,
       new FormControl(null, [Validators.required])
     );
-    this.RideForm.controls[`Drop${newStopIndex}`].updateValueAndValidity();
+    this.RideDetailsForm.controls[
+      `Drop${newStopIndex}`
+    ].updateValueAndValidity();
 
     if (this.stops.length >= 2) {
       return;
@@ -129,10 +132,41 @@ export class CreateRideComponent implements OnInit {
   }
 
   OnRideFormSubmit() {
-    if (!this.RideForm.valid) return;
     this.isSubmitted = true;
+    this.errMassage = null;
+    if (!this.RideForm.valid) return;
+    let formData = new FormData();
 
-    console.log(this.allPlaces);
+    formData.append('UserName', this.RideForm.get('UserName').value);
+    formData.append('UserEmail', this.RideForm.get('UserEmail').value);
+    formData.append('CountryCode', this.RideForm.get('CountryCode').value);
+    formData.append('UserPhone', this.RideForm.get('UserPhone').value);
+    if (!this.user) {
+      this.usersService.initUsers(formData).subscribe({
+        next: (data) => {
+          this.RideDetailsFormShow = true;
+          this.isSubmitted = false;
+          this.error = false;
+          setTimeout(() => {
+            this.setupAutocomplete('PickupPoint');
+            this.setupAutocomplete('DropPoint');
+          }, 1);
+        },
+        error: (error) => {
+          this.errMassage = error.error;
+          this.error = true;
+          return;
+        },
+      });
+    } else {
+      this.RideDetailsFormShow = true;
+      this.isSubmitted = false;
+      this.error = false;
+      setTimeout(() => {
+        this.setupAutocomplete('PickupPoint');
+        this.setupAutocomplete('DropPoint');
+      }, 1);
+    }
   }
 
   setupAutocomplete(fieldName: string) {
@@ -162,14 +196,34 @@ export class CreateRideComponent implements OnInit {
         next: (data) => {
           if (data.length === 0) {
             this.toastr.error('For This Location Service is Unavailable');
+            (
+              document.getElementById(`${fieldName}`) as HTMLInputElement
+            ).value = '';
+            (
+              document.getElementById(`${fieldName}`) as HTMLInputElement
+            ).focus();
             return;
           }
-          this.isServiceZone = data;
-          this.allPlaces[`${fieldName}`] = {
-            place_id: place.place_id,
-            place_name: place.formatted_address,
-          };
-          console.log(this.isServiceZone);
+          if (!this.isServiceZone) {
+            
+            this.isServiceZone = data[0];
+            console.log(this.isServiceZone);
+           
+          } else {
+            if (data[0]._id !== this.isServiceZone._id) {
+              console.log('11');
+              
+              let a = `${fieldName}`;
+              this.toastr.error(a + ` is not in Same Services Zone`);
+              (
+                document.getElementById(`${fieldName}`) as HTMLInputElement
+              ).value = '';
+              (
+                document.getElementById(`${fieldName}`) as HTMLInputElement
+              ).focus();
+              return;
+            }
+          }
         },
         error: (error) => {
           console.log(error);
@@ -181,7 +235,98 @@ export class CreateRideComponent implements OnInit {
   }
 
   removeDrop(Id: any) {
-    this.RideForm.removeControl(Id);
+    this.RideDetailsForm.removeControl(Id);
     this.stops.pop(Id);
   }
+
+  initDirection() {
+    console.log(this.wayPoints);
+
+    let directionsRenderer = new google.maps.DirectionsRenderer();
+    let directionsService = new google.maps.DirectionsService();
+    directionsRenderer.setMap(this.map);
+    if (
+      !(document.getElementById('PickupPoint') as HTMLInputElement).value ||
+      !(document.getElementById('DropPoint') as HTMLInputElement).value
+    ) {
+      return;
+    }
+
+    var request = {
+      origin: (document.getElementById('PickupPoint') as HTMLInputElement)
+        .value,
+      destination: (document.getElementById('DropPoint') as HTMLInputElement)
+        .value,
+      travelMode: 'DRIVING',
+      waypoints: this.wayPoints,
+      optimizeWaypoints: true,
+    };
+    directionsService.route(request, (response: any, status: string) => {
+        console.log('1');
+        if (status == 'OK') {
+        directionsRenderer.setDirections(response);
+        this.initDistanceMatrix();
+      }
+    });
+  }
+
+  initDistanceMatrix() {
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+      {
+        origins: [
+          (document.getElementById('PickupPoint') as HTMLInputElement).value,
+        ],
+        destinations: [
+          (document.getElementById('DropPoint') as HTMLInputElement).value,
+        ],
+        travelMode: 'DRIVING',
+      },
+      (response: any, status: any) => {
+
+        if (status === 'OK') {
+          console.log(response.rows[0].elements[0].distance.text);
+
+          this.tripDetails.Distance =
+            response.rows[0].elements[0].distance.text;
+          this.tripDetails.Time = response.rows[0].elements[0].duration.text;
+          console.log(response.rows[0].elements[0].duration.text);
+          this.isSubmitted = false;
+        }
+      }
+    );
+  }
+
+  OnRideDetailsFormSubmit() {
+    this.isSubmitted = true;
+    if (!this.RideDetailsForm.valid) {
+      return;
+    }
+    this.wayPoints = [];
+
+    for (let index = 1; index <= this.stops.length; index++) {
+      this.wayPoints.push({
+        location: (document.getElementById(`Drop${index}`) as HTMLInputElement)
+          .value,
+        stopover: true,
+      });
+    }
+
+    for (let index = 0; index < this.wayPoints.length; index++) {
+      console.log(this.wayPoints[index]);
+    }
+
+    this.initDirection();
+  }
+
+  GetChargeofTrip(
+    MinFare: number,
+    BasePrice: number,
+    BasePriceDistance: any,
+    UnitDistancePrice: any,
+    UnitTimePrice: number,
+    Distance: number,
+    Time: any,
+    MaxSpace: number
+  ) {}
 }

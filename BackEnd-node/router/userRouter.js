@@ -3,37 +3,58 @@ const User = require("../Model/userModel");
 const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
 
-
 router.post("/User", async (req, res) => {
+  console.log(req.body);
   const user = new User(req.body);
   try {
     await user.save();
     const token = await user.GenerateToken();
-    res.status(201).send({massage:"Sing Up",code:1,token:token.token,expirationDate:token.exp,email:user.email,id:user._id});
+    res
+      .status(201)
+      .send({
+        massage: "Sing Up",
+        code: 1,
+        token: token.token,
+        expirationDate: token.exp,
+        email: user.email,
+        id: user._id,
+      });
   } catch (error) {
     if (error.keyPattern.email) {
-      res.status(400).send({email:"Email Already Exists",error});
+      res.status(400).send({ email: "Email Already Exists", error });
     }
   }
 });
 
-router.get("/usersss",auth,async(req,res)=>{
+router.get("/usersss", auth, async (req, res) => {
   res.send("req.user");
-})
+});
 
-router.post("/UserLogin",async(req,res)=>{
+router.post("/UserLogin", async (req, res) => {
   try {
-     const user = await User.findByCredentials(req.body.email,req.body.password);
-    const usertoken =await user.GenerateToken();
-    res.status(200).send({massage:"log in",code:2,expirationDate:usertoken.exp,token:usertoken.token,email:user.email,id:user._id})
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    const usertoken = await user.GenerateToken();
+    res
+      .status(200)
+      .send({
+        massage: "log in",
+        code: 2,
+        expirationDate: usertoken.exp,
+        token: usertoken.token,
+        email: user.email,
+        id: user._id,
+      });
   } catch (error) {
-    res.status(400).send("unable to login")
+    res.status(400).send("unable to login");
   }
-})
+});
 
-router.post("/Logout",auth,async(req,res)=>{
+router.post("/Logout", auth, async (req, res) => {
   try {
-    req.user.tokens=  req.user.tokens.filter((token) => {
+    req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token;
     });
     await req.user.save();
@@ -43,22 +64,19 @@ router.post("/Logout",auth,async(req,res)=>{
   }
 });
 
-
-router.post("/LogoutAll",auth, async(req,res)=>{
-// console.log(req.user._id);
+router.post("/LogoutAll", auth, async (req, res) => {
+  // console.log(req.user._id);
 
   try {
-    if(!req.user){
-      return res.status(200).json("no user found")
+    if (!req.user) {
+      return res.status(200).json("no user found");
     }
-    req.user.tokens =  [];
-    await req.user.save()
-    res.status(200).send("Logout From All Device Successfully")
+    req.user.tokens = [];
+    await req.user.save();
+    res.status(200).send("Logout From All Device Successfully");
   } catch (error) {
-    res.status(400).send(error)
+    res.status(400).send(error);
   }
+});
 
-})
-
-
-module.exports=router
+module.exports = router;
