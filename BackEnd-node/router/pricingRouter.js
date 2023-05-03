@@ -1,7 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
-const {handleUpload} = require("../Controller/middleware/multer");
+const { handleUpload } = require("../Controller/middleware/multer");
 const Price = require("../Model/pricingModel");
 
 /////////////////////////////////////////////////////////          Add Pricing         ////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,6 @@ router.post("/price", handleUpload, auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Edit Zone Pricing        ////////////////////////////////////////////////////////////////////////////////////
 
 router.patch("/price/:id", auth, handleUpload, async (req, res) => {
-
   const fieldtoupdate = Object.keys(req.body);
 
   try {
@@ -80,15 +79,44 @@ router.patch("/price/:id", auth, handleUpload, async (req, res) => {
 
     await price.save();
     res
-    .status(200)
-    .json({ massage: "price for this zone is Edited", id: price._id });
+      .status(200)
+      .json({ massage: "price for this zone is Edited", id: price._id });
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
   }
 });
 
-/////////////////////////////////////////////////////////          Get All Zone Pricing        ////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////          Get All Zone Vehicles        ////////////////////////////////////////////////////////////////////////////////////
+
+router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
+  const searchQuery = req.query.Value || "";
+  const regext = new RegExp(searchQuery, "i");
+  try {
+    const Vehicles = await Price.find({
+      $or: [{ city: regext }],
+    }).distinct("type");
+    res.status(200).send(Vehicles);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+router.post("/price/pricing", handleUpload, auth, async (req, res) => {
+  try {
+    const priceing = await Price.find({
+      $and: [
+        { city: { $regex: req.body.city } },
+        { type: { $regex: req.body.type } },
+      ],
+    });
+    res.status(200).send(priceing);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+/////////////////////////////////////////////////////////          Get All Zone  Pricing        ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/price", handleUpload, auth, async (req, res) => {
   const searchQuery = req.query.Value || "";

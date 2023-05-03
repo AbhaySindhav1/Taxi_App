@@ -3,8 +3,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { RideService } from 'src/app/Services/ride.service';
 import { UsersService } from 'src/app/Services/users.service';
+import { PricingService } from 'src/app/Services/pricing.service';
 
 declare var google: any;
+let directionsRenderer = new google.maps.DirectionsRenderer();
+let directionsService = new google.maps.DirectionsService();
 @Component({
   selector: 'app-create-ride',
   templateUrl: './create-ride.component.html',
@@ -13,10 +16,8 @@ declare var google: any;
 export class CreateRideComponent implements OnInit {
   [x: string]: any;
   phoneNumber: any;
-  user: any;
-  countryer = false;
-  email: any;
-  name: any;
+  Vehicles: any = [];
+  user: any = null;
   stops: any = [];
   RideForm: FormGroup | any;
   RideDetailsForm: FormGroup | any;
@@ -26,6 +27,8 @@ export class CreateRideComponent implements OnInit {
   isServiceZone: any = null;
   error = false;
   errMassage: any;
+  Distance: any;
+  Time: any;
   allPlaces: any = {};
   tripDetails: any = {};
   RideDetailsFormShow = false;
@@ -34,7 +37,8 @@ export class CreateRideComponent implements OnInit {
   constructor(
     private usersService: UsersService,
     private rideService: RideService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pricingService: PricingService
   ) {
     this.RideForm = new FormGroup({
       UserPhone: new FormControl(null, [
@@ -49,6 +53,8 @@ export class CreateRideComponent implements OnInit {
     this.RideDetailsForm = new FormGroup({
       PickupPoint: new FormControl(null, [Validators.required]),
       DropPoint: new FormControl(null, [Validators.required]),
+      VehicleSelector: new FormControl('', [Validators.required]),
+      Time: new FormControl(null),
     });
   }
 
@@ -75,7 +81,6 @@ export class CreateRideComponent implements OnInit {
             if (data[0]) {
               this.user = data[0];
             }
-
             this.RideForm.patchValue({
               UserName: data[0].UserName,
               UserEmail: data[0].UserEmail,
@@ -191,30 +196,11 @@ export class CreateRideComponent implements OnInit {
       let lng = place.geometry.location?.lng();
 
       const location = [lng, lat];
-
-      this.rideService.initGetLocationValidation(location).subscribe({
-        next: (data) => {
-          if (data.length === 0) {
-            this.toastr.error('For This Location Service is Unavailable');
-            (
-              document.getElementById(`${fieldName}`) as HTMLInputElement
-            ).value = '';
-            (
-              document.getElementById(`${fieldName}`) as HTMLInputElement
-            ).focus();
-            return;
-          }
-          if (!this.isServiceZone) {
-            
-            this.isServiceZone = data[0];
-            console.log(this.isServiceZone);
-           
-          } else {
-            if (data[0]._id !== this.isServiceZone._id) {
-              console.log('11');
-              
-              let a = `${fieldName}`;
-              this.toastr.error(a + ` is not in Same Services Zone`);
+      if (`${fieldName}` === 'PickupPoint') {
+        this.rideService.initGetLocationValidation(location).subscribe({
+          next: (data) => {
+            if (data.length === 0) {
+              this.toastr.error('For This Location Service is Unavailable');
               (
                 document.getElementById(`${fieldName}`) as HTMLInputElement
               ).value = '';
@@ -222,28 +208,52 @@ export class CreateRideComponent implements OnInit {
                 document.getElementById(`${fieldName}`) as HTMLInputElement
               ).focus();
               return;
+            } else {
+              console.log(data);
+              this.isServiceZone = data[0];
+              this.pricingService
+                .initGetAllVehicle(this.isServiceZone.city)
+                .subscribe({
+                  next: (data) => {
+                    this.Vehicles = data;
+                  },
+                  error: (error) => {
+                    console.log(error);
+                    this.errMassage = error;
+                    this.error = true;
+                  },
+                });
             }
-          }
-        },
-        error: (error) => {
-          console.log(error);
-          this.errMassage = error;
-          this.error = true;
-        },
-      });
+          },
+
+          error: (error) => {
+            console.log(error);
+            this.errMassage = error;
+            this.error = true;
+          },
+        });
+      }
+
+      this.initDirection();
     });
   }
 
   removeDrop(Id: any) {
     this.RideDetailsForm.removeControl(Id);
     this.stops.pop(Id);
+    this.initDirection();
   }
 
   initDirection() {
-    console.log(this.wayPoints);
+    this.wayPoints = [];
+    for (let index = 1; index <= this.stops.length; index++) {
+      this.wayPoints.push({
+        location: (document.getElementById(`Drop${index}`) as HTMLInputElement)
+          .value,
+        stopover: true,
+      });
+    }
 
-    let directionsRenderer = new google.maps.DirectionsRenderer();
-    let directionsService = new google.maps.DirectionsService();
     directionsRenderer.setMap(this.map);
     if (
       !(document.getElementById('PickupPoint') as HTMLInputElement).value ||
@@ -262,39 +272,96 @@ export class CreateRideComponent implements OnInit {
       optimizeWaypoints: true,
     };
     directionsService.route(request, (response: any, status: string) => {
-        console.log('1');
-        if (status == 'OK') {
+      if (status == 'OK') {
         directionsRenderer.setDirections(response);
         this.initDistanceMatrix();
+      } else if (status === 'ZERO_RESULTS') {
+        this.toastr.error('No Direct Routes Are Available');
       }
     });
   }
 
   initDistanceMatrix() {
+    this.wayPoints = [];
+    for (let index = 1; index <= this.stops.length; index++) {
+      this.wayPoints.push(
+        (document.getElementById(`Drop${index}`) as HTMLInputElement).value
+      );
+    }
+    this.wayPoints.push(
+      (document.getElementById('DropPoint') as HTMLInputElement).value
+    );
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
       {
         origins: [
           (document.getElementById('PickupPoint') as HTMLInputElement).value,
         ],
-        destinations: [
-          (document.getElementById('DropPoint') as HTMLInputElement).value,
-        ],
+        destinations: this.wayPoints,
         travelMode: 'DRIVING',
       },
+
       (response: any, status: any) => {
-
         if (status === 'OK') {
-          console.log(response.rows[0].elements[0].distance.text);
+          var total_distance = 0.0;
+          var total_time = 0.0;
 
-          this.tripDetails.Distance =
-            response.rows[0].elements[0].distance.text;
-          this.tripDetails.Time = response.rows[0].elements[0].duration.text;
-          console.log(response.rows[0].elements[0].duration.text);
-          this.isSubmitted = false;
+          for (var i = 0; i < response.rows[0].elements.length; i++) {
+            total_distance += response.rows[0].elements[i].distance.value;
+            total_time += response.rows[0].elements[i].duration.value;
+          }
+          this.Distance = total_distance / 1000;
+          this.Time =
+            Math.floor(total_time / 3600) +
+            '.' +
+            Math.floor((total_time % 3600) / 60);
+          this.tripDetails.Distance = total_distance / 1000 + 'Km';
+          const hours = Math.floor(total_time / 3600);
+          const minutes = Math.floor((total_time % 3600) / 60);
+
+          this.tripDetails.Time = `${hours} hr ${minutes} min`;
         }
       }
     );
+  }
+
+  CheckPricing() {
+    let formData = new FormData();
+    if (
+      !this.isServiceZone.city ||
+      !this.RideDetailsForm.get('VehicleSelector').value
+    ) {
+      return;
+    }
+    formData.append('city', this.isServiceZone.city);
+    formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
+    this.pricingService.initGetPricingForZone(formData).subscribe({
+      next: (data) => {
+        setTimeout(() => {
+          if (data) {
+            console.log(data);
+            if (!this.tripDetails.Distance || !this.tripDetails.Time) {
+              return;
+            }
+            console.log(this.Time);
+
+            this.GetChargeofTrip(
+              +data[0].MinFarePrice,
+              +data[0].BasePrice,
+              +data[0].BasePriceDistance,
+              +data[0].DistancePrice,
+              +data[0].TimePrice,
+              +this.Distance,
+              +this.Time,
+              +data[0].MaxSpace
+            );
+          }
+        }, 1000);
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
   }
 
   OnRideDetailsFormSubmit() {
@@ -302,21 +369,11 @@ export class CreateRideComponent implements OnInit {
     if (!this.RideDetailsForm.valid) {
       return;
     }
-    this.wayPoints = [];
-
-    for (let index = 1; index <= this.stops.length; index++) {
-      this.wayPoints.push({
-        location: (document.getElementById(`Drop${index}`) as HTMLInputElement)
-          .value,
-        stopover: true,
-      });
-    }
-
-    for (let index = 0; index < this.wayPoints.length; index++) {
-      console.log(this.wayPoints[index]);
-    }
-
-    this.initDirection();
+   let formData = new FormData();
+   console.log(this.user);
+   console.log(this.wayPoints);
+   
+    
   }
 
   GetChargeofTrip(
@@ -327,6 +384,27 @@ export class CreateRideComponent implements OnInit {
     UnitTimePrice: number,
     Distance: number,
     Time: any,
-    MaxSpace: number
-  ) {}
+    MaxSpace?: number
+  ) {
+    let ServiceFees;
+    let DistanceAmount;
+    let TimeAmount;
+    if (Distance > BasePriceDistance) {
+      DistanceAmount = (Distance - BasePriceDistance) * UnitDistancePrice;
+    } else {
+      DistanceAmount = 0;
+    }
+
+    TimeAmount = Time * UnitTimePrice;
+
+    ServiceFees = DistanceAmount + TimeAmount + BasePrice;
+
+    if (ServiceFees <= MinFare) {
+      ServiceFees = MinFare;
+    }
+
+    console.log(ServiceFees);
+
+    return ServiceFees;
+  }
 }

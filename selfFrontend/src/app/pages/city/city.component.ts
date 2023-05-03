@@ -73,7 +73,7 @@ export class CityComponent implements OnInit {
       document.getElementById('map') as HTMLElement,
       { center: loc, zoom, mapTypeId: google.maps.MapTypeId.ROADMAP }
     );
-    this.initAutoComplete('US');
+    this.initAutoComplete(null);
     this.initPolygon();
   }
   initPolygon() {
@@ -214,6 +214,8 @@ export class CityComponent implements OnInit {
           });
         },
         error: (error) => {
+          console.log(error);
+          
           this.error = error.error;
         },
       });
@@ -335,7 +337,7 @@ export class CityComponent implements OnInit {
     this.zone = ArrayOfZoneCordinates;
   }
 
-  initAutoComplete(country: string) {
+  initAutoComplete(country: any) {
     // create the Autocomplete with the specified country
     this.autocomplete = new google.maps.places.Autocomplete(
       document.getElementById('city') as HTMLInputElement,
@@ -358,7 +360,7 @@ export class CityComponent implements OnInit {
     });
   }
 
-  updateAutoComplete(country: string) {
+  updateAutoComplete(country: any) {
     this.autocomplete.setComponentRestrictions({ country: country });
   }
 

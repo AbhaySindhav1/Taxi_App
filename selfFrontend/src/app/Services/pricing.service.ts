@@ -23,6 +23,22 @@ export class PricingService {
     }
   }
 
+  initGetPricingForZone(formData: any) {
+    return this.http.post<any>('http://localhost:3000/price/pricing', formData);
+  }
+
+  initGetAllVehicle(data?: any) {
+    const Value = { Value: data };
+
+    if (data) {
+      return this.http.get<any>('http://localhost:3000/price/Vehicle', {
+        params: Value,
+      });
+    } else {
+      return this.http.get<any>('http://localhost:3000/price/Vehicle');
+    }
+  }
+
   initDeleteZonePricing(id: any) {
     return this.http.delete('http://localhost:3000/price/' + id);
   }

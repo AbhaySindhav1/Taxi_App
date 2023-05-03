@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
-
 import { DropdownDirective } from '../Shared/drop-down.directive';
 import { LoginComponent } from '../auth/login/login.component';
 import { RegisterComponent } from '../auth/register/register.component';
@@ -24,6 +23,7 @@ import { UsersComponent } from '../pages/users/users.component';
 import { DriverComponent } from '../pages/driver/driver.component';
 import { PagesComponent } from '../pages/pages.component';
 import { CreateRideComponent } from '../pages/create-ride/create-ride.component';
+import { DurationPipePipe } from '../pipes/duration-pipe.pipe';
 
 @NgModule({
   declarations: [
@@ -40,7 +40,8 @@ import { CreateRideComponent } from '../pages/create-ride/create-ride.component'
     UsersComponent,
     DriverComponent,
     PagesComponent,
-    CreateRideComponent
+    CreateRideComponent,
+    DurationPipePipe
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),

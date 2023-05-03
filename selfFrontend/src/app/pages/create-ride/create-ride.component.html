@@ -9,7 +9,7 @@
       *ngIf="!RideDetailsFormShow"
       class="col-4"
       (ngSubmit)="OnRideFormSubmit()"
-      >
+    >
       <div class="controller">
         <label for="UserPhone">Phone No.</label>
         <div>
@@ -18,7 +18,7 @@
             name="CountryCode"
             id="CountryCode"
             class="form-control"
-            style="width: 18%; display: inline-block"
+            style="width: 23%; display: inline-block"
             formControlName="CountryCode"
             onKeyPress="if(this.value.length==2) return false;"
           />
@@ -29,7 +29,7 @@
             id="UserPhone"
             (input)="onInput($event.target)"
             class="form-control"
-            style="width: 70%; display: inline-block; margin-left: 2%"
+            style="width: 75%; display: inline-block; margin-left: 2%"
             formControlName="UserPhone"
             onKeyPress="if(this.value.length==10) return false;"
           />
@@ -99,7 +99,14 @@
       </div>
 
       <div id="btn-container">
-        <button type="submit" class="btn bg-primary">Next</button>
+        <button type="submit" class="btn bg-primary" [disabled]="!user">
+          Next
+        </button>
+        <!-- <button type="button" class="btn bg-primary" 
+        >
+        (click)="openDialog()"  
+          pop
+        </button> -->
         <button type="button" class="btn bg-danger">Cancel</button>
       </div>
     </form>
@@ -111,7 +118,7 @@
       [formGroup]="RideDetailsForm"
       (ngSubmit)="OnRideDetailsFormSubmit()"
       *ngIf="RideDetailsFormShow"
-      class="col-4"
+      class="col-3"
     >
       <div class="controller">
         <label for="PickupPoint">Pickup Point</label>
@@ -217,6 +224,34 @@
         </div>
       </div>
 
+      <div class="controller">
+        <label for="VehicleSelector">Vehicle Opitons</label>
+        <select
+          class="form-select"
+          id="VehicleSelector"
+          formControlName="VehicleSelector"
+          aria-label="Default select example"
+          (change)="CheckPricing()"
+        >
+          <option value="" selected hidden>Open this select menu</option>
+          <option value="{{ Vehicle }}" *ngFor="let Vehicle of Vehicles">
+            {{ Vehicle }}
+          </option>
+        </select>
+      </div>
+
+      <div class="controller" style="margin: 10px 0px;">
+        <input
+          type="datetime-local"
+          name="Time"
+          id="Time"
+          class="form-control"
+          formControlName="Time"
+        />
+      </div>
+
+     
+
       <div id="btn-container">
         <button type="submit" class="btn bg-primary">Submit</button>
         <button type="button" class="btn bg-danger">Cancel</button>
@@ -229,17 +264,19 @@
         >
           Add Stop
         </button>
-        <br>
-        <a (click)="RideDetailsFormShow = false">Go Back</a>
+      </div>
+      <div
+        class="trip-details"
+        *ngIf="tripDetails.Distance"
+        style="text-align: left"
+      >
+        <h3 id="Distance">Distance : {{ tripDetails.Distance }}</h3>
+        <h3 id="time">Time : {{ tripDetails.Time }}</h3>
       </div>
     </form>
 
     <div id="map-container" class="col-6">
       <div id="map"></div>
-      <div class="trip-details" *ngIf="tripDetails">
-        <div id="Distance">Distance : {{tripDetails.Distance}}</div>
-        <div id="time">Time : {{tripDetails.Time}}</div>
-      </div>
     </div>
   </div>
   <div class="d-flex justify-content-center">

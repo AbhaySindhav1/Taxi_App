@@ -35,8 +35,8 @@ router.post("/city", handleUpload, auth, async (req, res) => {
       res.status(400).json("City Is Required");
     } else if (error.errors && error.errors.country.kind === "required") {
       res.status(400).json("Country Is Required");
-    } else if (error.errors && error.errors.keyPattern.city) {
-      res.status(400).json("city is Used");
+    } else if (error.keyPattern && error.keyPattern.city) {
+      res.status(400).json(error.keyValue.city+ ' ' +"is Already Registered");
     } else if (error.errors && error.errors.zone.kind === "required") {
       res.status(400).json("Zone Is Required");
     } else {

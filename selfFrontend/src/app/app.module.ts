@@ -8,25 +8,27 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboradModule } from './dashborad/dashborad.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
-
+import { PopUpComponent } from './pages/pop-up/pop-up.component';
 
 @NgModule({
-  declarations: [AppComponent,  ],
+  declarations: [AppComponent, PopUpComponent],
   imports: [
     AppRoutingModule,
     DashboradModule,
     BrowserModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
+    MatDialogModule,
+    MatDialogModule,
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthinterceptorInterceptor,
-      multi: true
-    }
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })
