@@ -233,14 +233,17 @@
           aria-label="Default select example"
           (change)="CheckPricing()"
         >
-          <option value="" selected hidden>Open this select menu</option>
+          <option value="null" selected hidden>Open this select menu</option>
+          <option *ngIf="Vehicles.length == 0" disabled>
+            No Vehicles Available
+          </option>
           <option value="{{ Vehicle }}" *ngFor="let Vehicle of Vehicles">
             {{ Vehicle }}
           </option>
         </select>
       </div>
 
-      <div class="controller" style="margin: 10px 0px;">
+      <div class="controller" style="margin: 10px 0px">
         <input
           type="datetime-local"
           name="Time"
@@ -250,28 +253,31 @@
         />
       </div>
 
-     
-
-      <div id="btn-container">
-        <button type="submit" class="btn bg-primary">Submit</button>
-        <button type="button" class="btn bg-danger">Cancel</button>
-        <button
-          *ngIf="stops.length < 2"
-          type="button"
-          id="AddStop"
-          class="btn bg-success"
-          (click)="onAddStop()"
-        >
-          Add Stop
-        </button>
-      </div>
       <div
         class="trip-details"
         *ngIf="tripDetails.Distance"
         style="text-align: left"
       >
-        <h3 id="Distance">Distance : {{ tripDetails.Distance }}</h3>
-        <h3 id="time">Time : {{ tripDetails.Time }}</h3>
+        <p id="Distance">Distance : {{ tripDetails.Distance }}</p>
+        <p id="time">Time : {{ tripDetails.Time }}</p>
+        <p id="time">Services Fees : {{ tripDetails.TripCharge }}</p>
+      </div>
+      
+
+      <div id="btn-container">
+        <button type="submit" class="btn bg-success" [disabled]="!tripDetails.TripCharge">Book Ride</button>
+        <button type="button" class="btn bg-danger" (click)="OnReset()">
+          Cancel
+        </button>
+        <button
+          *ngIf="stops.length < 2"
+          type="button"
+          id="AddStop"
+          class="btn bg-primary"
+          (click)="onAddStop()"
+        >
+          Add Stop
+        </button>
       </div>
     </form>
 

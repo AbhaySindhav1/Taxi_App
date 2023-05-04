@@ -24,6 +24,7 @@ import { DriverComponent } from '../pages/driver/driver.component';
 import { PagesComponent } from '../pages/pages.component';
 import { CreateRideComponent } from '../pages/create-ride/create-ride.component';
 import { DurationPipePipe } from '../pipes/duration-pipe.pipe';
+import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { DurationPipePipe } from '../pipes/duration-pipe.pipe';
     DriverComponent,
     PagesComponent,
     CreateRideComponent,
-    DurationPipePipe
+    DurationPipePipe,
+    ConfirmRideComponent
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),

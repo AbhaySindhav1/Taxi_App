@@ -30,6 +30,7 @@ export class CityComponent implements OnInit {
   UserID: any;
   coordinates: any = [];
   autocomplete: google.maps.places.Autocomplete | any;
+  city:any
   constructor(
     private cityService: CityService,
     private countryService: CountryService
@@ -157,19 +158,20 @@ export class CityComponent implements OnInit {
 
   onSubmit() {
     this.changed = false;
+console.log(this.city);
 
-    const city = (document.getElementById('city') as HTMLInputElement).value;
+   
 
-    if (!this.country && !this.zone && !city) {
+    if (!this.country && !this.zone && !this.city) {
       this.error = 'Country, zone, and city are required';
       return;
     } else if (!this.country && !this.zone) {
       this.error = 'Country and zone are required';
       return;
-    } else if (!this.country && !city) {
+    } else if (!this.country && !this.city) {
       this.error = 'Country and city are required';
       return;
-    } else if (!this.zone && !city) {
+    } else if (!this.zone && !this.city) {
       this.error = 'Zone and city are required';
       return;
     } else if (!this.country) {
@@ -178,8 +180,8 @@ export class CityComponent implements OnInit {
     } else if (!this.zone) {
       this.error = 'Zone is required';
       return;
-    } else if (!city) {
-      this.error = 'City is required';
+    } else if (!this.city) {
+      this.error = 'Correct City is required';
       return;
     } else {
       this.error = '';
@@ -187,7 +189,7 @@ export class CityComponent implements OnInit {
  
     let formData = new FormData();
     formData.append('country', this.country);
-    formData.append('city', city);
+    formData.append('city', this.city);
     console.log(this.coordinates);
     formData.append('zone', JSON.stringify(this.zone));
     
@@ -350,7 +352,7 @@ export class CityComponent implements OnInit {
     // add a listener to handle when a place is selected
     this.autocomplete.addListener('place_changed', () => {
       const place = this.autocomplete.getPlace();
-
+      this.city = place.name
       if (!place.geometry) {
         console.error(`No geometry for ${place.name}`);
         return;

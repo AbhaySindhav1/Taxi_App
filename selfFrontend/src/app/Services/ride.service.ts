@@ -15,12 +15,21 @@ export class RideService {
         params: Value,
       });
     } else {
-      [0];
       return this.http.get<any>('http://localhost:3000/CityCountryZone');
     }
   }
 
-  initGetLocationValidation(array:any){
-    return this.http.get<any>(`http://localhost:3000/CityCordinates?loc=${array}`)
+  initGetAllRides(){
+    return this.http.get<any>('http://localhost:3000/Ride')
+  }
+
+  initGetLocationValidation(array: any) {
+    return this.http.get<any>(
+      `http://localhost:3000/CityCordinates?loc=${array}`
+    );
+  }
+
+  initAddRideDetails(FormData: any) {
+    return this.http.post<any>('http://localhost:3000/Ride',FormData)
   }
 }

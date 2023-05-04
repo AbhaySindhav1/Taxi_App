@@ -11,6 +11,7 @@ const cityRoute = require("../router/cityRouter")
 const priceRoute = require("../router/pricingRouter")
 const UsersRoute = require("../router/usersRouter")
 const DriverRoute = require("../router/driverRouter")
+const createRideRoute = require("../router/createRideRouter")
 
 
 const bodyParser = require("body-parser");
@@ -31,6 +32,7 @@ app.use(cityRoute)
 app.use(priceRoute)
 app.use(UsersRoute)
 app.use(DriverRoute)
+app.use(createRideRoute)
 
 
 app.listen(port,()=>{

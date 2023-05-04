@@ -14,8 +14,6 @@ let directionsService = new google.maps.DirectionsService();
   styleUrls: ['./create-ride.component.css'],
 })
 export class CreateRideComponent implements OnInit {
-  [x: string]: any;
-  phoneNumber: any;
   Vehicles: any = [];
   user: any = null;
   stops: any = [];
@@ -33,6 +31,7 @@ export class CreateRideComponent implements OnInit {
   tripDetails: any = {};
   RideDetailsFormShow = false;
   wayPoints: any = [];
+  TripCharge: any;
 
   constructor(
     private usersService: UsersService,
@@ -53,15 +52,13 @@ export class CreateRideComponent implements OnInit {
     this.RideDetailsForm = new FormGroup({
       PickupPoint: new FormControl(null, [Validators.required]),
       DropPoint: new FormControl(null, [Validators.required]),
-      VehicleSelector: new FormControl('', [Validators.required]),
+      VehicleSelector: new FormControl(null, [Validators.required]),
       Time: new FormControl(null),
     });
   }
 
   ngOnInit(): void {
     this.initMap();
-    this.setupAutocomplete('PickupPoint');
-    this.setupAutocomplete('DropPoint');
   }
 
   onInput(e: any) {
@@ -140,38 +137,41 @@ export class CreateRideComponent implements OnInit {
     this.isSubmitted = true;
     this.errMassage = null;
     if (!this.RideForm.valid) return;
-    let formData = new FormData();
+    // let formData = new FormData();
 
-    formData.append('UserName', this.RideForm.get('UserName').value);
-    formData.append('UserEmail', this.RideForm.get('UserEmail').value);
-    formData.append('CountryCode', this.RideForm.get('CountryCode').value);
-    formData.append('UserPhone', this.RideForm.get('UserPhone').value);
-    if (!this.user) {
-      this.usersService.initUsers(formData).subscribe({
-        next: (data) => {
-          this.RideDetailsFormShow = true;
-          this.isSubmitted = false;
-          this.error = false;
-          setTimeout(() => {
-            this.setupAutocomplete('PickupPoint');
-            this.setupAutocomplete('DropPoint');
-          }, 1);
-        },
-        error: (error) => {
-          this.errMassage = error.error;
-          this.error = true;
-          return;
-        },
-      });
-    } else {
-      this.RideDetailsFormShow = true;
+    // formData.append('UserName', this.RideForm.get('UserName').value);
+    // formData.append('UserEmail', this.RideForm.get('UserEmail').value);
+    // formData.append('CountryCode', this.RideForm.get('CountryCode').value);
+    // formData.append('UserPhone', this.RideForm.get('UserPhone').value);
+    // if (!this.user) {
+    //   this.usersService.initUsers(formData).subscribe({
+    //     next: (data) => {
+    //       this.RideDetailsFormShow = true;
+    //       this.isSubmitted = false;
+    //       this.error = false;
+    //       setTimeout(() => {
+    //         this.setupAutocomplete('PickupPoint');
+    //         this.setupAutocomplete('DropPoint');
+    //       }, 1);
+    //     },
+    //     error: (error) => {
+    //       this.errMassage = error.error;
+    //       this.error = true;
+    //       return;
+    //     },
+    //   });
+    // } else {
+    //   this.RideDetailsFormShow = true;
+    //   this.isSubmitted = false;
+    //   this.error = false;
+    //
+    // }
+    setTimeout(() => {
+      this.setupAutocomplete('PickupPoint');
+      this.setupAutocomplete('DropPoint');
       this.isSubmitted = false;
-      this.error = false;
-      setTimeout(() => {
-        this.setupAutocomplete('PickupPoint');
-        this.setupAutocomplete('DropPoint');
-      }, 1);
-    }
+    }, 1);
+    this.RideDetailsFormShow = true;
   }
 
   setupAutocomplete(fieldName: string) {
@@ -233,8 +233,6 @@ export class CreateRideComponent implements OnInit {
           },
         });
       }
-
-      this.initDirection();
     });
   }
 
@@ -318,50 +316,17 @@ export class CreateRideComponent implements OnInit {
           this.tripDetails.Distance = total_distance / 1000 + 'Km';
           const hours = Math.floor(total_time / 3600);
           const minutes = Math.floor((total_time % 3600) / 60);
-
           this.tripDetails.Time = `${hours} hr ${minutes} min`;
+          this.calculateFee();
+        } else if (status === 'ZERO_RESULTS') {
+          this.toastr.error('No Route Are Available');
         }
       }
     );
   }
 
   CheckPricing() {
-    let formData = new FormData();
-    if (
-      !this.isServiceZone.city ||
-      !this.RideDetailsForm.get('VehicleSelector').value
-    ) {
-      return;
-    }
-    formData.append('city', this.isServiceZone.city);
-    formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
-    this.pricingService.initGetPricingForZone(formData).subscribe({
-      next: (data) => {
-        setTimeout(() => {
-          if (data) {
-            console.log(data);
-            if (!this.tripDetails.Distance || !this.tripDetails.Time) {
-              return;
-            }
-            console.log(this.Time);
-
-            this.GetChargeofTrip(
-              +data[0].MinFarePrice,
-              +data[0].BasePrice,
-              +data[0].BasePriceDistance,
-              +data[0].DistancePrice,
-              +data[0].TimePrice,
-              +this.Distance,
-              +this.Time,
-              +data[0].MaxSpace
-            );
-          }
-        }, 1000);
-      },
-      error: (error) => {
-        console.log(error);
-      },
-    });
+    this.initDirection();
   }
 
   OnRideDetailsFormSubmit() {
@@ -369,42 +334,104 @@ export class CreateRideComponent implements OnInit {
     if (!this.RideDetailsForm.valid) {
       return;
     }
-   let formData = new FormData();
-   console.log(this.user);
-   console.log(this.wayPoints);
-   
+    let confimed = confirm("Are You Want To Book Ride")
+    if(!confimed) return;
+    let formData = new FormData();
+    this.wayPoints.pop();
+    formData.append('user_id', this.user._id);
+    formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
+    formData.append(
+      'PickupPoint',
+      (document.getElementById('PickupPoint') as HTMLInputElement).value
+    );
+    formData.append(
+      'DropPoint',
+      (document.getElementById('DropPoint') as HTMLInputElement).value
+    );
+    console.log(this.wayPoints);
+    
+    formData.append('Stops', JSON.stringify(this.wayPoints));
+    let time;
+    if (!this.RideDetailsForm.get('Time').value) {
+      const now = new Date();
+      time = now.toLocaleString();
+    } else {
+      const now = new Date(this.RideDetailsForm.get('Time').value);
+      time = now.toLocaleString();
+    }
+    formData.append('ScheduleTime', time);
+    formData.append('TripFee', this.tripDetails.TripCharge);
+    console.log(formData);
+    this.rideService.initAddRideDetails(formData).subscribe({
+      next:(data)=>{console.log(data);
+        this.toastr.success(data.message)
+      },error:(error)=>{console.log(error);
+      }
+    })
     
   }
 
-  GetChargeofTrip(
-    MinFare: number,
-    BasePrice: number,
-    BasePriceDistance: any,
-    UnitDistancePrice: any,
-    UnitTimePrice: number,
-    Distance: number,
-    Time: any,
-    MaxSpace?: number
-  ) {
-    let ServiceFees;
-    let DistanceAmount;
-    let TimeAmount;
-    if (Distance > BasePriceDistance) {
-      DistanceAmount = (Distance - BasePriceDistance) * UnitDistancePrice;
-    } else {
-      DistanceAmount = 0;
+  calculateFee() {
+    if (
+      !this.isServiceZone.city ||
+      !this.RideDetailsForm.get('VehicleSelector').value
+    ) {
+      return;
     }
+    let formData = new FormData();
 
-    TimeAmount = Time * UnitTimePrice;
+    formData.append('city', this.isServiceZone.city);
+    formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
 
-    ServiceFees = DistanceAmount + TimeAmount + BasePrice;
+    this.pricingService.initGetPricingForZone(formData).subscribe({
+      next: (data) => {
 
-    if (ServiceFees <= MinFare) {
-      ServiceFees = MinFare;
-    }
+        if (data.length > 0) {
+          console.log(data);
+          if (!this.Distance || !this.Time) {
+            return;
+          }
 
-    console.log(ServiceFees);
+          let ServiceFees;
+          let DistanceAmount;
+          let TimeAmount;
+          if (+this.Distance > +data[0].BasePrice) {
+            DistanceAmount =
+              (+this.Distance - +data[0].BasePrice) * +data[0].DistancePrice;
+          } else {
+            DistanceAmount = 0;
+          }
 
-    return ServiceFees;
+          TimeAmount = +this.Time * +data[0].TimePrice;
+
+          ServiceFees = DistanceAmount + TimeAmount + +data[0].BasePrice;
+
+          if (ServiceFees <= +data[0].MinFarePrice) {
+            ServiceFees = +data[0].MinFarePrice;
+          }
+
+          this.tripDetails.TripCharge = Math.ceil(ServiceFees);
+        }
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
+  }
+
+  OnReset() {
+    this.Vehicles = [];
+    this.stops = [];
+    this.RideDetailsForm.reset();
+    this.isSubmitted = false;
+    this.isServiceAvailable = false;
+    this.isServiceZone = null;
+    this.error = false;
+    this.errMassage = '';
+    this.Distance = null;
+    this.Time = null;
+    this.allPlaces = {};
+    this.tripDetails = {};
+    this.wayPoints = [];
   }
 }

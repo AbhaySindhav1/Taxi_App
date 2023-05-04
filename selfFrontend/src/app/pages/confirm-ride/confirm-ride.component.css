@@ -1,0 +1,109 @@
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background-color: #5165ff;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-body {
+  background-color: #fff;
+  border-color: #fff;
+}
+.d-row {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.close {
+  color: #000;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #000;
+}
+
+.theme-color {
+  color: #004cb9;
+}
+hr.new1 {
+  border-top: 2px dashed #fff;
+  margin: 0.4rem 0;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #004cb9;
+  border-color: #004cb9;
+  padding: 12px;
+  padding-right: 30px;
+  padding-left: 30px;
+  border-radius: 1px;
+  font-size: 17px;
+}
+
+.btn-primary:hover {
+  color: #fff;
+  background-color: #004cb9;
+  border-color: #004cb9;
+  padding: 12px;
+  padding-right: 30px;
+  padding-left: 30px;
+  border-radius: 1px;
+  font-size: 17px;
+}
+#popupTable thead th{
+margin: 5px 10px;
+}
+.ct-table-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto;
+}
+.table-city{
+  width: 95%;
+  background-color: rgb(231, 224, 255);
+  font-weight: 600;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+.table-city th {
+  font-size: 18px;
+  /* font-weight: bolder; */
+}
+.table-city td,
+.table-city th {
+  border: 1px solid black;
+  text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+}
+.ellipsis {
+  max-width: 150px;
+  white-space: nowrap; /* Prevent the text from wrapping */
+  overflow: hidden; /* Hide the text that overflows the td element */
+  text-overflow: ellipsis;
+}
+.ellipsis:hover:after {
+  content: attr(title);
+  display: inline-block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding: 5px;
+  background-color: #333;
+  color: #fff;
+  z-index: 9999;
+}
