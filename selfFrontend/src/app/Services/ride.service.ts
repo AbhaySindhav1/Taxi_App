@@ -19,8 +19,8 @@ export class RideService {
     }
   }
 
-  initGetAllRides(){
-    return this.http.get<any>('http://localhost:3000/Ride')
+  initGetAllRides() {
+    return this.http.get<any>('http://localhost:3000/Ride');
   }
 
   initGetLocationValidation(array: any) {
@@ -30,6 +30,10 @@ export class RideService {
   }
 
   initAddRideDetails(FormData: any) {
-    return this.http.post<any>('http://localhost:3000/Ride',FormData)
+    return this.http.post<any>('http://localhost:3000/Ride', FormData);
+  }
+
+  initEditRide(id: any, FormData: any) {
+    return this.http.patch<any>('http://localhost:3000/Ride/' + id, FormData);
   }
 }

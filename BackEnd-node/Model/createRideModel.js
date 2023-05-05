@@ -6,6 +6,10 @@ const RideSchema = mongoose.Schema({
     type: mongoose.Types.ObjectId,
     required: true,
   },
+  UserName: {
+    type: String,
+    required: true,
+  },
   type: {
     type: String,
     required: true,
@@ -20,7 +24,6 @@ const RideSchema = mongoose.Schema({
   },
   Stops: {
     type: String,
-    // default: [],
     required:true
   },
   ScheduleTime: {

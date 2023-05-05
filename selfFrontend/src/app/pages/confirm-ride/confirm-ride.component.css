@@ -10,12 +10,12 @@ h6 {
 }
 body {
   background-color: #5165ff;
+  width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .modal-body {
   background-color: #fff;
   border-color: #fff;
@@ -25,47 +25,49 @@ body {
   flex-direction: row;
   gap: 20px;
 }
-
 .close {
   color: #000;
   cursor: pointer;
 }
-
 .close:hover {
   color: #000;
 }
-
 .theme-color {
-  color: #004cb9;
+  color: #0d6efd;
 }
 hr.new1 {
   border-top: 2px dashed #fff;
   margin: 0.4rem 0;
 }
-
-.btn-primary {
-  color: #fff;
-  background-color: #004cb9;
-  border-color: #004cb9;
-  padding: 12px;
-  padding-right: 30px;
-  padding-left: 30px;
-  border-radius: 1px;
-  font-size: 17px;
+table th {
+  text-align: center;
+  padding: 10px;
+  vertical-align: middle;
+}
+select,
+input {
+  margin: 0px 40px !important;
+  padding: 10px 20px;
+  font-size: 18px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  width: 250px;
+  background-color: #6d7ae0;
+  outline: none;
+}
+option {
+  background-color: #fff;
+}
+select:hover option:hover {
+  background-color: #6d7ae0;
+}
+label {
+  margin: auto 0px;
+  font-size: 18px;
+  width: 200px;
 }
 
-.btn-primary:hover {
-  color: #fff;
-  background-color: #004cb9;
-  border-color: #004cb9;
-  padding: 12px;
-  padding-right: 30px;
-  padding-left: 30px;
-  border-radius: 1px;
-  font-size: 17px;
-}
-#popupTable thead th{
-margin: 5px 10px;
+#popupTable thead th {
+  margin: 5px 10px;
 }
 .ct-table-container {
   display: flex;
@@ -73,27 +75,27 @@ margin: 5px 10px;
   width: 100%;
   margin: 0 auto;
 }
-.table-city{
+.table-city {
   width: 95%;
-  background-color: rgb(231, 224, 255);
+  background-color: white;
   font-weight: 600;
+  margin: 20px auto;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 .table-city th {
-  font-size: 18px;
-  /* font-weight: bolder; */
+  font-size: 15px;
+  font-weight: bolder;
 }
 .table-city td,
 .table-city th {
-  border: 1px solid black;
   text-align: center;
   padding: 10px;
-  border-radius: 5px;
+  vertical-align: middle;
 }
 .ellipsis {
   max-width: 150px;
-  white-space: nowrap; /* Prevent the text from wrapping */
-  overflow: hidden; /* Hide the text that overflows the td element */
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 .ellipsis:hover:after {
@@ -106,4 +108,29 @@ margin: 5px 10px;
   background-color: #333;
   color: #fff;
   z-index: 9999;
+}
+
+thead {
+  background-color: #6d7ae0;
+  height: 50px;
+  color: white;
+}
+table {
+  margin: 10px 50px;
+}
+
+#Filter-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin:40px auto;
+}
+.d-column{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.d-column label{
+margin: 5px 40px;
+
 }

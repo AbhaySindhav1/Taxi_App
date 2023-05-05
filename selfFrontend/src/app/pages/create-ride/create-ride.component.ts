@@ -339,6 +339,7 @@ export class CreateRideComponent implements OnInit {
     let formData = new FormData();
     this.wayPoints.pop();
     formData.append('user_id', this.user._id);
+    formData.append('UserName', this.user.UserName);
     formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
     formData.append(
       'PickupPoint',

@@ -8,9 +8,9 @@ const auth = require("../Controller/middleware/auth");
 ////                                              ///  ADD Ride ///                                                                   ///
 
 router.post("/Ride", upload.none(), auth, async (req, res) => {
-  JSON.parse(req.body.Stops)
+  JSON.parse(req.body.Stops);
   if (!req.body.Stops) {
-    req.body.Stops = []
+    req.body.Stops = [];
   }
   try {
     const Ride = new CreateRide(req.body);
@@ -46,9 +46,67 @@ router.get("/Ride", async (req, res) => {
   try {
     const Rides = await CreateRide.find({});
     res.status(200).send(Rides);
-    
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
+  }
+});
+
+////                                              ///  Get  Ride ///                                                                   ///
+
+router.post("/RideDetail", upload.none(), auth, async (req, res) => {
+  const { Search, Status, Type, fromDate, toDate } =
+    req.body;
+
+  let query = {};
+
+  if (searchQuery) {
+    query.$or = [
+      { UserName: { $regex: searchQuery, $options: "i" } },
+      { phone: { $regex: searchQuery, $options: "i" } },
+      { id: { $regex: searchQuery, $options: "i" } },
+    ];
+  }
+
+  if (filterStatus) {
+    query.status = filterStatus;
+  }
+
+  if (filterVehicle) {
+    query.vehicle = filterVehicle;
+  }
+
+  if (fromDate && toDate) {
+    query.createdAt = {
+      $gte: new Date(fromDate),
+      $lte: new Date(toDate),
+    };
+  }
+
+ await CreateRide.find(query, (err, requests) => {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      res.json(requests);
+    }
+  });
+});
+
+////                                              ///  Edit  Ride ///                                                                   ///
+
+router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
+  let fieldtoupdate = Object.keys(req.body);
+
+  try {
+    const Ride = await CreateRide.findById(req.params.id);
+    fieldtoupdate.forEach((field) => {
+      Ride[field] = req.body[field];
+    });
+    await Ride.save();
+    res.status(200).json("updated");
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
   }
 });
 

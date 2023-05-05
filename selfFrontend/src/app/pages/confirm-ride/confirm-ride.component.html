@@ -1,166 +1,228 @@
 <div class="main-container">
-  <div class="search-container">
-    <div
-      class="modal fade"
-      id="staticBackdrop"
-      data-backdrop="static"
-      data-keyboard="false"
-      tabindex="-1"
-      aria-labelledby="staticBackdropLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body">
-            <div class="text-right">
-              <i class="fa fa-close close" data-dismiss="modal"></i>
-            </div>
+  <Form id="Filter-container" [formGroup]="RideSearchForm">
+    <div class="Status-select select d-column">
+      <label for="Status">Select Status</label>
+      <select id="Status" name="Status" formControlName="Status">
+        <option value="" selected hidden>Select Status</option>
 
-            <div class="px-4 py-3">
+        <option value="Accepted">Accepted</option>
+        <option value="Arrived">Arrived</option>
+        <option value="Picked">Picked</option>
+        <option value="Started">Started</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+    <div class="Vehicle-select select d-column">
+      <label for="Status" >Select Vehicle</label>
+      <select id="Type" name="Type"  formControlName="Type">
+        <option value="" selected hidden>Select Vehicle</option>
+
+        <option value="{{ Vehicle }}" *ngFor="let Vehicle of VehicleList">
+          {{ Vehicle }}
+        </option>
+      </select>
+    </div>
+
+    <div class="Vehicle-select select d-flex">
+      <div class="d-column">
+        <label for="FromDate">From : </label>
+        <input type="datetime-local" formControlName="FromDate" id="FromDate" />
+      </div>
+      <div class="d-column">
+        <label for="toDate">To : </label>
+        <input type="datetime-local" formControlName="toDate" id="toDate" />
+      </div>
+    </div>
+    <div class="Vehicle-select select d-column">
+      <label for="Search">Search </label>
+      <input type="text" formControlName="Search" id="Search" placeholder="username , phone number, request id "/>
+    </div>
+  </Form>
+
+  <div
+    class="modal fade"
+    id="staticBackdrop"
+    data-backdrop="static"
+    data-keyboard="false"
+    tabindex="-1"
+    aria-labelledby="staticBackdropLabel"
+    aria-hidden="true"
+    *ngIf="Ride"
+  >
+    <div class="modal-dialog"  >
+      <div class="modal-content">
+        <div class="modal-body" >
+          <div class="text-right">
+            <i class="fa fa-close close" data-dismiss="modal"></i>
+          </div>
+
+          <div class="px-4 py-3">
+            <div class="d-flex" style="flex-direction: column">
+              <div class="d-row">
+                <h4 class="theme-color" style="width: 120px">PickUp Point</h4>
+                <p>{{Ride?.PickupPoint}}</p>
+              </div>
               <div class="d-flex" style="flex-direction: column">
-                <div class="d-row">
-                  <h4 class="theme-color" style="width: 120px">PickUp Point</h4>
-                  <p>Kothariya,rajkot,India</p>
+                <div class="d-row my-1">
+                  <h4 class="theme-color" style="width: 120px">Drop Point</h4>
+                  <p>{{Ride?.ScheduleTime}}</p>
                 </div>
-                <div class="d-flex" style="flex-direction: column">
-                  <div class="d-row my-1">
-                    <h4 class="theme-color" style="width: 120px">Drop Point</h4>
-                    <p>Kothariya,rajkot,India</p>
-                  </div>
-                  <div class="d-row my-1">
-                    <h4 class="theme-color" style="width: 120px">Stop Point</h4>
-                    <p>Kothariya,rajkot,India</p>
-                  </div>
+                <div class="d-row my-1">
+                  <h4 class="theme-color" style="width: 120px">Stop Point</h4>
+                  <p>{{Ride?.Stops}}</p>
                 </div>
+              </div>
 
-                <div class="mt-4 theme-color mb-4">
-                  <div>
-                    BookingTime &nbsp; : <span class="mx-2">12/10/2001</span>
-                  </div>
-                  <div>ScheduleTime : <span class="mx-2">12/10/2001</span></div>
+              <div class="mt-4 theme-color mb-4">
+                <div>
+                  BookingTime &nbsp; : <span class="mx-2">{{Ride?.BookingTime}}</span>
                 </div>
+                <div>ScheduleTime : <span class="mx-2">{{Ride?.ScheduleTime}}</span></div>
+              </div>
+              <div class="ct-table-container" >
+                <table class="table-city table table-striped">
+                  <thead>
+                    <th>Driver ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let driver of driverData">
+                      <td>{{driver._id}}</td>
+                      <td>{{driver.DriverName}}</td>
+                      <td>{{driver.DriverPhone}}</td>
+                      <td>{{driver.DriverEmail}}</td>
+                     
+                    </tr>
+                  
+                  </tbody>
+                </table>
+              </div>
 
-                <ul>
-                  <li>Driver ID &nbsp;&nbsp;:</li> 
-                  <li>Name  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</li>
-                  <li>Phone &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</li>
-                  <li>Email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</li>
-                </ul>
+              <span class="theme-color">Payment Summary</span>
+              <div class="mb-3">
+                <hr class="new1" />
+              </div>
 
-                <span class="theme-color">Payment Summary</span>
-                <div class="mb-3">
-                  <hr class="new1" />
-                </div>
+              <div class="d-flex justify-content-between">
+                <span class="font-weight-bold">Ether Chair(Qty:1)</span>
+                <span class="text-muted">$1750.00</span>
+              </div>
 
-                <div class="d-flex justify-content-between">
-                  <span class="font-weight-bold">Ether Chair(Qty:1)</span>
-                  <span class="text-muted">$1750.00</span>
-                </div>
+              <div class="d-flex justify-content-between">
+                <small>Shipping</small>
+                <small>$175.00</small>
+              </div>
 
-                <div class="d-flex justify-content-between">
-                  <small>Shipping</small>
-                  <small>$175.00</small>
-                </div>
+              <div class="d-flex justify-content-between">
+                <small>Tax</small>
+                <small>$200.00</small>
+              </div>
 
-                <div class="d-flex justify-content-between">
-                  <small>Tax</small>
-                  <small>$200.00</small>
-                </div>
+              <div class="d-flex justify-content-between mt-3">
+                <span class="font-weight-bold">Total</span>
+                <span class="font-weight-bold theme-color">$2125.00</span>
+              </div>
 
-                <div class="d-flex justify-content-between mt-3">
-                  <span class="font-weight-bold">Total</span>
-                  <span class="font-weight-bold theme-color">$2125.00</span>
-                </div>
-
-                <div class="text-center mt-5">
-                  <button class="btn btn-primary">Track your order</button>
-                </div>
+              <div class="text-center mt-5">
+                <button
+                type="bu"
+                  class="btn"
+                  style="background-color: #6d7ae0; color: white"
+                >
+                  Assign
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="ct-table-container">
-      <table class="table-city">
-        <thead>
-          <tr>
-            <th class="ellipsis">Ride ID</th>
-            <th class="ellipsis">User ID</th>
-            <th class="ellipsis">PickUp Point</th>
-            <th class="ellipsis">Stops</th>
-            <th class="ellipsis">Drop Point</th>
-            <th class="ellipsis">Type</th>
-            <th class="ellipsis">Booking Time</th>
-            <th class="ellipsis">Schdule Time</th>
-            <th class="ellipsis">Driver ID</th>
-            <th class="ellipsis">Trip Fee</th>
-            <th class="ellipsis">Status</th>
-            <th style="min-width: 250px">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let Ride of RideList">
-            <td class="ellipsis" title="{{ Ride._id }}">{{ Ride._id }}</td>
-            <td class="ellipsis" title="{{ Ride.user_id }}">
-              {{ Ride.user_id }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.PickupPoint }}">
-              {{ Ride.PickupPoint }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.Stops }}">
-              {{ Ride.Stops.split('","').length }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.DropPoint }}">
-              {{ Ride.DropPoint }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.type }}">{{ Ride.type }}</td>
-            <td class="ellipsis" title="{{ Ride.BookingTime }}">
-              {{ Ride.BookingTime }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.ScheduleTime }}">
-              {{ Ride.ScheduleTime }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.Driver }}">
-              {{ Ride.Driver || "Assigning" }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.TripFee }}">
-              {{ Ride.TripFee }}
-            </td>
-            <td class="ellipsis" title="{{ Ride.Status }}">
-              {{ Ride.Status }}
-            </td>
-            <td>
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-evenly;
-                "
+  <div class="ct-table-container">
+    <table class="table-city table table-striped">
+      <thead>
+        <tr>
+          <th class="ellipsis">Ride ID</th>
+          <th class="ellipsis">User ID</th>
+          <th class="ellipsis">User Name</th>
+          <th class="ellipsis">PickUp Point</th>
+          <th class="ellipsis">Stops</th>
+          <th class="ellipsis">Drop Point</th>
+          <th class="ellipsis">Type</th>
+          <th class="ellipsis">Booking Time</th>
+          <th class="ellipsis">Schdule Time</th>
+          <th class="ellipsis">Driver ID</th>
+          <th class="ellipsis">Trip Fee</th>
+          <th class="ellipsis">Status</th>
+          <th style="min-width: 250px">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let Ride of RideList">
+          <td class="ellipsis" title="{{ Ride._id }}">{{ Ride._id }}</td>
+          <td class="ellipsis" title="{{ Ride.user_id }}">
+            {{ Ride.user_id }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.UserName }}">
+            {{ Ride.UserName }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.PickupPoint }}">
+            {{ Ride.PickupPoint }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.Stops }}">
+            {{ Ride.Stops.split('","').length }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.DropPoint }}">
+            {{ Ride.DropPoint }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.type }}">{{ Ride.type }}</td>
+          <td class="ellipsis" title="{{ Ride.BookingTime }}">
+            {{ Ride.BookingTime }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.ScheduleTime }}">
+            {{ Ride.ScheduleTime }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.Driver }}">
+            {{ Ride.Driver || "Assigning" }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.TripFee }}">
+            {{ Ride.TripFee }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.Status }}">
+            {{ Ride.Status }}
+          </td>
+          <td>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-evenly;
+              "
+            >
+              <button
+                class="btn btn-primary"
+                style="width: 70px; padding: 5px; background-color: #6d7ae0"
+                (click)="OnAssign(Ride)"
+                type="button"
+                data-toggle="modal"
+                data-target="#staticBackdrop"
               >
-                <button
-                  class="btn btn-primary"
-                  style="width: 70px; padding: 5px"
-                  (click)="OnAssign()"
-                  type="button"
-                  data-toggle="modal"
-                  data-target="#staticBackdrop"
-                >
-                  Assign
-                </button>
-                <button
-                  class="btn btn-danger"
-                  style="width: 70px; padding: 5px"
-                  (click)="onCencel()"
-                >
-                  Cancel
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                Assign
+              </button>
+              <button
+                class="btn btn-danger"
+                style="width: 70px; padding: 5px"
+                (click)="StatusChange(Ride._id, 'Cancel')"
+              >
+                Cancel
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
