@@ -4,11 +4,14 @@ const router = new express.Router();
 const multer = require("multer");
 const upload = multer();
 const auth = require("../Controller/middleware/auth");
+const mongoose = require("mongoose");
+const moment = require("moment");
 
 ////                                              ///  ADD Ride ///                                                                   ///
 
 router.post("/Ride", upload.none(), auth, async (req, res) => {
-  JSON.parse(req.body.Stops);
+  // console.log(req.body);
+  // JSON.parse(req.body.Stops);
   if (!req.body.Stops) {
     req.body.Stops = [];
   }
@@ -52,44 +55,45 @@ router.get("/Ride", async (req, res) => {
   }
 });
 
-////                                              ///  Get  Ride ///                                                                   ///
+////                                              ///  Filter  Ride ///                                                                   ///
 
-router.post("/RideDetail", upload.none(), auth, async (req, res) => {
-  const { Search, Status, Type, fromDate, toDate } =
-    req.body;
+router.post("/RideFilter", upload.none(), auth, async (req, res) => {
+  let { Search, Status, Type, FromDate, toDate } = req.body;
+FromDate  = new Date(FromDate).toISOString()                
+toDate  = new Date(toDate).toISOString()                
+console.log(FromDate);
+  console.log(req.body);
 
-  let query = {};
-
-  if (searchQuery) {
-    query.$or = [
-      { UserName: { $regex: searchQuery, $options: "i" } },
-      { phone: { $regex: searchQuery, $options: "i" } },
-      { id: { $regex: searchQuery, $options: "i" } },
-    ];
-  }
-
-  if (filterStatus) {
-    query.status = filterStatus;
-  }
-
-  if (filterVehicle) {
-    query.vehicle = filterVehicle;
-  }
-
-  if (fromDate && toDate) {
-    query.createdAt = {
-      $gte: new Date(fromDate),
-      $lte: new Date(toDate),
-    };
-  }
-
- await CreateRide.find(query, (err, requests) => {
-    if (err) {
-      res.status(500).send(err);
+  let Rides;
+  try {
+    if (mongoose.Types.ObjectId.isValid(Search)) {
+      console.log("1");
+      Rides = await CreateRide.find({
+        $and: [
+          { $or: [{ UserName: { $regex: Search } }, { _id: Search }] },
+          { Status: Status },
+          { type: Type },
+          { ScheduleTime: { $gte: new Date(FromDate), $lte: new Date(toDate) } }
+        ],
+      });
     } else {
-      res.json(requests);
+      console.log("2");
+      Rides = await CreateRide.find({
+        $and: [
+          { $or: [{ UserName: { $regex: Search } }] },
+          { Status: Status },
+          { type: Type },
+          {
+            ScheduleTime: { $gte: new Date(FromDate), $lte: new Date(toDate) },
+          },
+        ],
+      });
     }
-  });
+    console.log(Rides);
+    res.status(200).json(Rides);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 ////                                              ///  Edit  Ride ///                                                                   ///
@@ -109,5 +113,11 @@ router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
     res.status(400).json(error);
   }
 });
+
+function convertToLocalTime(time) {
+  const now = new Date(time);
+  const utcNow = moment.utc(now);
+  return utcNow.local().format("MM/DD/YYYY, HH:mm:ss");
+}
 
 module.exports = router;

@@ -134,3 +134,6 @@ table {
 margin: 5px 40px;
 
 }
+.selected-row {
+  background-color: #3298fd54;
+}

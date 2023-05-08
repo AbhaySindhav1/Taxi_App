@@ -32,6 +32,7 @@ export class CreateRideComponent implements OnInit {
   RideDetailsFormShow = false;
   wayPoints: any = [];
   TripCharge: any;
+  ways:any;
 
   constructor(
     private usersService: UsersService,
@@ -137,35 +138,7 @@ export class CreateRideComponent implements OnInit {
     this.isSubmitted = true;
     this.errMassage = null;
     if (!this.RideForm.valid) return;
-    // let formData = new FormData();
 
-    // formData.append('UserName', this.RideForm.get('UserName').value);
-    // formData.append('UserEmail', this.RideForm.get('UserEmail').value);
-    // formData.append('CountryCode', this.RideForm.get('CountryCode').value);
-    // formData.append('UserPhone', this.RideForm.get('UserPhone').value);
-    // if (!this.user) {
-    //   this.usersService.initUsers(formData).subscribe({
-    //     next: (data) => {
-    //       this.RideDetailsFormShow = true;
-    //       this.isSubmitted = false;
-    //       this.error = false;
-    //       setTimeout(() => {
-    //         this.setupAutocomplete('PickupPoint');
-    //         this.setupAutocomplete('DropPoint');
-    //       }, 1);
-    //     },
-    //     error: (error) => {
-    //       this.errMassage = error.error;
-    //       this.error = true;
-    //       return;
-    //     },
-    //   });
-    // } else {
-    //   this.RideDetailsFormShow = true;
-    //   this.isSubmitted = false;
-    //   this.error = false;
-    //
-    // }
     setTimeout(() => {
       this.setupAutocomplete('PickupPoint');
       this.setupAutocomplete('DropPoint');
@@ -209,7 +182,6 @@ export class CreateRideComponent implements OnInit {
               ).focus();
               return;
             } else {
-              console.log(data);
               this.isServiceZone = data[0];
               this.pricingService
                 .initGetAllVehicle(this.isServiceZone.city)
@@ -280,22 +252,22 @@ export class CreateRideComponent implements OnInit {
   }
 
   initDistanceMatrix() {
-    this.wayPoints = [];
+    this.ways = [];
     for (let index = 1; index <= this.stops.length; index++) {
-      this.wayPoints.push(
+      this.ways.push(
         (document.getElementById(`Drop${index}`) as HTMLInputElement).value
       );
     }
-    this.wayPoints.push(
-      (document.getElementById('DropPoint') as HTMLInputElement).value
-    );
+    this.ways.push((document.getElementById('DropPoint') as HTMLInputElement).value);
+    console.log('ways', this.ways);
+
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
       {
         origins: [
           (document.getElementById('PickupPoint') as HTMLInputElement).value,
         ],
-        destinations: this.wayPoints,
+        destinations: this.ways,
         travelMode: 'DRIVING',
       },
 
@@ -334,13 +306,15 @@ export class CreateRideComponent implements OnInit {
     if (!this.RideDetailsForm.valid) {
       return;
     }
-    let confimed = confirm("Are You Want To Book Ride")
-    if(!confimed) return;
+    let confimed = confirm('Are You Want To Book Ride');
+    if (!confimed) return;
     let formData = new FormData();
-    this.wayPoints.pop();
+    this.ways.pop();
     formData.append('user_id', this.user._id);
     formData.append('UserName', this.user.UserName);
     formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
+    formData.append('Distance', this.tripDetails.Distance);
+    formData.append('Time', this.tripDetails.Time);
     formData.append(
       'PickupPoint',
       (document.getElementById('PickupPoint') as HTMLInputElement).value
@@ -349,9 +323,8 @@ export class CreateRideComponent implements OnInit {
       'DropPoint',
       (document.getElementById('DropPoint') as HTMLInputElement).value
     );
-    console.log(this.wayPoints);
-    
-    formData.append('Stops', JSON.stringify(this.wayPoints));
+
+    formData.append('Stops', JSON.stringify(this.ways));
     let time;
     if (!this.RideDetailsForm.get('Time').value) {
       const now = new Date();
@@ -364,12 +337,14 @@ export class CreateRideComponent implements OnInit {
     formData.append('TripFee', this.tripDetails.TripCharge);
     console.log(formData);
     this.rideService.initAddRideDetails(formData).subscribe({
-      next:(data)=>{console.log(data);
-        this.toastr.success(data.message)
-      },error:(error)=>{console.log(error);
-      }
-    })
-    
+      next: (data) => {
+        this.toastr.success(data.message);
+        this.OnReset()
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
   }
 
   calculateFee() {
@@ -386,7 +361,6 @@ export class CreateRideComponent implements OnInit {
 
     this.pricingService.initGetPricingForZone(formData).subscribe({
       next: (data) => {
-
         if (data.length > 0) {
           console.log(data);
           if (!this.Distance || !this.Time) {
@@ -434,5 +408,7 @@ export class CreateRideComponent implements OnInit {
     this.allPlaces = {};
     this.tripDetails = {};
     this.wayPoints = [];
+    directionsRenderer.setDirections(null);
+    directionsRenderer.setMap(null);  
   }
 }

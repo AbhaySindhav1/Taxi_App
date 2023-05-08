@@ -122,3 +122,37 @@ priceing deleting = 34
 
           PickupPoint: new FormControl(null, [Validators.required]),
       DropPoint: new FormControl(null, [Validators.required]),
+
+
+
+
+      /// data add user
+       // let formData = new FormData();
+
+    // formData.append('UserName', this.RideForm.get('UserName').value);
+    // formData.append('UserEmail', this.RideForm.get('UserEmail').value);
+    // formData.append('CountryCode', this.RideForm.get('CountryCode').value);
+    // formData.append('UserPhone', this.RideForm.get('UserPhone').value);
+    // if (!this.user) {
+    //   this.usersService.initUsers(formData).subscribe({
+    //     next: (data) => {
+    //       this.RideDetailsFormShow = true;
+    //       this.isSubmitted = false;
+    //       this.error = false;
+    //       setTimeout(() => {
+    //         this.setupAutocomplete('PickupPoint');
+    //         this.setupAutocomplete('DropPoint');
+    //       }, 1);
+    //     },
+    //     error: (error) => {
+    //       this.errMassage = error.error;
+    //       this.error = true;
+    //       return;
+    //     },
+    //   });
+    // } else {
+    //   this.RideDetailsFormShow = true;
+    //   this.isSubmitted = false;
+    //   this.error = false;
+    //
+    // }

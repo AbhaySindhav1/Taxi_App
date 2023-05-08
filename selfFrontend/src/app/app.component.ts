@@ -1,13 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { SocketService } from './Services/socket.service';
+
+
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'MainTask';
+
+  constructor(private socketService : SocketService) {
   
-  constructor() {}
-  
+  }
+  ngOnInit(): void {
+    this.socketService.socket.on('message',(data:any)=>{
+      console.log(data);
+      
+    })
+  }
 }

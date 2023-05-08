@@ -36,4 +36,8 @@ export class RideService {
   initEditRide(id: any, FormData: any) {
     return this.http.patch<any>('http://localhost:3000/Ride/' + id, FormData);
   }
+
+  initFilterRide(FormData:any){
+    return this.http.post<any>('http://localhost:3000/RideFilter', FormData);
+  }
 }

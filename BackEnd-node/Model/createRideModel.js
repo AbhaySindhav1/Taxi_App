@@ -24,21 +24,28 @@ const RideSchema = mongoose.Schema({
   },
   Stops: {
     type: String,
-    required:true
+    required: true,
   },
-  ScheduleTime: {
+  Distance: {
     type: String,
     required: true,
   },
-  BookingTime: {
+  Time: {
     type: String,
-    default: () => {
-      const now = new Date();
-      const utcNow = moment.utc(now);
+    required: true,
+  },
+  ScheduleTime: {
+    type: Date,
+    required: true,
+    set: function (value) {
+      console.log(value);
 
-      const localTimeStr = utcNow.local().format("MM/DD/YYYY, HH:mm:ss");
-      return localTimeStr;
+      return new Date(value).toISOString();
     },
+  },
+  BookingTime: {
+    type: Date,
+    default: () =>new Date().toISOString(),
     required: true,
   },
   TripFee: {
