@@ -14,8 +14,8 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
   } else {
     req.body.profile = "";
   }
-  req.body.approval = 'pending'
-  req.body.status = 'offline'
+  req.body.approval = "pending";
+  req.body.status = "offline";
   try {
     if (req.body.CountryCode) {
       req.body.DriverPhone =
@@ -125,10 +125,27 @@ router.get("/Driver", auth, async (req, res) => {
   }
 });
 
+//                                Get Specific Driver
+
+router.post("/Driver/List", auth, handleDriversUpload, async (req, res) => {
+  try {
+    const Drivers = await Driver.find({
+      $and: [
+        { status: "online" },
+        { approval: "Approve" },
+        { ServiceType: req.body.ServiceType },
+      ],
+    });
+    res.status(200).json(Drivers);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
 //////                                                        ////        Edit   Driver       ////                                                           ///////
 
 router.patch("/Driver/:id", auth, handleDriversUpload, async (req, res) => {
-
   let fieldtoupdate;
   if (req.file) {
     req.body.profile = req.file.filename;

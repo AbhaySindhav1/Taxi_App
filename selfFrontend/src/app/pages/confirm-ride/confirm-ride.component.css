@@ -46,7 +46,7 @@ table th {
 }
 select,
 input {
-  margin: 0px 40px !important;
+  margin: 0px 30px !important;
   padding: 10px 20px;
   font-size: 18px;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -98,7 +98,7 @@ label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.ellipsis:hover:after {
+/* .ellipsis:hover:after {
   content: attr(title);
   display: inline-block;
   position: absolute;
@@ -108,7 +108,7 @@ label {
   background-color: #333;
   color: #fff;
   z-index: 9999;
-}
+} */
 
 thead {
   background-color: #6d7ae0;

@@ -2,12 +2,7 @@
   <Form id="Filter-container" [formGroup]="RideSearchForm">
     <div class="Status-select select d-column">
       <label for="Status">Select Status</label>
-      <select
-        id="Status"
-        name="Status"
-        formControlName="Status"
-        
-      >
+      <select id="Status" name="Status" formControlName="Status">
         <option value="" selected hidden>Select Status</option>
 
         <option value="Accepted">Accepted</option>
@@ -19,7 +14,7 @@
     </div>
     <div class="Vehicle-select select d-column">
       <label for="Status">Select Vehicle</label>
-      <select id="Type" name="Type" formControlName="Type" >
+      <select id="Type" name="Type" formControlName="Type">
         <option value="" selected hidden>Select Vehicle</option>
 
         <option value="{{ Vehicle }}" *ngFor="let Vehicle of VehicleList">
@@ -31,21 +26,11 @@
     <div class="Vehicle-select select d-flex">
       <div class="d-column">
         <label for="FromDate">From : </label>
-        <input
-          type="datetime-local"
-          formControlName="FromDate"
-          id="FromDate"
-          
-        />
+        <input type="datetime-local" formControlName="FromDate" id="FromDate" />
       </div>
       <div class="d-column">
         <label for="toDate">To : </label>
-        <input
-          type="datetime-local"
-          formControlName="toDate"
-          id="toDate"
-          
-        />
+        <input type="datetime-local" formControlName="toDate" id="toDate" />
       </div>
     </div>
     <div class="Vehicle-select select d-column">
@@ -55,14 +40,18 @@
         formControlName="Search"
         id="Search"
         placeholder="username , phone number, request id "
-        
       />
     </div>
-   
+
     <button
       type="button"
-      
-      style="background-color: #c5c4c4; color: black ; width: 100px; height:40px;margin-top: auto;"
+      style="
+        background-color: #c5c4c4;
+        color: black;
+        width: 100px;
+        height: 40px;
+        margin-top: auto;
+      "
       (click)="Filter()"
     >
       Apply
@@ -171,6 +160,7 @@
                   class="btn"
                   style="background-color: #6d7ae0; color: white"
                   (click)="AssignDriver(Ride)"
+                  [disabled]="!this.SelectedRow"
                 >
                   Assign
                 </button>
@@ -210,6 +200,12 @@
         </tr>
       </thead>
       <tbody>
+        <tr
+          *ngIf="RideList && RideList.length === 0"
+          style="text-align: center; vertical-align: middle"
+        >
+          <td colspan="13">No Rides</td>
+        </tr>
         <tr *ngFor="let Ride of RideList">
           <td class="ellipsis" title="{{ Ride._id }}">{{ Ride._id }}</td>
           <td class="ellipsis" title="{{ Ride.user_id }}">

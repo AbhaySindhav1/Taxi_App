@@ -7,6 +7,7 @@ import { UsersComponent } from '../pages/users/users.component';
 import { DriverComponent } from '../pages/driver/driver.component';
 import { CreateRideComponent } from '../pages/create-ride/create-ride.component';
 import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.component';
+import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
 
 export const DashBoardRoutes: Routes = [
   { path: 'table', component: TableComponent },
@@ -17,6 +18,7 @@ export const DashBoardRoutes: Routes = [
   { path: 'driver', component: DriverComponent },
   { path: 'createRide', component: CreateRideComponent },
   { path: 'Confirm', component: ConfirmRideComponent },
+  { path: 'runningReq', component: RunningreqComponent },
 ];
 
 export class AppRoutingModule {}

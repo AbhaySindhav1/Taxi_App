@@ -156,3 +156,46 @@ priceing deleting = 34
     //   this.error = false;
     //
     // }
+
+
+
+
+
+
+
+
+
+
+
+
+    app.post('/rides/assign-nearest', async (req, res) => {
+  const { rideId, pickupLocation } = req.body;
+
+  try {
+    // Find the nearest driver within a 10km radius
+    const drivers = await Driver.find({
+      location: {
+        $nearSphere: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [pickupLocation.longitude, pickupLocation.latitude]
+          },
+          $maxDistance: 10000
+        }
+      },
+      vehicleType: ride.vehicleType,
+      status: 'available'
+    }).sort({ distance: 1 });
+
+    if (drivers.length === 0) {
+      // No drivers found within the radius, update the ride status and notify the user
+      const ride = await Ride.findById(rideId);
+      ride.status = 'no-driver-found';
+      await ride.save();
+      // TODO: Notify the user that no driver was found
+      return res.send('No driver found');
+    }
+
+    // Assign the ride to the nearest driver
+    const driver = drivers[0];
+    const ride = await Ride.findById(rideId);

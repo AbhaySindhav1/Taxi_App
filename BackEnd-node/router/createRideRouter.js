@@ -10,8 +10,7 @@ const moment = require("moment");
 ////                                              ///  ADD Ride ///                                                                   ///
 
 router.post("/Ride", upload.none(), auth, async (req, res) => {
-  // console.log(req.body);
-  // JSON.parse(req.body.Stops);
+
   if (!req.body.Stops) {
     req.body.Stops = [];
   }
@@ -59,37 +58,64 @@ router.get("/Ride", async (req, res) => {
 
 router.post("/RideFilter", upload.none(), auth, async (req, res) => {
   let { Search, Status, Type, FromDate, toDate } = req.body;
-FromDate  = new Date(FromDate).toISOString()                
-toDate  = new Date(toDate).toISOString()                
-console.log(FromDate);
-  console.log(req.body);
+
+  if (Search === "null" && !!Search) {
+    Search = "";
+  }
+  if (Status === "null" && !!Status) {
+    Status = "";
+  }
+  if (Type === "null" && !!Type) {
+    Type = "";
+  }
+  if (FromDate !== "null" && FromDate) {
+    FromDate = new Date(FromDate).toISOString();
+  }
+  if (toDate !== "null" && toDate) {
+    toDate = new Date(toDate).toISOString();
+  }
 
   let Rides;
   try {
     if (mongoose.Types.ObjectId.isValid(Search)) {
-      console.log("1");
       Rides = await CreateRide.find({
         $and: [
-          { $or: [{ UserName: { $regex: Search } }, { _id: Search }] },
+          {
+            $or: [
+              { UserName: { $regex: Search } },
+              { user_id: new mongoose.Types.ObjectId(Search) },
+            ],
+          },
           { Status: Status },
           { type: Type },
-          { ScheduleTime: { $gte: new Date(FromDate), $lte: new Date(toDate) } }
+          FromDate && toDate !== "null"
+            ? {
+                ScheduleTime: {
+                  $gte: new Date(FromDate),
+                  $lte: new Date(toDate),
+                },
+              }
+            : {},
         ],
       });
     } else {
-      console.log("2");
       Rides = await CreateRide.find({
         $and: [
           { $or: [{ UserName: { $regex: Search } }] },
           { Status: Status },
           { type: Type },
-          {
-            ScheduleTime: { $gte: new Date(FromDate), $lte: new Date(toDate) },
-          },
+          FromDate && toDate !== "null"
+            ? {
+                ScheduleTime: {
+                  $gte: new Date(FromDate),
+                  $lte: new Date(toDate),
+                },
+              }
+            : {},
         ],
       });
     }
-    console.log(Rides);
+
     res.status(200).json(Rides);
   } catch (error) {
     console.log(error);

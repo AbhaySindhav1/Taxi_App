@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { PopUpComponent } from './pages/pop-up/pop-up.component';
 
+
 @NgModule({
   declarations: [AppComponent, PopUpComponent],
   imports: [

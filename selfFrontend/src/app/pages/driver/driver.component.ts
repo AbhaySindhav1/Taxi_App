@@ -233,6 +233,8 @@ export class DriverComponent implements OnInit {
   ////  Edit Driver Info
 
   onEditDriver(Driver: any) {
+    console.log(Driver);
+    
     this.isEditMode = true;
     this.DriverId = Driver._id;
     const a = Driver.DriverPhone.split('-');
@@ -242,8 +244,11 @@ export class DriverComponent implements OnInit {
       DriverEmail: Driver.DriverEmail,
       CountryCode: +a[0],
       DriverPhone: +a[1],
+      DriverCountry: Driver.DriverCountry,
       DriverCity: Driver.DriverCity,
+      ServiceType: Driver.ServiceType,
     });
+    this.onCountrySelect()
   }
 
   ////  Delete  Driver Info
