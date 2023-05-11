@@ -35,7 +35,7 @@ select {
   align-items: center;
   padding: 10px 0px;
 }
-#tbody {
+/* #tbody {
   display: flex;
   flex-direction: row;
   gap: 15px;
@@ -44,7 +44,7 @@ select {
   font-weight: bolder;
   font-size: 30px;
   margin: 25px 0px;
-}
+} */
 .countrydata {
   display: flex;
   flex-direction: column;
@@ -64,19 +64,19 @@ select {
   margin-left: auto;
   margin-right: 40px;
 }
-.abhay{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.abhay {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.form1{
-    width: 500px;
-    margin: 20px auto;
-    border-bottom-left-radius: 10px;
+.form1 {
+  width: 500px;
+  margin: 20px auto;
+  border-bottom-left-radius: 10px;
 }
 
-.display{
+.display {
   display: block;
 }
 
@@ -92,47 +92,44 @@ select {
   height: 400px;
   margin: 0px auto;
 }
-.ct-table-container{
+.ct-table-container {
   display: flex;
   justify-content: center;
   width: 100%;
   margin: 0 auto;
 }
-table{
+/* table{
   width: 94%;
   background-color:lightcyan;
   font-weight: 500;
   margin-top: 60px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  /* border-radius: 5px; */
-}
-th{
-  font-size: 18px;
-  font-weight: bolder;
-}
-td,th{
-  border: 2px solid black;
-  text-align: center;
-  padding: 10px;
-  border-radius: 5px;
+  border-radius: 5px; 
+}  */
 
+thead th div svg {
+  margin: 0px 10px;
+  color: black;
+  cursor: pointer;
 }
-thead th div{
-  display: flex ;
+
+thead th div {
+  padding: 0px 15px;
+  display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: center;
 }
-thead th div span{
-  display: flex ;
+thead th div span {
+  display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #5C636A;
+  background-color: #5c636a;
   color: white;
   width: 40px;
   height: 30px;
 }
-.container{
+.container {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;

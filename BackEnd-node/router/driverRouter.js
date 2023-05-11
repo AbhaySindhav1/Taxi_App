@@ -15,7 +15,8 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
     req.body.profile = "";
   }
   req.body.approval = "pending";
-  req.body.status = "offline";
+  req.body.status = "online";
+  req.body.ServiceType = "none";
   try {
     if (req.body.CountryCode) {
       req.body.DriverPhone =

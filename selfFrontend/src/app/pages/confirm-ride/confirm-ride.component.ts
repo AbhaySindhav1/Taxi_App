@@ -19,7 +19,7 @@ export class ConfirmRideComponent implements OnInit {
   RideSearchForm: any;
   driverData: any;
   Ride: any = {};
-  selectedRowIndex?: number;
+  selectedRowIndex?: any;
   SelectedRow: any;
 
   constructor(
@@ -74,13 +74,20 @@ export class ConfirmRideComponent implements OnInit {
       },
     });
     this.Ride = Ride;
+    this.StatusChange(Ride._id,'Assigning')
+    this.selectedRowIndex = null;
+    this.SelectedRow = {};
   }
 
-
-
   StatusChange(id: any, Status?: any) {
-    let Confirm = confirm('Are You Want Cancel Ride');
-    if (!Confirm) return;
+    if (Status === 'Assigning') {
+    } else if (Status === 'Cancelled') {
+      let Confirm = confirm('Are You Want Cancel Ride');
+      if (!Confirm) return;
+      const ride = this.RideList.find((r: any) => r._id === id);
+      if ((ride.Status = 'Cancelled')) return;
+    }
+
     let formdata = new FormData();
     formdata.append('Status', Status);
     this.rideService.initEditRide(id, formdata).subscribe({
@@ -102,21 +109,22 @@ export class ConfirmRideComponent implements OnInit {
       },
     });
   }
+
   AssignDriver(ride: any) {
-    console.log(this.SelectedRow);
-    this.socketService.socket.emit('ride', {
+    this.socketService.rideEmit({
       ride: ride,
       driver: this.SelectedRow,
     });
   }
+
   getTrData(index: any, row: any) {
     this.selectedRowIndex = index;
     this.SelectedRow = row;
-    console.log(index, row);
   }
+
   Filter() {
     let form = new FormData();
-    // Search, Status, Type, FromDate, toDate
+
     form.append('Search', this.RideSearchForm.get('Search').value);
     form.append('Type', this.RideSearchForm.get('Type').value);
     form.append('FromDate', this.RideSearchForm.get('FromDate').value);

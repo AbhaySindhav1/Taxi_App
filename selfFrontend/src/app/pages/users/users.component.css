@@ -35,7 +35,7 @@ select {
   align-items: center;
   padding: 10px 0px;
 }
-#tbody {
+/* #tbody {
   display: flex;
   flex-direction: row;
   gap: 15px;
@@ -44,7 +44,7 @@ select {
   font-weight: bolder;
   font-size: 30px;
   margin: 25px 0px;
-}
+} */
 .countrydata {
   display: flex;
   flex-direction: column;
@@ -102,19 +102,26 @@ table{
   font-weight: 500;
   margin-top: 60px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  /* border-radius: 5px; */
+  border-radius: 5px;
 }
+svg {
+  font-size: 50px;
+  font-weight: 600;
+  color: black;
+  cursor: pointer;
+}
+
 th{
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bolder;
 }
 td,th{
-  border: 2px solid black;
+  border: 1px solid white;
   text-align: center;
   padding: 10px;
   border-radius: 5px;
 
-}
+} 
 thead th div{
   display: flex ;
   flex-direction: row;

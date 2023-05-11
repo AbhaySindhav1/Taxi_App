@@ -5,7 +5,7 @@
       type="button"
       class="btn button"
       (click)="onSearch()"
-      style="min-width: 100px; background-color: rgb(126, 199, 223)"
+      style="min-width: 100px; background-color: rgb(126, 149, 223)"
     >
       {{ isSearchMode ? "Add" : "Search" }}
     </button>
@@ -90,6 +90,8 @@
           formControlName="CountryCode"
           onKeyPress="if(this.value.length==2) return false;"
           placeholder="+91"
+          style="width:100px; margin-right:-25px ;"
+          
         />
         <br />
         <span
@@ -175,31 +177,6 @@
           Please Select City
         </span>
       </div>
-
-      <div class="form-outline">
-        <label class="form-label" for="DriverCity">ServiceType</label>
-        <br />
-        <select
-          name="ServiceType"
-          id="ServiceType"
-          formControlName="ServiceType"
-        >
-          <option value="null" selected hidden>Select ServiceType</option>
-          <option value="{{ Vehicle }}" *ngFor="let Vehicle of VehicleList">
-            {{ Vehicle }}
-          </option>
-        </select>
-        <br />
-        <br />
-        <span
-          *ngIf="
-            (f.ServiceType.touched || isSubmitted) && f.ServiceType.invalid
-          "
-          style="color: #ff372e"
-        >
-          Please Select ServiceType
-        </span>
-      </div>
     </div>
     <div
       class="alert alert-danger"
@@ -211,7 +188,12 @@
     </div>
 
     <div class="btn-container">
-      <button class="btn btn-primary button" *ngIf="!isEditMode">
+      <button
+        class="btn button Button"
+        type="button"
+        style="background-color: #6d7ae0"
+        *ngIf="!isEditMode"
+      >
         Add User
       </button>
       <button
@@ -226,7 +208,7 @@
       <button
         class="btn button"
         type="button"
-        style="background-color: #ff372e"
+        style="background-color: #ff372e; color: white"
         (click)="initReset()"
       >
         Cancel
@@ -271,9 +253,9 @@
       </button>
     </div>
   </div>
-  
+
   <div class="ct-table-container">
-    <table class="table-city">
+    <table class="tables">
       <thead>
         <tr>
           <th>No.</th>
@@ -281,128 +263,103 @@
           <th>
             <div>
               DriverName
-              <button
-                class="btn bg-primary"
+
+              <svg
                 (click)="onSearchDriver('DriverName')"
-                type="button"
-                style="color: white; padding: 2px;"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-sort-down-alt"
+                viewBox="0 0 16 16"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-sort-down-alt"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
-                  />
-                </svg>
-              </button>
+                <path
+                  d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                />
+              </svg>
             </div>
           </th>
           <th>
             <div>
               DriverEmail
-              <button
-                class="btn bg-primary"
+
+              <svg
                 (click)="onSearchDriver('DriverEmail')"
-                type="button"
-                style="color: white"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-sort-down-alt"
+                viewBox="0 0 16 16"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-sort-down-alt"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
-                  />
-                </svg>
-              </button>
+                <path
+                  d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                />
+              </svg>
             </div>
           </th>
           <th>
             <div>
               DriverPhone
-              <button
-                class="btn bg-primary"
+
+              <svg
                 (click)="onSearchDriver('DriverPhone')"
-                type="button"
-                style="color: white"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-sort-down-alt"
+                viewBox="0 0 16 16"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-sort-down-alt"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
-                  />
-                </svg>
-              </button>
+                <path
+                  d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                />
+              </svg>
             </div>
           </th>
           <th>
             <div>
               DriverCountry
-              <button
-                class="btn bg-primary"
+
+              <svg
                 (click)="onSearchDriver('DriverCountry')"
-                type="button"
-                style="color: white"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-sort-down-alt"
+                viewBox="0 0 16 16"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-sort-down-alt"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
-                  />
-                </svg>
-              </button>
+                <path
+                  d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                />
+              </svg>
             </div>
           </th>
           <th>
             <div>
               DriverCity
-              <button
-                class="btn bg-primary"
+
+              <svg
                 (click)="onSearchDriver('DriverCity')"
-                type="button"
-                style="color: white"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-sort-down-alt"
+                viewBox="0 0 16 16"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-sort-down-alt"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
-                  />
-                </svg>
-              </button>
+                <path
+                  d="M3.5 3.5a.5.5 0 0 0-1 0v8.793l-1.146-1.147a.5.5 0 0 0-.708.708l2 1.999.007.007a.497.497 0 0 0 .7-.006l2-2a.5.5 0 0 0-.707-.708L3.5 12.293V3.5zm4 .5a.5.5 0 0 1 0-1h1a.5.5 0 0 1 0 1h-1zm0 3a.5.5 0 0 1 0-1h3a.5.5 0 0 1 0 1h-3zm0 3a.5.5 0 0 1 0-1h5a.5.5 0 0 1 0 1h-5zM7 12.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5z"
+                />
+              </svg>
             </div>
           </th>
           <th>ServiceType</th>
           <th>Approval</th>
 
           <th>Status</th>
-          <th>Action</th>
+          <th style="min-width: 350px">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -424,12 +381,31 @@
               />
             </div>
           </td>
-          <td>{{ driver.DriverName }}</td>
-          <td>{{ driver.DriverEmail }}</td>
-          <td>{{ driver.DriverPhone }}</td>
-          <td>{{ driver.DriverCountry }}</td>
-          <td>{{ driver.DriverCity }}</td>
-          <td>{{ driver.ServiceType }}</td>
+          <td title="{{ driver.DriverName }}" class="ellipsis">
+            {{ driver.DriverName }}
+          </td>
+          <td title="{{ driver.DriverEmail }}" class="ellipsis">
+            {{ driver.DriverEmail }}
+          </td>
+          <td title="{{ driver.DriverPhone }}" class="ellipsis">
+            {{ driver.DriverPhone }}
+          </td>
+          <td title="{{ driver.DriverCountry }}" class="ellipsis">
+            {{ driver.DriverCountry }}
+          </td>
+          <td title="{{ driver.DriverCity }}" class="ellipsis">
+            {{ driver.DriverCity }}
+          </td>
+          <td style="min-width: 150px">
+            {{ driver.ServiceType }}
+            <span
+              style="margin: 0px 10px; cursor: pointer"
+              (click)="onupdateDriver(driver)"
+              data-bs-toggle="modal"
+              data-bs-target="#staticBackdrop"
+              ><i style="font-size: 18px" class="fa">&#xf040;</i></span
+            >
+          </td>
           <td>{{ driver.approval }}</td>
           <td>{{ driver.status }}</td>
           <td>
@@ -481,5 +457,63 @@
 </div>
 
 <!-- Button trigger modal -->
-
+<div
+  class="modal fade"
+  id="staticBackdrop"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="staticBackdropLabel">Assign Vehicle</h3>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          X
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-outline">
+          <label class="form-label" for="DriverCity">ServiceType</label>
+          <br />
+          <select name="ServiceType" id="ServiceType">
+            <option selected hidden>Select ServiceType</option>
+            <option value="none">No Vehicle</option>
+            <option value="{{ Vehicle }}" *ngFor="let Vehicle of VehicleList">
+              {{ Vehicle }}
+            </option>
+          </select>
+          <br />
+          <br />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn bg-danger"
+          style="color: white"
+          data-bs-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn"
+          style="background-color: #6d7ae0; color: white"
+          (click)="onAssignService()"
+          data-bs-dismiss="modal"
+        >
+          Assign
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Modal -->

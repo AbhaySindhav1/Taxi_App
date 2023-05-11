@@ -20,7 +20,7 @@ select,input{
 }
 select,input{
     width: 400px;
-    background-color: lightblue;
+    background-color:#d3d8fc;
 }
 label{
     margin: auto 0px;
@@ -39,7 +39,7 @@ label{
   }
   table{
     width: 95%;
-    background-color:lightcyan;
+    /* background-color:lightcyan; */
     font-weight: 600;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     /* border-radius: 5px; */
@@ -50,10 +50,9 @@ label{
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   }
   td,th{
-    border: 2px solid black;
+    border: 1px solid white;
     text-align: center;
     padding: 10px;
-    border-radius: 5px;
   
   }
   .container{

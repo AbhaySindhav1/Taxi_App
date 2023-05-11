@@ -8,6 +8,7 @@ import {
 import { Router } from '@angular/router';
 import { AuthGuardService } from 'src/app/Services/auth-guard.service';
 import { AuthService } from 'src/app/Services/auth.service';
+import { SocketService } from 'src/app/Services/socket.service';
 
 @Component({
   selector: 'app-login',
@@ -28,7 +29,7 @@ export class LoginComponent implements OnInit {
   //   ),
   // ]);
 
-  constructor(private authService: AuthService,private authGuardService:AuthGuardService, private router: Router) {}
+  constructor(private authService: AuthService,private authGuardService:AuthGuardService, private router: Router,private socketService : SocketService) {}
 
   ngOnInit(): void {
     this.LoginForm = new FormGroup({
@@ -45,6 +46,7 @@ export class LoginComponent implements OnInit {
       .InItLogin(this.LoginForm.value.email, this.LoginForm.value.password)
       .subscribe({
         next: (data) => {
+          
           this.router.navigate(['dashboard'])
         },
         error: (error) => this.error= error.error,

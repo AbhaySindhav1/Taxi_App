@@ -11,6 +11,7 @@ const moment = require("moment");
 
 router.post("/Ride", upload.none(), auth, async (req, res) => {
 
+  console.log(req.body);
   if (!req.body.Stops) {
     req.body.Stops = [];
   }
@@ -33,7 +34,7 @@ router.post("/Ride", upload.none(), auth, async (req, res) => {
     } else if (error.errors && error.errors.DropPoint) {
       res.status(400).json("DropPoint is required");
     } else if (error.errors && error.errors.ScheduleTime) {
-      res.status(400).json("BookingTime is required");
+      res.status(400).json("ScheduleTime is required");
     } else if (error.errors && error.errors.TripFee) {
       res.status(400).json("TripFee is required");
     } else {

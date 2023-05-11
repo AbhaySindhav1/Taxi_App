@@ -10,3 +10,9 @@ label{
 .displayblock{
     display: block;
 }
+input{
+    border: 1px solid black;
+}
+.card-container{
+   width: 385px;
+}

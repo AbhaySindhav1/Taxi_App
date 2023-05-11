@@ -1,5 +1,5 @@
-<div class="card" style="background-color: #e3e7ea ; margin-left: 15px;" >
-  <div style="width: 100%; text-align: center">
+<div style="margin: 40px auto 80px auto;" >
+  <div style="width: 90%; text-align: center">
     <mat-icon
       style="font-size: 50px; height: 50px; width: 50px; margin: 10px auto"
     >
@@ -12,8 +12,8 @@
     (ngSubmit)="OnSubmit(Form)"
     #Form="ngForm"
   >
-    <div class="row">
-      <div class="col-4">
+    <div class="row d-flex justify-content-center" >
+      <div class="col-3">
         <label for="Type" class="form-label">Type</label>
         <input
         type="text"
@@ -24,24 +24,13 @@
         placeholder="Enter Your types"
         required
       />
-        <!-- <select
-          class="form-select"
-          aria-label="Default select example"
-          formControlName="types"
-          #select
-          
-        >
-          <option selected disabled value="null" hidden>Select car Types</option>
-          <option value="Sedan">Sedan</option>
-          <option value="Hatchback">Hatchback</option>
-          <option value="Suv">Suv</option>
-        </select> -->
+    
         <span *ngIf="vehicleForm.get('types').invalid && submitted"
           >Please Select Type</span
         >
       </div>
 
-      <div class="col-4">
+      <div class="col-2">
         <label for="Name" class="form-label">Name</label>
         <input
           type="text"
@@ -103,7 +92,7 @@
         <button
           type="submit"
           *ngIf="updateButton"
-          class="btn btn-success"
+          class="btn bg-success"
           id="logInBtn"
           style="
             padding: 7px 20px;
@@ -120,14 +109,14 @@
   </form>
   <span *ngIf="error">{{ error }}</span>
 </div>
-<table class="card" style="box-sizing: border-box">
+<table  >
   <tbody style="display: flex ml-2">
     
     <div class="container-fluid" >
-      <div class="row d-flex" style="gap: 15px;" >
+      <div class="row d-flex" style="gap: 40px; background-color: white;" >
         <div
-          class="col-sm-3 col-md-6 col-lg-4 col-xl-2 card d-flex"
-          style="justify-content: center; text-align: center ;background-color: #E3E7EA;" 
+          class="card-container"
+          style="justify-content: center; text-align: center ;background-color: #E3E7EA; padding: 45px ;" 
           *ngFor="let card of cards">
           <img
             src="http://localhost:3000/uploads/Vehicles/{{ card.profile }}"
@@ -136,8 +125,8 @@
           />
           <br>
 
-          <h1 style="font-weight: 800; font-size: 40px; font-family: cursive">{{ card.types }}</h1>
-          <h3>{{ card.name }}</h3>
+          <h1 style="font-weight: 800; font-size: 40px; font-family: cursive ; margin: 20px auto 40px auto;">{{ card.types }}</h1>
+          <!-- <h3>{{ card.name }}</h3> -->
           
           <div class="d-flex" style="justify-content: space-around">
             <button

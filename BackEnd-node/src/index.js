@@ -13,8 +13,8 @@ const priceRoute = require("../router/pricingRouter");
 const UsersRoute = require("../router/usersRouter");
 const DriverRoute = require("../router/driverRouter");
 const createRideRoute = require("../router/createRideRouter");
-const Driver = require("../Model/driverModel");
- 
+const Sockets = require('../Controller/Functions/Socket')
+
 
 const bodyParser = require("body-parser");
 const envPath = path.join(__dirname, "../key.env");
@@ -42,10 +42,4 @@ const server = app.listen(port, () => {
 
 const io = require('socket.io')(server);
 
-io.on('connection',(socket)=>{
-    socket.emit('message','heloo')
-
-    socket.on('ride',(data)=>{
-      console.log(data);
-    })
-})
+Sockets(io)

@@ -64,24 +64,8 @@ button {
   width: 100%;
   margin: 0 auto;
 }
-table{
-  width: 94%;
-  background-color:lightcyan;
-  font-weight: 600;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  /* border-radius: 5px; */
-}
-th{
-  font-size: 24px;
-  font-weight: bolder;
-}
-td,th{
-  border: 2px solid black;
-  text-align: center;
-  padding: 10px;
-  border-radius: 5px;
 
-}
+
 .container{
   display: flex;
   flex-direction: column;

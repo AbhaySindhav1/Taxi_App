@@ -38,14 +38,14 @@ const RideSchema = mongoose.Schema({
     type: Date,
     required: true,
     set: function (value) {
-      console.log(value);
-
       return new Date(value).toISOString();
     },
   },
   BookingTime: {
     type: Date,
-    default: () =>new Date().toISOString(),
+    default: () => {
+      return new Date().toISOString();
+    },
     required: true,
   },
   TripFee: {
@@ -53,8 +53,14 @@ const RideSchema = mongoose.Schema({
     required: true,
   },
   Driver: {
-    type: mongoose.Types.ObjectId,
-    default: null,
+    type: mongoose.Schema.Types.Mixed,
+    default: 'Driver',
+    validate: {
+      validator: function(v) {
+        return typeof v === 'string' || mongoose.Types.ObjectId.isValid(v);
+      },
+      message: props => `${props.value} is not a valid ObjectId or String!`
+    }
   },
   Status: {
     type: String,

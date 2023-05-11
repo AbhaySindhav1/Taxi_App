@@ -1,25 +1,47 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/internal/Observable';
+import { Subject } from 'rxjs/internal/Subject';
 import { io } from 'socket.io-client';
+import { RunningreqComponent } from '../pages/runningreq/runningreq.component'
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
-  public socket: any;
+  socket: any;
+  data: any;
 
   constructor() {
     this.socket = io('http://localhost:3000', {
-      transports: ['websocket'],
+      forceNew: true,
+      transports: ['websocket', 'polling'],
     });
 
     this.socket.on('connect', () => {
-      console.log('connected at frontend site');
+      console.log('connected');
     });
 
     this.socket.on('connect_error', (err: any) => {
       console.log(err);
     });
+    // this.socket.on('toSendDriver', (data: any) => {
+    //   console.log(data);
+    // });
   }
 
-  // Other methods and functions using the socket can go here
+  RunningReqData(): Observable<any> {
+    return new Observable<any>((observer) => {
+      observer.next(this.data);
+    });
+  }
+
+  rideEmit(data: any) {
+    this.socket.emit('ride', data);
+  }  
+
+  demo(){
+    this.socket.on('toSendDriver', (data: any) => {
+      console.log(data);
+    });
+  }
 }

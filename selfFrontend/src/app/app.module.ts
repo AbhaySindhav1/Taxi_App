@@ -11,6 +11,7 @@ import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { PopUpComponent } from './pages/pop-up/pop-up.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import { PopUpComponent } from './pages/pop-up/pop-up.component';
     ToastrModule.forRoot(),
     MatDialogModule,
     MatDialogModule,
+    NgbModule,
   ],
   providers: [
     {

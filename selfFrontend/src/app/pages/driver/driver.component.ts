@@ -12,6 +12,7 @@ import {
 } from '@angular/material/dialog';
 import { CountryService } from 'src/app/Services/country.service';
 import { VehicleService } from 'src/app/Services/vehicle.service';
+import { SocketService } from 'src/app/Services/socket.service';
 
 @Component({
   selector: 'app-driver',
@@ -32,9 +33,9 @@ export class DriverComponent implements OnInit {
   value = false;
   istoggled = false;
   showClass = false;
- driver:any
- CountryList:any
- VehicleList:any
+  driver: any;
+  CountryList: any;
+  VehicleList: any;
 
   constructor(
     private driverService: DriverService,
@@ -42,7 +43,7 @@ export class DriverComponent implements OnInit {
     private renderer: Renderer2,
     private elRef: ElementRef,
     private countryService: CountryService,
-    private vehicleService: VehicleService,
+    private vehicleService: VehicleService
   ) {
     this.DriverForm = new FormGroup({
       DriverFile: new FormControl(null),
@@ -58,7 +59,7 @@ export class DriverComponent implements OnInit {
       ]),
       DriverCity: new FormControl('', [Validators.required]),
       DriverCountry: new FormControl('', [Validators.required]),
-      ServiceType: new FormControl('', [Validators.required]),
+      // ServiceType: new FormControl('', [Validators.required]),
     });
   }
 
@@ -82,7 +83,6 @@ export class DriverComponent implements OnInit {
       next: (data) => {
         this.VehicleList = data;
         console.log(this.VehicleList);
-        
       },
       error: (error) => {
         this.error = error;
@@ -91,25 +91,24 @@ export class DriverComponent implements OnInit {
     });
     this.countryService.initonlyCountry().subscribe({
       next: (data) => {
-        this.CountryList = (data.sort());
-      
+        this.CountryList = data.sort();
       },
     });
   }
 
   ///   country change
 
-
   onCountrySelect() {
     this.error = null;
     this.DriverForm.get('city')?.setValue('');
-    let value = (document.getElementById("DriverCountry")as HTMLSelectElement).value;
+    let value = (document.getElementById('DriverCountry') as HTMLSelectElement)
+      .value;
 
     this.cityService.initGetAllCountry(value).subscribe({
       next: (data) => {
         this.CityList = data;
         console.log(this.CityList);
-        
+
         // Update the value of the city form control to the first item in the list
         if (this.CityList.length > 0) {
           this.DriverForm.get('DriverCity')?.setValue(this.CityList[0]);
@@ -126,7 +125,7 @@ export class DriverComponent implements OnInit {
 
   onFormSubmit() {
     console.log(this.DriverForm.value);
-    
+
     this.isSubmitted = true;
 
     if (!this.DriverForm.valid) {
@@ -141,8 +140,10 @@ export class DriverComponent implements OnInit {
     formData.append('CountryCode', this.DriverForm.get('CountryCode').value);
     formData.append('DriverPhone', this.DriverForm.get('DriverPhone').value);
     formData.append('DriverCity', this.DriverForm.get('DriverCity').value);
-    formData.append('DriverCountry', this.DriverForm.get('DriverCountry').value);
-    formData.append('ServiceType', this.DriverForm.get('ServiceType').value);
+    formData.append(
+      'DriverCountry',
+      this.DriverForm.get('DriverCountry').value
+    );
 
     if (!this.isEditMode) {
       this.driverService.initDriver(formData).subscribe({
@@ -164,24 +165,7 @@ export class DriverComponent implements OnInit {
         },
       });
     } else {
-      this.driverService.initEditDriver(this.DriverId, formData).subscribe({
-        next: (data) => {
-          this.getDriverReq();
-          this.initReset();
-        },
-        error: (error) => {
-          console.log(error);
-
-          if (error.error && error.error.sizeError) {
-            this.error = error.error.sizeError;
-          } else if (error.error && error.error.fileError) {
-            this.error = error.error.fileError;
-          } else {
-            this.error = error.error;
-          }
-          this.displayerror = true;
-        },
-      });
+      this.initDriverEditReq(formData);
     }
   }
 
@@ -234,8 +218,9 @@ export class DriverComponent implements OnInit {
 
   onEditDriver(Driver: any) {
     console.log(Driver);
-    
+
     this.isEditMode = true;
+    this.isSearchMode=false
     this.DriverId = Driver._id;
     const a = Driver.DriverPhone.split('-');
 
@@ -246,9 +231,47 @@ export class DriverComponent implements OnInit {
       DriverPhone: +a[1],
       DriverCountry: Driver.DriverCountry,
       DriverCity: Driver.DriverCity,
-      ServiceType: Driver.ServiceType,
+      // ServiceType: Driver.ServiceType,
     });
-    this.onCountrySelect()
+    this.onCountrySelect();
+  }
+
+  initDriverEditReq(formData: any) {
+    this.driverService.initEditDriver(this.DriverId, formData).subscribe({
+      next: (data) => {
+        this.getDriverReq();
+        this.initReset();
+      },
+      error: (error) => {
+        console.log(error);
+
+        if (error.error && error.error.sizeError) {
+          this.error = error.error.sizeError;
+        } else if (error.error && error.error.fileError) {
+          this.error = error.error.fileError;
+        } else {
+          this.error = error.error;
+        }
+        this.displayerror = true;
+      },
+    });
+  }
+
+  onupdateDriver(Driver: any) {
+    this.DriverId = Driver._id;
+    console.log(this.DriverId);
+    
+    (document.getElementById('ServiceType') as HTMLSelectElement).value =
+      Driver.ServiceType;
+  }
+  onAssignService() {
+    let data = (document.getElementById('ServiceType') as HTMLSelectElement)
+      .value;
+    console.log(data);
+
+    let formData = new FormData();
+    formData.append('ServiceType', data);
+    this.initDriverEditReq(formData)
   }
 
   ////  Delete  Driver Info
@@ -319,7 +342,9 @@ export class DriverComponent implements OnInit {
     });
   }
 
-  getImageSource(driver:any) {
-    return driver.profile ? `http://localhost:3000/uploads/Drivers/${driver.profile}` : 'http://localhost:3000/uploads/nouser.png';
+  getImageSource(driver: any) {
+    return driver.profile
+      ? `http://localhost:3000/uploads/Drivers/${driver.profile}`
+      : 'http://localhost:3000/uploads/nouser.png';
   }
 }

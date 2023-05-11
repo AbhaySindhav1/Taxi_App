@@ -159,8 +159,9 @@
                   type="button"
                   class="btn"
                   style="background-color: #6d7ae0; color: white"
-                  (click)="AssignDriver(Ride)"
+                  (click)="AssignDriver(Ride);"
                   [disabled]="!this.SelectedRow"
+                  data-dismiss="modal"
                 >
                   Assign
                 </button>
@@ -169,6 +170,7 @@
                   type="button"
                   class="btn"
                   style="background-color: #c5c4c4; color: black"
+                  data-dismiss="modal"
                 >
                   Assign To Nearest Driver
                 </button>
@@ -250,8 +252,7 @@
               <button
                 class="btn btn-primary"
                 style="width: 70px; padding: 5px; background-color: #6d7ae0"
-                (click)="OnAssign(Ride)"
-                type="button"
+                (click)="OnAssign(Ride);"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
               >
@@ -260,7 +261,8 @@
               <button
                 class="btn btn-danger"
                 style="width: 70px; padding: 5px"
-                (click)="StatusChange(Ride._id, 'Cancel')"
+                [disabled]="Ride.Status === 'Cancelled'"
+                (click)="StatusChange(Ride._id, 'Cancelled')"
               >
                 Cancel
               </button>

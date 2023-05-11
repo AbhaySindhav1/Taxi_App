@@ -1,97 +1,108 @@
 <div>
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body" style="width: 750px">
-        <div class="text-right">
-          <i class="fa fa-close close" data-dismiss="modal"></i>
-        </div>
+  <div
+    class="modal fade"
+    id="staticBackdrop"
+    data-backdrop="static"
+    data-keyboard="false"
+    tabindex="-1"
+    aria-labelledby="staticBackdropLabel"
+    aria-hidden="true"
+    #staticBackdrop
+  >
+    <div
+      class="modal-dialog container d-flex justify-content-center align-items-center"
+    >
+      <div class="modal-content" style="max-width: 700px">
+        <div class="modal-body">
+          <div
+            class="text-right"
+            (click)="closeModel()"
+            style="cursor: pointer"
+          >
+            <i class="fa fa-close close" data-dismiss="modal"></i>
+          </div>
 
-        <div class="px-4 py-3">
-          <div class="d-flex" style="flex-direction: column">
-            <div class="d-row">
-              <h4 class="theme-color" style="width: 120px">PickUp Point</h4>
-              <p>Ride?.PickupPoint</p>
-            </div>
+          <div class="px-4 py-3">
             <div class="d-flex" style="flex-direction: column">
-              <div class="d-row my-1">
-                <h4 class="theme-color" style="width: 120px">Drop Point</h4>
-                <p>Ride?.ScheduleTime</p>
+              <div class="d-row">
+                <h4 class="theme-color" style="width: 150px">
+                  PickUp Point &nbsp;&nbsp;:
+                </h4>
+                <p>{{Trip?.PickupPoint}}</p>
               </div>
-              <div class="d-row my-1">
-                <h4 class="theme-color" style="width: 120px">Stop Point</h4>
-                <p>Ride?.Stops</p>
+              <div class="d-flex" style="flex-direction: column">
+                <div class="d-row my-1">
+                  <h4 class="theme-color" style="width: 150px">
+                    Drop Point &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+                  </h4>
+                  <p>{{Trip?.DropPoint}}</p>
+                </div>
+                <div class="d-row my-1" *ngIf="Trip.Stops">
+                  <h4 class="theme-color" style="width: 150px">
+                    Stop Point &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                  </h4>
+                  <p>{{Trip.Stops}}</p>
+                </div>
+                <div class="d-row my-1" >
+                  <h4 class="theme-color" style="width: 150px">
+                    Distance &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                  </h4>
+                  <p>{{Trip.Distance}}</p>
+                </div>
+                <div class="d-row my-1">
+                  <h4 class="theme-color" style="width: 150px">
+                   Ride Charge&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+                  </h4>
+                  <p>{{Trip?.TripFee * 80/100}}</p>
+                </div>
               </div>
-            </div>
-
-            <div class="mt-4 theme-color mb-4">
-              <div>
-                BookingTime &nbsp; :
-                <span class="mx-2"> Ride?.BookingTime </span>
+              <div class="text-center mt-5">
+                <button
+                  type="button"
+                  class="btn"
+                  style="background-color: #6d7ae0; color: white"
+                  (click)="initResponse('Accepted',Trip._id);closeModel();"
+                >
+                  Accept
+                </button>
+                | |
+                <button
+                  type="button"
+                  class="btn"
+                  style="background-color: #c5c4c4; color: black"
+                  (click)="initResponse('Declined',Trip._id);closeModel();"
+                >
+                  Decline
+                </button>
               </div>
-              <div>
-                ScheduleTime :
-                <span class="mx-2"> Ride?.ScheduleTime </span>
-              </div>
-            </div>
-            <div class="ct-table-container">
-              <table class="table-city table table-striped">
-                <thead>
-                  <th>Driver ID</th>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Email</th>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-
-            <span class="theme-color">Payment Summary</span>
-            <div class="mb-3">
-              <hr class="new1" />
-            </div>
-
-            <div class="text-center mt-5">
-              <button
-                type="button"
-                class="btn"
-                style="background-color: #6d7ae0; color: white"
-              >
-                Assign
-              </button>
-              | |
-              <button
-                type="button"
-                class="btn"
-                style="background-color: #c5c4c4; color: black"
-              >
-                Assign To Nearest Driver
-              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<div class="ct-table-container">
-  <table class="table-city table table-striped">
-    <thead>
-      <tr>
-        <th class="ellipsis">Ride ID</th>
-        <th class="ellipsis">User ID</th>
-        <th class="ellipsis">User Name</th>
-        <th class="ellipsis">PickUp Point</th>
-        <th class="ellipsis">Stops</th>
-        <th class="ellipsis">Drop Point</th>
-        <th class="ellipsis">Type</th>
-        <th class="ellipsis">Booking Time</th>
-        <th class="ellipsis">Schdule Time</th>
-        <th class="ellipsis">Driver ID</th>
-        <th class="ellipsis">Trip Fee</th>
-        <th class="ellipsis">Status</th>
-        <th style="min-width: 250px">Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+
+
+  <div class="ct-table-container">
+    <table class="table-city table table-striped">
+      <thead>
+        <tr>
+          <th class="ellipsis">Ride ID</th>
+          <th class="ellipsis">User ID</th>
+          <th class="ellipsis">User Name</th>
+          <th class="ellipsis">PickUp Point</th>
+          <th class="ellipsis">Stops</th>
+          <th class="ellipsis">Drop Point</th>
+          <th class="ellipsis">Type</th>
+          <th class="ellipsis">Booking Time</th>
+          <th class="ellipsis">Schdule Time</th>
+          <th class="ellipsis">Driver ID</th>
+          <th class="ellipsis">Trip Fee</th>
+          <th class="ellipsis">Status</th>
+          <th style="min-width: 250px">Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>

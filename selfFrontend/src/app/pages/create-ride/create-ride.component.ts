@@ -339,9 +339,13 @@ export class CreateRideComponent implements OnInit {
     this.rideService.initAddRideDetails(formData).subscribe({
       next: (data) => {
         this.toastr.success(data.message);
+        console.log('1111');
+        
         this.OnReset()
       },
       error: (error) => {
+        console.log(this.ways);
+        
         console.log(error);
       },
     });
