@@ -1,9 +1,7 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CityService } from 'src/app/Services/city.service';
 import { DriverService } from 'src/app/Services/driver.service';
-import { Renderer2 } from '@angular/core';
-import { createPopper } from '@popperjs/core';
 
 import {
   MatDialog,
@@ -40,10 +38,9 @@ export class DriverComponent implements OnInit {
   constructor(
     private driverService: DriverService,
     private cityService: CityService,
-    private renderer: Renderer2,
-    private elRef: ElementRef,
     private countryService: CountryService,
-    private vehicleService: VehicleService
+    private vehicleService: VehicleService,
+    private socketService: SocketService
   ) {
     this.DriverForm = new FormGroup({
       DriverFile: new FormControl(null),
@@ -60,6 +57,11 @@ export class DriverComponent implements OnInit {
       DriverCity: new FormControl('', [Validators.required]),
       DriverCountry: new FormControl('', [Validators.required]),
       // ServiceType: new FormControl('', [Validators.required]),
+    });
+
+    this.socketService.socket.on('toSendDriver', (data: any) => {
+      console.log(data);
+      this.getStatus(data.driver._id, data.driver.status);
     });
   }
 
@@ -220,7 +222,7 @@ export class DriverComponent implements OnInit {
     console.log(Driver);
 
     this.isEditMode = true;
-    this.isSearchMode=false
+    this.isSearchMode = false;
     this.DriverId = Driver._id;
     const a = Driver.DriverPhone.split('-');
 
@@ -260,7 +262,7 @@ export class DriverComponent implements OnInit {
   onupdateDriver(Driver: any) {
     this.DriverId = Driver._id;
     console.log(this.DriverId);
-    
+
     (document.getElementById('ServiceType') as HTMLSelectElement).value =
       Driver.ServiceType;
   }
@@ -271,7 +273,7 @@ export class DriverComponent implements OnInit {
 
     let formData = new FormData();
     formData.append('ServiceType', data);
-    this.initDriverEditReq(formData)
+    this.initDriverEditReq(formData);
   }
 
   ////  Delete  Driver Info
@@ -346,5 +348,13 @@ export class DriverComponent implements OnInit {
     return driver.profile
       ? `http://localhost:3000/uploads/Drivers/${driver.profile}`
       : 'http://localhost:3000/uploads/nouser.png';
+  }
+
+  getStatus(driverId: any, Status: any) {
+    const ride = this.DriverData.find((r: any) => r._id == driverId);
+    const rideIndex = this.DriverData.findIndex((r: any) => r._id == driverId);
+   
+
+    ride.status = Status
   }
 }

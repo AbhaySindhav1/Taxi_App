@@ -30,7 +30,7 @@ export class CityComponent implements OnInit {
   UserID: any;
   coordinates: any = [];
   autocomplete: google.maps.places.Autocomplete | any;
-  city:any
+  city: any;
   constructor(
     private cityService: CityService,
     private countryService: CountryService
@@ -50,7 +50,6 @@ export class CityComponent implements OnInit {
       next: (data) => {
         this.ContryList = data.sort();
       },
-      
     });
     this.initMap();
     this.cityService.initGetAllCities().subscribe({
@@ -59,12 +58,11 @@ export class CityComponent implements OnInit {
       },
       error: (error) => {
         console.log(error);
-        
+
         this.error = error;
         this.changed = false;
       },
     });
-
   }
 
   initMap(lat = 23, lng = 73, zoom = 7) {
@@ -93,7 +91,7 @@ export class CityComponent implements OnInit {
       'overlaycomplete',
       (event: any) => {
         // console.log(event.path.b[0]);
-        
+
         if (this.isPolygonDrawn) {
           this.polygon.setMap(null);
         }
@@ -111,14 +109,13 @@ export class CityComponent implements OnInit {
 
           this.coordinates = [];
 
-          cordinatesAraa.push([ latLng.lng(),latLng.lat()]);
+          cordinatesAraa.push([latLng.lng(), latLng.lat()]);
         });
 
         this.coordinates = [...cordinatesAraa, cordinatesAraa[0]];
 
         this.zone = ArrayOfZoneCordinates;
         console.log(this.coordinates);
-        
 
         this.polygon.setEditable(true);
         this.drawingManager.setDrawingMode(null);
@@ -151,6 +148,8 @@ export class CityComponent implements OnInit {
 
     this.updateAutoComplete(contryobject[0].cca2);
 
+    (document.getElementById('city') as HTMLInputElement).value = '';
+
     if (!contryobject) {
       return;
     }
@@ -158,9 +157,7 @@ export class CityComponent implements OnInit {
 
   onSubmit() {
     this.changed = false;
-console.log(this.city);
-
-   
+    console.log(this.city);
 
     if (!this.country && !this.zone && !this.city) {
       this.error = 'Country, zone, and city are required';
@@ -186,30 +183,32 @@ console.log(this.city);
     } else {
       this.error = '';
     }
- 
+
     let formData = new FormData();
     formData.append('country', this.country);
     formData.append('city', this.city);
     console.log(this.coordinates);
     formData.append('zone', JSON.stringify(this.zone));
+
     
-    formData.append(
-      'Location',
-      JSON.stringify({ type: 'Polygon', coordinates: [this.coordinates] })
-    );
 
     if (!this.IsEditMode) {
+      formData.append(
+        'Location',
+        JSON.stringify({ type: 'Polygon', coordinates: [this.coordinates] })
+      );
       this.cityService.initAddCityData(formData).subscribe({
         next: (data) => {
           this.changed = true;
-
+          this.onReset();
           this.cityService.initGetAllCities().subscribe({
             next: (data) => {
               this.Citylist = data;
+              this.onReset();
             },
             error: (error) => {
               console.log(error);
-              
+
               this.error = error;
               this.changed = false;
             },
@@ -217,11 +216,15 @@ console.log(this.city);
         },
         error: (error) => {
           console.log(error);
-          
+
           this.error = error.error;
         },
       });
     } else {
+      formData.append(
+        'Location',
+        JSON.stringify({ type: 'Polygon', coordinates: this.coordinates })
+      );
       this.cityService.initEditCity(this.UserID, formData).subscribe({
         next: (data) => {
           this.cityService.initGetAllCities().subscribe({
@@ -229,6 +232,7 @@ console.log(this.city);
               this.Citylist = data;
               this.IsEditMode = false;
               this.onReset();
+              this.drawingManager.setMap(this.map);
             },
             error: (error) => {
               this.error = error;
@@ -244,7 +248,12 @@ console.log(this.city);
   }
 
   onEdit(city: any) {
+    this.coordinates = city.Location.coordinates
+    console.log(this.coordinates);
+    console.log(city);
+    
     this.UserID = city._id;
+    this.city = city.city;
     if (this.polygon) {
       this.polygon.setMap(null);
     }
@@ -336,6 +345,8 @@ console.log(this.city);
       cord.push([latLng.lng(), latLng.lat()]); ///
     });
     this.coordinates = [...cord, cord[0]];
+    console.log(this.coordinates);
+    
     this.zone = ArrayOfZoneCordinates;
   }
 
@@ -352,12 +363,14 @@ console.log(this.city);
     // add a listener to handle when a place is selected
     this.autocomplete.addListener('place_changed', () => {
       const place = this.autocomplete.getPlace();
-      this.city = place.name
+      
+      this.city = place.formatted_address;
+      console.log(this.city);
       if (!place.geometry) {
         console.error(`No geometry for ${place.name}`);
         return;
       }
-      
+
       this.map.fitBounds(place.geometry.viewport);
     });
   }
@@ -366,7 +379,6 @@ console.log(this.city);
     this.autocomplete.setComponentRestrictions({ country: country });
   }
 
-  
   onReset() {
     this.selectElement.nativeElement.value = null;
     this.country = null;

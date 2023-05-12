@@ -40,4 +40,8 @@ export class RideService {
   initFilterRide(FormData:any){
     return this.http.post<any>('http://localhost:3000/RideFilter', FormData);
   }
+
+  initRideHistory(){
+    return this.http.get<any>('http://localhost:3000/Ride/History');
+  }
 }

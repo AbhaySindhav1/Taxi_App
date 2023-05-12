@@ -52,15 +52,13 @@ const RideSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  DriverId: {
+    type: mongoose.Types.ObjectId,
+    default: null,
+  },
   Driver: {
-    type: mongoose.Schema.Types.Mixed,
-    default: 'Driver',
-    validate: {
-      validator: function(v) {
-        return typeof v === 'string' || mongoose.Types.ObjectId.isValid(v);
-      },
-      message: props => `${props.value} is not a valid ObjectId or String!`
-    }
+    type: String || null,
+    default: null,
   },
   Status: {
     type: String,

@@ -220,7 +220,7 @@
             {{ Ride.PickupPoint }}
           </td>
           <td class="ellipsis" title="{{ Ride.Stops }}">
-            {{ Ride.Stops.split('","').length }}
+            {{ Ride.Stops.split('","').length  || 0 }} 
           </td>
           <td class="ellipsis" title="{{ Ride.DropPoint }}">
             {{ Ride.DropPoint }}
@@ -262,7 +262,7 @@
                 class="btn btn-danger"
                 style="width: 70px; padding: 5px"
                 [disabled]="Ride.Status === 'Cancelled'"
-                (click)="StatusChange(Ride._id, 'Cancelled')"
+                (click)="StatusChange(Ride._id, Ride.DriverId, 'Cancelled')"
               >
                 Cancel
               </button>

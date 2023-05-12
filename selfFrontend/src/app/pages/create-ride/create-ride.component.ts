@@ -32,7 +32,7 @@ export class CreateRideComponent implements OnInit {
   RideDetailsFormShow = false;
   wayPoints: any = [];
   TripCharge: any;
-  ways:any;
+  ways: any;
 
   constructor(
     private usersService: UsersService,
@@ -74,6 +74,7 @@ export class CreateRideComponent implements OnInit {
       this.usersService.initGetUsers(number).subscribe({
         next: (data) => {
           if (data.length === 0) {
+            this.toastr.error('no user found')
             return;
           } else {
             if (data[0]) {
@@ -88,6 +89,12 @@ export class CreateRideComponent implements OnInit {
         error: (error) => {
           console.log(error);
         },
+      });
+    } else {
+      this.user = null;
+      this.RideForm.patchValue({
+        UserName: null,
+        UserEmail: null,
       });
     }
   }
@@ -258,7 +265,9 @@ export class CreateRideComponent implements OnInit {
         (document.getElementById(`Drop${index}`) as HTMLInputElement).value
       );
     }
-    this.ways.push((document.getElementById('DropPoint') as HTMLInputElement).value);
+    this.ways.push(
+      (document.getElementById('DropPoint') as HTMLInputElement).value
+    );
     console.log('ways', this.ways);
 
     var service = new google.maps.DistanceMatrixService();
@@ -309,7 +318,6 @@ export class CreateRideComponent implements OnInit {
     let confimed = confirm('Are You Want To Book Ride');
     if (!confimed) return;
     let formData = new FormData();
-    this.ways.pop();
     formData.append('user_id', this.user._id);
     formData.append('UserName', this.user.UserName);
     formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
@@ -323,8 +331,14 @@ export class CreateRideComponent implements OnInit {
       'DropPoint',
       (document.getElementById('DropPoint') as HTMLInputElement).value
     );
+    let stops = [];
+    for (let index = 1; index <= this.stops.length; index++) {
+      stops.push(
+        (document.getElementById(`Drop${index}`) as HTMLInputElement).value
+      );
+    }
 
-    formData.append('Stops', JSON.stringify(this.ways));
+    formData.append('Stops', JSON.stringify(stops));
     let time;
     if (!this.RideDetailsForm.get('Time').value) {
       const now = new Date();
@@ -339,13 +353,11 @@ export class CreateRideComponent implements OnInit {
     this.rideService.initAddRideDetails(formData).subscribe({
       next: (data) => {
         this.toastr.success(data.message);
-        console.log('1111');
-        
-        this.OnReset()
+        this.OnReset();
       },
       error: (error) => {
         console.log(this.ways);
-        
+
         console.log(error);
       },
     });
@@ -413,6 +425,6 @@ export class CreateRideComponent implements OnInit {
     this.tripDetails = {};
     this.wayPoints = [];
     directionsRenderer.setDirections(null);
-    directionsRenderer.setMap(null);  
+    directionsRenderer.setMap(null);
   }
 }

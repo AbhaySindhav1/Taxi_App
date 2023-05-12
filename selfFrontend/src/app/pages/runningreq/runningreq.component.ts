@@ -11,6 +11,7 @@ export class RunningreqComponent implements OnInit {
   @ViewChild('staticBackdrop', { static: false }) staticBackdrop: any;
 
   Trip: any = {};
+  Clicked = false;
 
   constructor(
     config: NgbModalConfig,
@@ -20,27 +21,33 @@ export class RunningreqComponent implements OnInit {
     config.backdrop = 'static';
     config.keyboard = false;
     this.socketService.socket.on('toSendDriver', (data: any) => {
+      console.log('data');
       this.Trip = data.data.ride;
-      console.log(this.Trip);
+      console.log(data);
+      let Interval = setTimeout(() => {
+        if (this.Clicked) return;
+        this.initResponse('Declined', this.Trip._id);
+        this.closeModel()
+      }, 10000);
       this.open();
     });
+    this.socketService.socket.on('AssignedReqAccepted', (data: any) => {});
   }
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   open(content?: any) {
     this.staticBackdrop.nativeElement.classList.add('show');
     this.staticBackdrop.nativeElement.style.display = 'block';
   }
   closeModel() {
+    this.Clicked = true;
     this.staticBackdrop.nativeElement.classList.remove('show');
     this.staticBackdrop.nativeElement.style.display = 'none';
   }
 
-  initResponse(response:string,id:any){
-    console.log(id);
-    
-    this.socketService.socket.emit('DriverResponse',{response,id})
+  initResponse(response: string, id: any) {
+    this.socketService.socket.emit('DriverResponse', { response, id });
   }
 
+  initStatus() {}
 }

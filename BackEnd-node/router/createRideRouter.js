@@ -1,5 +1,6 @@
 const express = require("express");
 const CreateRide = require("../Model/createRideModel");
+const Driver = require("../Model/driverModel");
 const router = new express.Router();
 const multer = require("multer");
 const upload = multer();
@@ -10,8 +11,6 @@ const moment = require("moment");
 ////                                              ///  ADD Ride ///                                                                   ///
 
 router.post("/Ride", upload.none(), auth, async (req, res) => {
-
-  console.log(req.body);
   if (!req.body.Stops) {
     req.body.Stops = [];
   }
@@ -47,7 +46,7 @@ router.post("/Ride", upload.none(), auth, async (req, res) => {
 
 router.get("/Ride", async (req, res) => {
   try {
-    const Rides = await CreateRide.find({});
+    const Rides = await CreateRide.find({Status: { $ne: 'Cancelled' }});
     res.status(200).send(Rides);
   } catch (error) {
     console.log(error);
@@ -127,24 +126,51 @@ router.post("/RideFilter", upload.none(), auth, async (req, res) => {
 
 router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
   let fieldtoupdate = Object.keys(req.body);
+  if ((req.body.DriverId === "undefined") | null | "null" | "") {
+    req.body.DriverId = null;
+  } else if (
+    req.body.DriverId &&
+    !mongoose.Types.ObjectId.isValid(req.body.DriverId)
+  ) {
+  }
 
   try {
     const Ride = await CreateRide.findById(req.params.id);
+    const driver = await Driver.findByIdAndUpdate(
+      { _id: req.body.DriverId },
+      { status: "online" },
+      { new: true }
+    );
     fieldtoupdate.forEach((field) => {
       Ride[field] = req.body[field];
     });
     await Ride.save();
-    res.status(200).json("updated");
+    res.status(200).json({ change: "updated", Ride });
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
   }
 });
 
-function convertToLocalTime(time) {
-  const now = new Date(time);
-  const utcNow = moment.utc(now);
-  return utcNow.local().format("MM/DD/YYYY, HH:mm:ss");
-}
+// function convertToLocalTime(time) {
+//   const now = new Date(time);
+//   const utcNow = moment.utc(now);
+//   return utcNow.local().format("MM/DD/YYYY, HH:mm:ss");
+// }
+
+
+////                                              ///  Ride History   ///                                                                   ///
+
+
+router.get("/Ride/History", async (req, res) => {
+  try {
+    const Rides = await CreateRide.find({$or:[{Status:'Cancelled'},{Status:'Completed'}]});
+    res.status(200).send(Rides);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
 
 module.exports = router;

@@ -24,9 +24,7 @@ export class SocketService {
     this.socket.on('connect_error', (err: any) => {
       console.log(err);
     });
-    // this.socket.on('toSendDriver', (data: any) => {
-    //   console.log(data);
-    // });
+
   }
 
   RunningReqData(): Observable<any> {
@@ -39,9 +37,5 @@ export class SocketService {
     this.socket.emit('ride', data);
   }  
 
-  demo(){
-    this.socket.on('toSendDriver', (data: any) => {
-      console.log(data);
-    });
-  }
+
 }
