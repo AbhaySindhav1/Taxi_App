@@ -199,3 +199,92 @@ priceing deleting = 34
     // Assign the ride to the nearest driver
     const driver = drivers[0];
     const ride = await Ride.findById(rideId);
+
+
+
+
+
+       // if (!mongoose.Types.ObjectId.isValid(req.query.Value)) {
+    //   drivers = await Driver.find(
+    //     {
+    //       $or: [
+    //         { DriverName: regext },
+    //         { DriverEmail: regext },
+    //         { DriverPhone: regext },
+    //         { DriverCountry: regext },
+    //         { approval: regext },
+    //         { status: regext },
+    //         { ServiceType: regext },
+    //       ],
+    //     },
+    //     null, // Projection
+    //     {
+    //       sort: { [sortColumn]: 1 },
+    //     }
+    //   );
+    // } else {
+    //   drivers = await Driver.find(
+    //     {
+    //       $or: [
+    //         { DriverName: regext },
+    //         { DriverEmail: regext },
+    //         { DriverPhone: regext },
+    //         { DriverCity: regext },
+    //         { DriverCountry: regext },
+    //         { approval: regext },
+    //         { status: regext },
+    //         { ServiceType: regext },
+    //         { _id: new mongoose.Types.ObjectId(req.query.Value) },
+    //       ],
+    //     },
+    //     null, // Projection
+    //     {
+    //       sort: { [sortColumn]: 1 },
+    //     }
+    //   );
+    // }
+
+
+
+
+
+
+
+     //   if (mongoose.Types.ObjectId.isValid(Search)) {
+    //     Rides = await CreateRide.find({
+    //       $and: [
+    //         {
+    //           $or: [
+    //             { UserName: { $regex: Search } },
+    //             { user_id: new mongoose.Types.ObjectId(Search) },
+    //           ],
+    //         },
+    //         Status && Status !== "null" ? { Status: +Status } : {},
+    //         Type && mongoose.Types.ObjectId.isValid(Type) ? { type: mongoose.Types.ObjectId(Type) } : {},
+    //         FromDate && toDate !== "null"
+    //           ? {
+    //               ScheduleTime: {
+    //                 $gte: new Date(FromDate),
+    //                 $lte: new Date(toDate),
+    //               },
+    //             }
+    //           : {},
+    //       ],
+    //     });
+    //   } else {
+    //     Rides = await CreateRide.find({
+    //       $and: [
+    //         { $or: [{ UserName: { $regex: Search } }] },
+    //         Status ? { Status: Status } : {},
+    //         Type && mongoose.Types.ObjectId.isValid(Type) ? { type: mongoose.Types.ObjectId(Type) } : {},
+    //         FromDate && toDate !== "null"
+    //           ? {
+    //               ScheduleTime: {
+    //                 $gte: new Date(FromDate),
+    //                 $lte: new Date(toDate),
+    //               },
+    //             }
+    //           : {},
+    //       ],
+    //     });
+    //   }

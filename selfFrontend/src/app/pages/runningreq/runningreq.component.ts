@@ -21,13 +21,12 @@ export class RunningreqComponent implements OnInit {
     config.backdrop = 'static';
     config.keyboard = false;
     this.socketService.socket.on('toSendDriver', (data: any) => {
-      console.log('data');
-      this.Trip = data.data.ride;
+      this.Trip = data.ride;
       console.log(data);
       let Interval = setTimeout(() => {
-        if (this.Clicked) return;
+        if (this.Clicked) return;     
         this.initResponse('Declined', this.Trip._id);
-        this.closeModel()
+        this.closeModel();
       }, 10000);
       this.open();
     });
@@ -46,6 +45,7 @@ export class RunningreqComponent implements OnInit {
   }
 
   initResponse(response: string, id: any) {
+    clearTimeout
     this.socketService.socket.emit('DriverResponse', { response, id });
   }
 

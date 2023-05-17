@@ -136,7 +136,7 @@ export class UsersComponent implements OnInit {
 
   onEditUser(user: any) {
     this.isEditMode = true;
-
+    this.isSearchMode = false;
     this.userId = user._id;
     const a = user.UserPhone.split('-');
 

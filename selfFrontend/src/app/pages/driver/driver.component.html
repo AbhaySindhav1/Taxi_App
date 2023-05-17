@@ -90,8 +90,7 @@
           formControlName="CountryCode"
           onKeyPress="if(this.value.length==2) return false;"
           placeholder="+91"
-          style="width:100px; margin-right:-25px ;"
-          
+          style="width: 100px; margin-right: -25px"
         />
         <br />
         <span
@@ -143,8 +142,8 @@
           (change)="onCountrySelect()"
         >
           <option value="null" selected hidden>Select Country</option>
-          <option value="{{ Country }}" *ngFor="let Country of CountryList">
-            {{ Country }}
+          <option value="{{ Country._id }}" *ngFor="let Country of CountryList">
+            {{ Country.countryname }}
           </option>
         </select>
         <br />
@@ -164,8 +163,8 @@
         <br />
         <select name="DriverCity" id="DriverCity" formControlName="DriverCity">
           <option value="null" selected hidden>Select City</option>
-          <option value="{{ City }}" *ngFor="let City of CityList">
-            {{ City }}
+          <option value="{{ City._id }}" *ngFor="let City of CityList">
+            {{ City.city }}
           </option>
         </select>
         <br />
@@ -190,7 +189,7 @@
     <div class="btn-container">
       <button
         class="btn button Button"
-        type="button"
+        type="submit"
         style="background-color: #6d7ae0"
         *ngIf="!isEditMode"
       >
@@ -390,14 +389,14 @@
           <td title="{{ driver.DriverPhone }}" class="ellipsis">
             {{ driver.DriverPhone }}
           </td>
-          <td title="{{ driver.DriverCountry }}" class="ellipsis">
-            {{ driver.DriverCountry }}
+          <td title="{{ driver.CountryInfo[0]._id }}" class="ellipsis">
+            {{ driver.CountryInfo[0].countryname }}
           </td>
-          <td title="{{ driver.DriverCity }}" class="ellipsis">
-            {{ driver.DriverCity }}
+          <td title="{{ driver.CityInfo[0]._id }}" class="ellipsis">
+            {{ driver.CityInfo[0].city }}
           </td>
           <td style="min-width: 150px">
-            {{ driver.ServiceType }}
+            {{ driver.ServiceTypeInfo[0]?.types || '' }}
             <span
               style="margin: 0px 10px; cursor: pointer"
               (click)="onupdateDriver(driver)"
@@ -415,12 +414,12 @@
             >
               Edit
             </button>
-            <button
+            <!-- <button
               class="btn btn-danger button"
               (click)="onDeleteDriver(driver._id)"
             >
               Delete
-            </button>
+            </button> -->
 
             <div class="dropdown" style="display: inline-block">
               <button
@@ -485,9 +484,12 @@
           <br />
           <select name="ServiceType" id="ServiceType">
             <option selected hidden>Select ServiceType</option>
-            <option value="none">No Vehicle</option>
-            <option value="{{ Vehicle }}" *ngFor="let Vehicle of VehicleList">
-              {{ Vehicle }}
+            <option value="null">No Vehicle</option>
+            <option
+              value="{{ Vehicle._id }}"
+              *ngFor="let Vehicle of VehicleList"
+            >
+              {{ Vehicle.types }}
             </option>
           </select>
           <br />

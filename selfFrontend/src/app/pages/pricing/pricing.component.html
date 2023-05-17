@@ -8,14 +8,11 @@
           name="CountryDrop"
           (change)="onCountrySelect()"
           formControlName="country"
+          #PricingCountry
         >
           <option value="null" selected hidden>Select Country</option>
-
-          <option
-            value="{{ Country }}"
-            *ngFor="let Country of ContryList"
-          >
-            {{ Country }}
+          <option value="{{ Country._id }}" *ngFor="let Country of ContryList">
+            {{ Country.countryname }}
           </option>
         </select>
         <span
@@ -35,9 +32,9 @@
       <div class="input-group mb-3">
         <label for="CityDrop"> City </label>
         <select id="CityDrop" name="CityDrop" formControlName="city">
-          <option value="null" selected hidden>Select City</option>
-          <option value="{{ City }}" *ngFor="let City of CityList">
-            {{ City }}
+          <option value="" selected hidden>Select City</option>
+          <option value="{{City._id}}" *ngFor="let City of CityList">
+            {{ City.city }}
           </option>
           <option value="" *ngIf="CityList.length === 0">
             No Available City
@@ -61,8 +58,8 @@
         <label for="TypeDrop"> Type </label>
         <select id="TypeDrop" name="TypeDrop" formControlName="type">
           <option value="null" selected hidden>Select Vehicle Type</option>
-          <option value="{{ Vehicle }}" *ngFor="let Vehicle of VehicleList">
-            {{ Vehicle }}
+          <option value="{{ Vehicle._id }}" *ngFor="let Vehicle of VehicleList">
+            {{ Vehicle.types }}
           </option>
         </select>
         <span
@@ -304,9 +301,9 @@
     </thead>
     <tbody>
       <tr *ngFor="let price of PricingList">
-        <td>{{ price.country }}</td>
-        <td>{{ price.city }}</td>
-        <td>{{ price.type }}</td>
+        <td>{{ price.countryInfo[0].countryname }}</td>
+        <td>{{ price.cityInfo[0].city }}</td>
+        <td>{{ price.VehicleInfo[0].types }}</td>
         <td>{{ price.DriverProfit }}</td>
         <td>{{ price.MinFarePrice }}</td>
         <td>{{ price.BasePriceDistance }}</td>

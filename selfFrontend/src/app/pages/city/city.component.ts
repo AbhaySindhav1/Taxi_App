@@ -48,13 +48,15 @@ export class CityComponent implements OnInit {
       });
     this.countryService.initonlyCountry().subscribe({
       next: (data) => {
-        this.ContryList = data.sort();
+        this.ContryList = data.sort();        
       },
     });
     this.initMap();
     this.cityService.initGetAllCities().subscribe({
       next: (data) => {
         this.Citylist = data;
+        console.log(this.Citylist);
+        
       },
       error: (error) => {
         console.log(error);
@@ -131,8 +133,14 @@ export class CityComponent implements OnInit {
       this.selectElement.nativeElement.options[
         this.selectElement.nativeElement.selectedIndex
       ].value;
+    const selectedCountryName =
+      this.selectElement.nativeElement.options[
+        this.selectElement.nativeElement.selectedIndex
+      ].innerText;
+      console.log(selectCountry,selectedCountryName);
+      
 
-    if (selectCountry == 'null') {
+    if (selectCountry == 'null' && selectedCountryName=='null') {
       this.error = 'Please Select Country';
       this.changed = false;
       return;
@@ -142,9 +150,12 @@ export class CityComponent implements OnInit {
     this.country = selectCountry;
 
     let contryobject: any = this.cityService.travreseArray(
-      selectCountry,
+      selectedCountryName,
       this.array
     );
+
+    console.log(contryobject);
+    
 
     this.updateAutoComplete(contryobject[0].cca2);
 
@@ -185,6 +196,8 @@ export class CityComponent implements OnInit {
     }
 
     let formData = new FormData();
+    console.log(this.country);
+    
     formData.append('country', this.country);
     formData.append('city', this.city);
     console.log(this.coordinates);
@@ -307,7 +320,7 @@ export class CityComponent implements OnInit {
     }
     this.map.fitBounds(bounds);
 
-    this.selectElement.nativeElement.value = city.country;
+    this.selectElement.nativeElement.value = city.country; /// id should given
     this.country = city.country;
 
     (document.getElementById('city') as HTMLInputElement).value = city.city;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CityService } from 'src/app/Services/city.service';
 import { CountryService } from 'src/app/Services/country.service';
@@ -21,16 +21,18 @@ export class PricingComponent implements OnInit {
   displayerror = false;
   isEditMode = false;
   userId: any;
+  @ViewChild('PricingCountry') PricingCountry: any;
 
   constructor(
     private cityService: CityService,
     private vehicleService: VehicleService,
     private priceService: PricingService,
-    private countryService: CountryService
+    private countryService: CountryService,
+    private cd: ChangeDetectorRef
   ) {
     this.PricingForm = new FormGroup({
       country: new FormControl(null, [Validators.required]),
-      city: new FormControl('', [Validators.required]),
+      city: new FormControl(null, [Validators.required]),
       type: new FormControl(null, [Validators.required]),
       DriverProfit: new FormControl(null, [Validators.required]),
       MinFarePrice: new FormControl(null, [Validators.required]),
@@ -43,14 +45,11 @@ export class PricingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-   
-
-      this.countryService.initonlyCountry().subscribe({
-        next: (data) => {
-          this.ContryList = (data.sort());
-        
-        },
-      });
+    this.countryService.initonlyCountry().subscribe({
+      next: (data) => {
+        this.ContryList = data.sort();
+      },
+    });
 
     this.vehicleService.initGetTypesOfVehicles().subscribe({
       next: (data) => {
@@ -70,12 +69,21 @@ export class PricingComponent implements OnInit {
     this.PricingForm.get('city')?.setValue('');
     let value = this.PricingForm.get('country')?.value;
 
+    const selectedCountryName =
+      this.PricingCountry.nativeElement.options[
+        this.PricingCountry.nativeElement.selectedIndex
+      ].innerText;
+    console.log(selectedCountryName);
+    console.log(value);
+
     this.cityService.initGetAllCountry(value).subscribe({
       next: (data) => {
         this.CityList = data;
+        console.log(this.CityList);
+
         // Update the value of the city form control to the first item in the list
         if (this.CityList.length > 0) {
-          this.PricingForm.get('city')?.setValue(this.CityList[0]);
+          this.PricingForm.get('city')?.setValue(this.CityList[0]._id);
         }
       },
       error: (error) => {
@@ -94,9 +102,13 @@ export class PricingComponent implements OnInit {
       return;
     }
 
+    console.log(this.PricingForm.value);
+
     if (!this.isEditMode) {
       this.priceService.initAddPriceData(this.PricingForm.value).subscribe({
         next: (data) => {
+          console.log(data);
+
           this.getData();
           this.initReset();
         },
@@ -129,6 +141,8 @@ export class PricingComponent implements OnInit {
   getData() {
     this.priceService.initGetAllZonePricing().subscribe({
       next: (data) => {
+        console.log(data);
+
         this.PricingList = data;
       },
       error: (error) => {
@@ -151,9 +165,12 @@ export class PricingComponent implements OnInit {
   onEdit(Price: any) {
     this.isEditMode = true;
     this.userId = Price._id;
+
+    this.PricingForm.patchValue({ country: null, city: null, type: null });
+
     this.PricingForm.patchValue({
       country: Price.country,
-      city: Price.city,
+      // city: Price.city,
       type: Price.type,
       DriverProfit: Price.DriverProfit,
       MinFarePrice: Price.MinFarePrice,
@@ -163,9 +180,12 @@ export class PricingComponent implements OnInit {
       TimePrice: Price.TimePrice,
       MaxSpace: Price.MaxSpace,
     });
+
     this.cityService.initGetAllCountry(Price.country).subscribe({
       next: (data) => {
         this.CityList = data;
+        this.cd.detectChanges();
+
         // Update the value of the city form control to the first item in the list
         if (this.CityList.length > 0) {
           this.PricingForm.get('city')?.setValue(Price.city);

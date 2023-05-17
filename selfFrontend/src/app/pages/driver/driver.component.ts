@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CityService } from 'src/app/Services/city.service';
 import { DriverService } from 'src/app/Services/driver.service';
@@ -40,7 +40,8 @@ export class DriverComponent implements OnInit {
     private cityService: CityService,
     private countryService: CountryService,
     private vehicleService: VehicleService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private cd: ChangeDetectorRef
   ) {
     this.DriverForm = new FormGroup({
       DriverFile: new FormControl(null),
@@ -54,37 +55,22 @@ export class DriverComponent implements OnInit {
         Validators.required,
         Validators.pattern('^((\\+91-?)|0)?[0-9\\s-]{10}$'),
       ]),
-      DriverCity: new FormControl('', [Validators.required]),
-      DriverCountry: new FormControl('', [Validators.required]),
+      DriverCity: new FormControl(null, [Validators.required]),
+      DriverCountry: new FormControl(null, [Validators.required]),
       // ServiceType: new FormControl('', [Validators.required]),
     });
 
-    this.socketService.socket.on('toSendDriver', (data: any) => {
+    this.socketService.socket.on('UpdateDriverStatus', (data: any) => {
       console.log(data);
-      this.getStatus(data.driver._id, data.driver.status);
+      this.getStatus(data._id, data.status);
     });
   }
 
   ngOnInit(): void {
     this.getDriverReq();
-
-    // this.cityService.initGetAllCountry().subscribe({
-    //   next: (data) => {
-    //     this.CityList = data;
-    //     if (this.CityList.length > 0) {
-    //       this.DriverForm.get('DriverCity')?.setValue(this.CityList[0]);
-    //     }
-    //   },
-    //   error: (error) => {
-    //     this.error = error;
-    //     this.displayerror = true;
-    //   },
-    // });
-
     this.vehicleService.initGetTypesOfVehicles().subscribe({
       next: (data) => {
         this.VehicleList = data;
-        console.log(this.VehicleList);
       },
       error: (error) => {
         this.error = error;
@@ -103,6 +89,8 @@ export class DriverComponent implements OnInit {
   onCountrySelect() {
     this.error = null;
     this.DriverForm.get('city')?.setValue('');
+    console.log(document.getElementById('DriverCountry') as HTMLSelectElement);
+
     let value = (document.getElementById('DriverCountry') as HTMLSelectElement)
       .value;
 
@@ -113,7 +101,7 @@ export class DriverComponent implements OnInit {
 
         // Update the value of the city form control to the first item in the list
         if (this.CityList.length > 0) {
-          this.DriverForm.get('DriverCity')?.setValue(this.CityList[0]);
+          this.DriverForm.get('DriverCity')?.setValue(this.CityList[0]._id);
         }
       },
       error: (error) => {
@@ -236,11 +224,14 @@ export class DriverComponent implements OnInit {
       // ServiceType: Driver.ServiceType,
     });
     this.onCountrySelect();
+    this.cd.detectChanges();
   }
 
   initDriverEditReq(formData: any) {
     this.driverService.initEditDriver(this.DriverId, formData).subscribe({
       next: (data) => {
+        console.log(data);
+
         this.getDriverReq();
         this.initReset();
       },
@@ -308,6 +299,8 @@ export class DriverComponent implements OnInit {
   getDriverReq() {
     this.driverService.initGetDriver().subscribe({
       next: (data) => {
+        console.log(data);
+
         this.DriverData = data;
         this.initReset();
       },
@@ -352,9 +345,6 @@ export class DriverComponent implements OnInit {
 
   getStatus(driverId: any, Status: any) {
     const ride = this.DriverData.find((r: any) => r._id == driverId);
-    const rideIndex = this.DriverData.findIndex((r: any) => r._id == driverId);
-   
-
-    ride.status = Status
+    ride.status = Status;
   }
 }

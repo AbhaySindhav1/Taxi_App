@@ -26,6 +26,7 @@ import { CreateRideComponent } from '../pages/create-ride/create-ride.component'
 import { DurationPipePipe } from '../pipes/duration-pipe.pipe';
 import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.component';
 import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
+import { HistoryComponent } from '../pages/history/history.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
     CreateRideComponent,
     DurationPipePipe,
     ConfirmRideComponent,
-    RunningreqComponent
+    RunningreqComponent,
+    HistoryComponent
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),

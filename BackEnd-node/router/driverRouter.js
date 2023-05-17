@@ -14,9 +14,10 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
   } else {
     req.body.profile = "";
   }
-  req.body.approval = "pending";
+
+  req.body.approval = "Approve";
   req.body.status = "online";
-  req.body.ServiceType = "none";
+
   try {
     if (req.body.CountryCode) {
       req.body.DriverPhone =
@@ -24,8 +25,21 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
     } else {
       req.body.DriverPhone = req.body.DriverPhone;
     }
-    const driver = new Driver(req.body);
+    if (mongoose.Types.ObjectId.isValid(req.body.DriverCountry)) {
+      req.body.DriverCountry = new mongoose.Types.ObjectId(
+        req.body.DriverCountry
+      );
+    } else {
+      throw new Error("DriverCountry is Valid");
+    }
 
+    if (mongoose.Types.ObjectId.isValid(req.body.DriverCity)) {
+      req.body.DriverCity = new mongoose.Types.ObjectId(req.body.DriverCity);
+    } else {
+      throw new Error("DriverCity is Valid");
+    }
+
+    const driver = new Driver(req.body);
     await driver.save();
     res.status(201).send({
       massage: "Driver Created",
@@ -42,7 +56,6 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
         }
       });
     }
-
     if (
       error.errors &&
       error.errors.DriverName &&
@@ -69,56 +82,92 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
 
 router.get("/Driver", auth, async (req, res) => {
   const searchQuery = req.query.Value || "";
+  if (searchQuery.charAt(0) === "+") {
+    {
+      $regex: `\\${searchQuery}.*`;
+    }
+  }
   const sortColumn = req.query.sortValue || "DriverName";
 
   let drivers;
   try {
-    let regext = null;
-    if (searchQuery.charAt(0) === "+") {
-      regext = new RegExp(`\\${searchQuery}`, "i");
-    } else {
-      regext = new RegExp(`${searchQuery}`, "i");
-    }
-    if (!mongoose.Types.ObjectId.isValid(req.query.Value)) {
-      drivers = await Driver.find(
+    let matchQuery = {
+      $or: [
+        { DriverName: { $regex: `.*${searchQuery}.*`, $options: "i" } },
+        { DriverEmail: { $regex: `.*${searchQuery}.*`, $options: "i" } },
         {
-          $or: [
-            { DriverName: regext },
-            { DriverEmail: regext },
-            { DriverPhone: regext },
-            { DriverCountry: regext },
-            { approval: regext },
-            { status: regext },
-            { ServiceType: regext },
-          ],
+          DriverPhone: {
+            $regex:
+              searchQuery.charAt(0) === "+"
+                ? `\\${searchQuery}`
+                : `.*${searchQuery}.*`,
+            $options: "i",
+          },
         },
-        null, // Projection
         {
-          sort: { [sortColumn]: 1 },
-        }
-      );
-    } else {
-      drivers = await Driver.find(
-        {
-          $or: [
-            { DriverName: regext },
-            { DriverEmail: regext },
-            { DriverPhone: regext },
-            { DriverCity: regext },
-            { DriverCountry: regext },
-            { approval: regext },
-            { status: regext },
-            { ServiceType: regext },
-            { _id: new mongoose.Types.ObjectId(req.query.Value) },
-          ],
+          "CountryInfo.countryname": {
+            $regex: `.*${searchQuery}.*`,
+            $options: "i",
+          },
         },
-        null, // Projection
+        { "CityInfo.city": { $regex: `.*${searchQuery}.*`, $options: "i" } },
+        { approval: { $regex: `.*${searchQuery}.*`, $options: "i" } },
+        { status: { $regex: `.*${searchQuery}.*`, $options: "i" } },
         {
-          sort: { [sortColumn]: 1 },
-        }
-      );
+          "ServiceTypeInfo.types": {
+            $regex: `.*${searchQuery}.*`,
+            $options: "i",
+          },
+        },
+      ],
+    };
+
+    if (mongoose.Types.ObjectId.isValid(req.query.Value)) {
+      matchQuery.$or.push({
+        _id: new mongoose.Types.ObjectId(req.query.Value),
+      });
     }
 
+    const lookupStages = [
+      {
+        $lookup: {
+          from: "countries",
+          localField: "DriverCountry",
+          foreignField: "_id",
+          as: "CountryInfo",
+        },
+      },
+      {
+        $lookup: {
+          from: "zones",
+          localField: "DriverCity",
+          foreignField: "_id",
+          as: "CityInfo",
+        },
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "ServiceType",
+          foreignField: "_id",
+          as: "ServiceTypeInfo",
+        },
+      },
+    ];
+
+    // Add the lookup stages to the aggregation pipeline
+
+    const drivers = await Driver.aggregate([
+      ...lookupStages,
+      {
+        $match: matchQuery,
+      },
+      {
+        $sort: { [sortColumn]: 1 },
+      },
+    ]);
+
+    // Handle the drivers result
     res.status(200).send(drivers);
   } catch (error) {
     console.log(error);
@@ -129,14 +178,35 @@ router.get("/Driver", auth, async (req, res) => {
 //                                Get Specific Driver
 
 router.post("/Driver/List", auth, handleDriversUpload, async (req, res) => {
+  console.log(req.body);
   try {
-    const Drivers = await Driver.find({
-      $and: [
-        { status: "online" },
-        { approval: "Approve" },
-        { ServiceType: req.body.ServiceType },
-      ],
-    });
+    const Drivers = await Driver.aggregate([
+      // {
+      //   $lookup: {
+      //     from: "taxis",
+      //     localField: "ServiceType",
+      //     foreignField: "_id",
+      //     as: "ServiceTypeInfo",
+      //   },
+      // },
+      // {
+      //   $unwind: "$ServiceTypeInfo",
+      // },
+      {
+        $match: {
+          $and: [
+            { status: "online" },
+            { approval: "Approve" },
+            {
+              ServiceType: mongoose.Types.ObjectId.isValid(req.body.ServiceType)
+                ? new mongoose.Types.ObjectId(req.body.ServiceType)
+                : null,
+            },
+          ],
+        },
+      },
+    ]);
+    console.log(Drivers.length);
     res.status(200).json(Drivers);
   } catch (error) {
     console.log(error);
@@ -147,6 +217,25 @@ router.post("/Driver/List", auth, handleDriversUpload, async (req, res) => {
 //////                                                        ////        Edit   Driver       ////                                                           ///////
 
 router.patch("/Driver/:id", auth, handleDriversUpload, async (req, res) => {
+  if (mongoose.Types.ObjectId.isValid(req.body.DriverCountry)) {
+    req.body.DriverCountry = new mongoose.Types.ObjectId(
+      req.body.DriverCountry
+    );
+  }
+  if (mongoose.Types.ObjectId.isValid(req.body.DriverCity)) {
+    req.body.DriverCity = new mongoose.Types.ObjectId(req.body.DriverCity);
+  }
+
+  if (req.body.ServiceType === "" || req.body.ServiceType === "null") {
+    req.body.ServiceType = null;
+  } else if (
+    req.body.ServiceType &&
+    req.body.ServiceType !== "" &&
+    req.body.ServiceType !== "null"
+  ) {
+    req.body.ServiceType = new mongoose.Types.ObjectId(req.body.ServiceType);
+  }
+
   let fieldtoupdate;
   if (req.file) {
     req.body.profile = req.file.filename;
@@ -156,13 +245,14 @@ router.patch("/Driver/:id", auth, handleDriversUpload, async (req, res) => {
   }
 
   try {
-    if (req.body.CountryCode) {
+    if (req.body.CountryCode && req.body.DriverPhone) {
       req.body.DriverPhone =
         "+" + req.body.CountryCode + "-" + req.body.DriverPhone;
-    } else {
+    } else if (req.body.DriverPhone) {
       req.body.DriverPhone = req.body.DriverPhone;
     }
     const driver = await Driver.findById(req.params.id);
+
     const oldImg = `uploads/Drivers/${driver.profile}`;
     fieldtoupdate.forEach((field) => {
       driver[field] = req.body[field];
@@ -175,7 +265,7 @@ router.patch("/Driver/:id", auth, handleDriversUpload, async (req, res) => {
         }
       });
     }
-    res.status(200).json("updated");
+    res.status(200).json(driver);
   } catch (error) {
     if (req.file && req.file.filename) {
       const image = `uploads/Drivers/${req.file.filename}`;

@@ -13,16 +13,22 @@ module.exports = function (io) {
     });
 
     socket.on("ride", async (data) => {
-      driver = await Driver.findByIdAndUpdate(
-        data.driver._id,
-        { status: "busy" },
-        { new: true }
-      );
-      io.emit("toSendDriver", { data, driver });
+      console.log(data);
+      if (data.Status === "Cancelled") {
+        console.log(data);
+      } else if (data.Status === "Assign") {
+        let ride = data.ride;
+        driver = await Driver.findByIdAndUpdate(
+          data.driver,
+          { status: "busy" },
+          { new: true }
+        );
+        io.emit("UpdateDriverStatus", driver);
+        io.emit("toSendDriver", { ride, driver });
+      }
     });
 
     socket.on("DriverResponse", async (data) => {
-      console.log(data);
       try {
         let ride = await Ride.findByIdAndUpdate(data.id, { new: true });
         if (data.response === "Accepted") {
@@ -37,7 +43,6 @@ module.exports = function (io) {
             Driver: driver.DriverName,
           });
         } else if (data.response === "Declined") {
-          console.log("1");
           driver.status = "online";
           ride.Status = "pending";
           ride.Driver = null;
@@ -48,6 +53,7 @@ module.exports = function (io) {
             Status: ride.Status,
             Driver: "Assigning",
           });
+          io.emit("UpdateDriverStatus", driver);
         }
       } catch (error) {
         console.log(error);

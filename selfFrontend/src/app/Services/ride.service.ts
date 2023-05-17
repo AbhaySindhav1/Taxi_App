@@ -23,9 +23,9 @@ export class RideService {
     return this.http.get<any>('http://localhost:3000/Ride');
   }
 
-  initGetLocationValidation(array: any) {
+  initGetLocationValidation(array: any,city:any) {
     return this.http.get<any>(
-      `http://localhost:3000/CityCordinates?loc=${array}`
+      `http://localhost:3000/CityCordinates?loc=${array}&city=${city}`
     );
   }
 

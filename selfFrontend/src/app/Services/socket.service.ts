@@ -34,6 +34,8 @@ export class SocketService {
   }
 
   rideEmit(data: any) {
+    console.log(data);
+    
     this.socket.emit('ride', data);
   }  
 

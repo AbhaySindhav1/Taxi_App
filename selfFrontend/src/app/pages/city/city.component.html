@@ -45,10 +45,10 @@
             </option>
 
             <option
-              value="{{ Country}}"
+              value="{{ Country._id}}"
               *ngFor="let Country of ContryList"
             >
-              {{ Country}}
+              {{ Country.countryname}}
             </option>
           </select>
         </div>
@@ -112,7 +112,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let city of Citylist">
-          <td>{{ city.country }}</td>
+          <td>{{ city.countryInfo[0].countryname }}</td>
           <td>{{ city.city }}</td>
           <td>
             <button class="btn btn-success" (click)="onEdit(city)">Edit</button>

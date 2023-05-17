@@ -2,7 +2,11 @@ const express = require("express");
 const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
 const { handleUpload } = require("../Controller/middleware/multer");
+const Type = require("../Model/vehicleModel");
+const City = require("../Model/cityModel");
 const Price = require("../Model/pricingModel");
+const mongoose = require("mongoose");
+const { Types } = require("mongoose");
 
 /////////////////////////////////////////////////////////          Add Pricing         ////////////////////////////////////////////////////////////////////////////////////
 
@@ -13,28 +17,27 @@ router.post("/price", handleUpload, auth, async (req, res) => {
       req.body.country === "undefined" ||
       req.body.country === "null"
     ) {
-      console.log("Country Is Required");
       throw new Error("Country Is Required");
     } else if (
       !req.body.city ||
       req.body.city === "undefined" ||
       req.body.city === "null"
     ) {
-      console.log("City Is Required");
       throw new Error("City Is Required");
     } else if (
       !req.body.type ||
       req.body.type === "undefined" ||
       req.body.type === "null"
     ) {
-      console.log("Country Is Required");
       throw new Error("Type Is Required");
     }
     const existingModel = await Price.findOne({
-      country: req.body.country,
-      city: req.body.city,
-      type: req.body.type,
+      country: new mongoose.Types.ObjectId(req.body.country),
+      city: new mongoose.Types.ObjectId(req.body.city),
+      type: new mongoose.Types.ObjectId(req.body.type),
     });
+    console.log("ex.", existingModel);
+
     if (existingModel) {
       return res.status(400).send({
         code: 39,
@@ -42,12 +45,17 @@ router.post("/price", handleUpload, auth, async (req, res) => {
       });
     }
 
+    req.body.country = new mongoose.Types.ObjectId(req.body.country);
+    req.body.city = new mongoose.Types.ObjectId(req.body.city);
+    req.body.type = new mongoose.Types.ObjectId(req.body.type);
+
     const price = new Price(req.body);
     await price.save();
     res
       .status(200)
       .json({ massage: "price for this zone is created", id: price._id });
   } catch (error) {
+    console.log(error);
     res.status(400).json(error);
   }
 });
@@ -57,25 +65,31 @@ router.post("/price", handleUpload, auth, async (req, res) => {
 router.patch("/price/:id", auth, handleUpload, async (req, res) => {
   const fieldtoupdate = Object.keys(req.body);
 
+  req.body.country = new mongoose.Types.ObjectId(req.body.country);
+  req.body.city = new mongoose.Types.ObjectId(req.body.city);
+  req.body.type = new mongoose.Types.ObjectId(req.body.type);
+
   try {
     const price = await Price.findById(req.params.id);
-
-    fieldtoupdate.forEach((field) => {
-      price[field] = req.body[field];
-    });
+    const priceId = new mongoose.Types.ObjectId(req.params.id);
 
     const existingModel = await Price.findOne({
-      country: price.country,
-      city: price.city,
-      type: price.type,
+      country: req.body.country,
+      city: req.body.city,
+      type: req.body.type,
     });
 
-    if (existingModel) {
+    if (existingModel && !priceId.equals(existingModel._id)) {
+      console.log("1");
       return res.status(400).send({
         code: 39,
         message: "A model with these details already exists",
       });
     }
+
+    fieldtoupdate.forEach((field) => {
+      price[field] = req.body[field];
+    });
 
     await price.save();
     res
@@ -90,41 +104,130 @@ router.patch("/price/:id", auth, handleUpload, async (req, res) => {
 /////////////////////////////////////////////////////////          Get All Zone Vehicles        ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
-  const searchQuery = req.query.Value || "";
-  const regext = new RegExp(searchQuery, "i");
+  const SearchQuery = req.query.Value ? req.query.Value.trim() : "";
   try {
-    const Vehicles = await Price.find({
-      $or: [{ city: regext }],
-    }).distinct("type");
-    res.status(200).send(Vehicles);
+    const prices = await Price.aggregate([
+      {
+        $lookup: {
+          from: "zones",
+          localField: "city",
+          foreignField: "_id",
+          as: "cityInfo",
+        },
+      },
+      {
+        $unwind: "$cityInfo",
+      },
+      {
+        $match: {
+          "cityInfo.city": { $regex: SearchQuery },
+        },
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      {
+        $unwind: "$VehicleInfo",
+      },
+      {
+        $group: {
+          _id: "$VehicleInfo._id",
+          types:  { $first: "$VehicleInfo.types" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: "$_id",
+          types: 1,
+        },
+      },
+    ]);
+    res.status(200).send(prices);
   } catch (error) {
     res.status(400).send(error);
   }
 });
+
+/////////////////////////////////////////////////////////          Get Zone Pricing        ////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/price/pricing", handleUpload, auth, async (req, res) => {
+  console.log(req.body);
+  if(!(req.body.city && req.body.type)) return
   try {
-    const priceing = await Price.find({
-      $and: [
-        { city: { $regex: req.body.city } },
-        { type: { $regex: req.body.type } },
-      ],
-    });
-    res.status(200).send(priceing);
+    const prices = await Price.aggregate([
+      {
+        $lookup: {
+          from: "zones",
+          localField: "city",
+          foreignField: "_id",
+          as: "cityInfo",
+        },
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      {
+        $unwind: "$VehicleInfo",
+      },
+      {
+        $unwind: "$cityInfo",
+      },
+      {
+        $match: {
+          "cityInfo.city": { $regex: req.body.city },
+          "VehicleInfo._id": new mongoose.Types.ObjectId(req.body.type),
+        },
+      },
+    ]);
+    res.status(200).send(prices);
   } catch (error) {
     res.status(400).send(error);
   }
 });
 
-/////////////////////////////////////////////////////////          Get All Zone  Pricing        ////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////          Get All Zone priceList        ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/price", handleUpload, auth, async (req, res) => {
   const searchQuery = req.query.Value || "";
   const regext = new RegExp(searchQuery, "i");
   try {
-    const prices = await Price.find({
-      $or: [{ country: regext }, { city: regext }, { type: regext }],
-    });
+    const prices = await Price.aggregate([
+      {
+        $lookup: {
+          from: "countries",
+          localField: "country",
+          foreignField: "_id",
+          as: "countryInfo",
+        },
+      },
+      {
+        $lookup: {
+          from: "zones",
+          localField: "city",
+          foreignField: "_id",
+          as: "cityInfo",
+        },
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+    ]);
     res.status(200).send(prices);
   } catch (error) {
     res.status(400).send(error);

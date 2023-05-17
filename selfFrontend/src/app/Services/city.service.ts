@@ -47,8 +47,10 @@ export class CityService {
   }
 
   travreseArray(data: any, CountryArray: any[]) {
-    let countryObj = CountryArray.filter((country: any) => {
-      return country.name.common === data;
+    console.log(data,CountryArray);
+    
+    let countryObj = CountryArray.filter((country: any) => {      
+      return country.name.common === data.trim();
     });
     return countryObj;
   }

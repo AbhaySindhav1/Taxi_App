@@ -31,19 +31,17 @@ export class ConfirmRideComponent implements OnInit {
   ) {
     this.OnAssign = this.OnAssign.bind(this);
     this.RideSearchForm = new FormGroup({
-      Status: new FormControl(''),
-      Type: new FormControl(''),
+      Status: new FormControl(null),
+      Type: new FormControl(null),
       FromDate: new FormControl(null),
       toDate: new FormControl(null),
       Search: new FormControl(null),
     });
 
     this.socketService.socket.on('AssignedReqDeclined', (data: any) => {
-      console.log(data);
       this.onDeclinedReq(data);
     });
     this.socketService.socket.on('AssignedReqAccepted', (data: any) => {
-      console.log(data);
       this.onDeclinedReq(data);
     });
   }
@@ -74,8 +72,11 @@ export class ConfirmRideComponent implements OnInit {
     console.log(Ride);
     let formdata = new FormData();
     formdata.append('ServiceType', Ride.type);
+
     this.driverService.initSpeceficDrivers(formdata).subscribe({
       next: (data) => {
+        console.log(data);
+        
         this.driverData = data;
       },
       error: (error) => {
@@ -83,53 +84,58 @@ export class ConfirmRideComponent implements OnInit {
       },
     });
     this.Ride = Ride;
-    // this.StatusChange(Ride._id, 'Assigning');
     this.selectedRowIndex = null;
     this.SelectedRow = {};
   }
 
-  StatusChange(id: any, DriverId?: any, Status?: any) {
+  StatusChange(Ride: any, Status?: any, DriverId?: any) {
     if (Status === 'Assigning') {
     } else if (Status === 'Cancelled') {
       let Confirm = confirm('Are You Want Cancel Ride');
       if (!Confirm) return;
+      this.AssignDriver(Ride, 'Cancelled');
     }
 
-    let formdata = new FormData();
-    formdata.append('Status', Status);
+    // let formdata = new FormData();
+    // formdata.append('Status', Status);
 
-    formdata.append('DriverId', DriverId);
-    this.rideService.initEditRide(id, formdata).subscribe({
-      next: (data) => {
+    // // formdata.append('DriverId', DriverId);
+    // this.rideService.initEditRide(id, formdata).subscribe({
+    //   next: (data) => {
 
-        if (data !== 'updated') {
-        }
-        const ride = this.RideList.find((r: any) => r._id === id);
-        if (ride && Status === 'Cancelled') {
-          const rideIndex = this.RideList.findIndex((r: any) => r._id === id);
-          if (rideIndex !== -1) {
-            ride.Status = Status;
-            this.RideList.splice(rideIndex, 1);
-          }
-        } else {
-          ride.Status = Status;
-        }
-      },
-    });
+    //     if (data !== 'updated') {
+    //     }
+    //     const ride = this.RideList.find((r: any) => r._id === id);
+    //     if (ride && Status === 'Cancelled') {
+    //       const rideIndex = this.RideList.findIndex((r: any) => r._id === id);
+    //       if (rideIndex !== -1) {
+    //         ride.Status = Status;
+    //         this.RideList.splice(rideIndex, 1);
+    //       }
+    //     } else {
+    //       ride.Status = Status;
+    //     }
+    //   },
+    // });
   }
 
   GetAllData() {
     this.rideService.initGetAllRides().subscribe({
       next: (data) => {
+        console.log(data);
+        
         this.RideList = data;
       },
     });
   }
 
-  AssignDriver(ride: any) {
+  AssignDriver(ride: any, Status?: any) {
+    console.log(this.SelectedRow, ride,Status);
+
     this.socketService.rideEmit({
       ride: ride,
-      driver: this.SelectedRow,
+      driver: this.SelectedRow._id,
+      Status: Status,
     });
   }
 

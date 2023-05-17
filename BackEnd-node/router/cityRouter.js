@@ -3,11 +3,12 @@ const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
 const { handleUpload } = require("../Controller/middleware/multer");
 const City = require("../Model/cityModel");
+const mongoose = require("mongoose");
+const { Types } = require("mongoose");
 
 /////////////////////////////////////////////////////////          Add City         ////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/city", handleUpload, auth, async (req, res) => {
- 
   try {
     if (req.body.country === "undefined") {
       throw new Error("Country Is Required");
@@ -17,11 +18,14 @@ router.post("/city", handleUpload, auth, async (req, res) => {
       throw new Error("Zone Is Required");
     }
 
+    console.log(req.body.country);
+    console.log(Types.ObjectId.isValid(req.body.country));
+
     const city = new City({
-      country: req.body.country,
+      country: new mongoose.Types.ObjectId(req.body.country),
       city: req.body.city,
       zone: JSON.parse(req.body.zone),
-      Location: JSON.parse(req.body.Location)
+      Location: JSON.parse(req.body.Location),
     });
     await city.save();
     res.status(200).json({
@@ -36,7 +40,7 @@ router.post("/city", handleUpload, auth, async (req, res) => {
     } else if (error.errors && error.errors.country.kind === "required") {
       res.status(400).json("Country Is Required");
     } else if (error.keyPattern && error.keyPattern.city) {
-      res.status(400).json(error.keyValue.city+ ' ' +"is Already Registered");
+      res.status(400).json(error.keyValue.city + " " + "is Already Registered");
     } else if (error.errors && error.errors.zone.kind === "required") {
       res.status(400).json("Zone Is Required");
     } else {
@@ -52,26 +56,38 @@ router.get("/Cities", auth, async (req, res) => {
   const regext = new RegExp(searchQuery, "i");
 
   try {
-    const cities = await City.find({
-      $or: [{ country: regext }, { city: regext }],
-    });
+    // const cities = await City.find({
+    //   $or: [{ country: regext }, { city: regext }],
+    // });
+    const cities = await City.aggregate([
+      {
+        $lookup: {
+          from: "countries",
+          localField: "country",
+          foreignField: "_id",
+          as: "countryInfo",
+        },
+      },
+    ]);
     res.status(200).send(cities);
   } catch (error) {
     res.status(400).send(error);
   }
 });
 
-/////////////////////////////////////////////////////////          Get Cities         ////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////          Get Cities using CountryId        ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/CityCountry", auth, async (req, res) => {
   const searchQuery = req.query.Value || "";
-  const regext = new RegExp(searchQuery, "i");
+if(searchQuery){
+  searchQuery.trim()
+}
   try {
     const cities = await City.find({
-      $or: [{ country: regext }],
+      $or: [{ country: new mongoose.Types.ObjectId(searchQuery) }],
     })
-      .select("-_id city")
-      .distinct("city");
+      .select("_id city")
+
     res.status(200).send(cities);
   } catch (error) {
     res.status(400).send(error);
@@ -94,6 +110,7 @@ router.get("/CityCountryZone", auth, async (req, res) => {
 router.get("/CityCordinates", auth, async (req, res) => {
   try {
     const Cord = await City.find({
+      city: req.query.city,
       Location: {
         $geoIntersects: {
           $geometry: {
@@ -122,7 +139,7 @@ router.patch("/city/:id", auth, handleUpload, async (req, res) => {
   if (req.body.Location) {
     req.body.Location = JSON.parse(req.body.Location);
   }
-  
+
   const fieldtoupdate = Object.keys(req.body);
   try {
     const city = await City.findById(req.params.id);
@@ -132,7 +149,7 @@ router.patch("/city/:id", auth, handleUpload, async (req, res) => {
     fieldtoupdate.forEach((field) => {
       city[field] = req.body[field];
     });
-    
+
     await city.save();
     res.status(200).json({
       message: "City Edited",

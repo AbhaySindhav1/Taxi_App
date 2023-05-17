@@ -36,27 +36,27 @@ const DriverSchema = mongoose.Schema({
     validate: [validatePhoneNumber, "Please enter a valid phone number"],
   },
   DriverCity: {
-    type: String,
+    type: mongoose.Types.ObjectId,
     required: true,
     trim: true,
   },
   DriverCountry: {
-    type: String,
+    type: mongoose.Types.ObjectId,
     required: true,
     trim: true,
   },
-  approval:{
-    type:String,
-    required:true
+  approval: {
+    type: String,
+    required: true,
   },
-  status:{
-    type:String,
-    required:true
+  status: {
+    type: String,
+    required: true,
   },
-  ServiceType:{
-    type:String,
-    required:true
-  }
+  ServiceType: {
+    type: mongoose.Types.ObjectId,
+    default: null,
+  },
 });
 
 const Driver = mongoose.model("Driver", DriverSchema);

@@ -113,7 +113,7 @@ router.patch("/vehicle/:id", auth, handleUpload, async (req, res) => {
 
 router.get("/vehicle/types", auth, async (req, res) => {
   try {
-    const Types = await Vehicle.find({}).distinct("types");
+    const Types = await Vehicle.find({}).select("_id types")
     res.status(200).send(Types);
   } catch (error) {
     res.status(400).send(error);

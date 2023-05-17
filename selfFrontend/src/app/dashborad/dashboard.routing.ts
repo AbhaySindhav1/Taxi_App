@@ -8,6 +8,7 @@ import { DriverComponent } from '../pages/driver/driver.component';
 import { CreateRideComponent } from '../pages/create-ride/create-ride.component';
 import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.component';
 import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
+import { HistoryComponent } from '../pages/history/history.component';
 
 export const DashBoardRoutes: Routes = [
   { path: 'table', component: TableComponent },
@@ -19,6 +20,7 @@ export const DashBoardRoutes: Routes = [
   { path: 'createRide', component: CreateRideComponent },
   { path: 'Confirm', component: ConfirmRideComponent },
   { path: 'runningReq', component: RunningreqComponent },
+  { path: 'History', component: HistoryComponent },
 ];
 
 export class AppRoutingModule {}

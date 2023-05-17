@@ -74,7 +74,7 @@ export class CreateRideComponent implements OnInit {
       this.usersService.initGetUsers(number).subscribe({
         next: (data) => {
           if (data.length === 0) {
-            this.toastr.error('no user found')
+            this.toastr.error('no user found');
             return;
           } else {
             if (data[0]) {
@@ -177,40 +177,50 @@ export class CreateRideComponent implements OnInit {
 
       const location = [lng, lat];
       if (`${fieldName}` === 'PickupPoint') {
-        this.rideService.initGetLocationValidation(location).subscribe({
-          next: (data) => {
-            if (data.length === 0) {
-              this.toastr.error('For This Location Service is Unavailable');
-              (
-                document.getElementById(`${fieldName}`) as HTMLInputElement
-              ).value = '';
-              (
-                document.getElementById(`${fieldName}`) as HTMLInputElement
-              ).focus();
-              return;
-            } else {
-              this.isServiceZone = data[0];
-              this.pricingService
-                .initGetAllVehicle(this.isServiceZone.city)
-                .subscribe({
-                  next: (data) => {
-                    this.Vehicles = data;
-                  },
-                  error: (error) => {
-                    console.log(error);
-                    this.errMassage = error;
-                    this.error = true;
-                  },
-                });
-            }
-          },
+        this.rideService
+          .initGetLocationValidation(location, place.formatted_address)
+          .subscribe({
+            next: (data) => {
+              console.log(data);
 
-          error: (error) => {
-            console.log(error);
-            this.errMassage = error;
-            this.error = true;
-          },
-        });
+              if (data.length === 0) {
+                this.toastr.error('For This Location Service is Unavailable');
+                (
+                  document.getElementById(`${fieldName}`) as HTMLInputElement
+                ).value = '';
+                (
+                  document.getElementById(`${fieldName}`) as HTMLInputElement
+                ).focus();
+                return;
+              } else {
+                console.log(data);
+
+                this.isServiceZone = data[0];
+                console.log(this.isServiceZone.city);
+
+                this.pricingService
+                  .initGetAllVehicle(this.isServiceZone.city)
+                  .subscribe({
+                    next: (data) => {
+                      console.log(data);
+                      
+                      this.Vehicles = data;
+                    },
+                    error: (error) => {
+                      console.log(error);
+                      // this.errMassage = error;
+                      // this.error = true;
+                    },
+                  });
+              }
+            },
+
+            error: (error) => {
+              console.log(error);
+              // this.errMassage = error;
+              // this.error = true;
+            },
+          });
       }
     });
   }
@@ -377,8 +387,8 @@ export class CreateRideComponent implements OnInit {
 
     this.pricingService.initGetPricingForZone(formData).subscribe({
       next: (data) => {
+        console.log(data);
         if (data.length > 0) {
-          console.log(data);
           if (!this.Distance || !this.Time) {
             return;
           }

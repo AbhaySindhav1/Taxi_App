@@ -48,7 +48,7 @@ router.get("/country", auth, async (req, res) => {
   const searchQuery = req.query.Value || "";
   const regext = new RegExp(searchQuery, "i");
   try {
-    const conties = await Country.find({}).select("-_id countryname").distinct("countryname");
+    const conties = await Country.find({}).select("_id countryname")
     res.status(200).send(conties);
   } catch (error) {
     res.status(400).send(error);

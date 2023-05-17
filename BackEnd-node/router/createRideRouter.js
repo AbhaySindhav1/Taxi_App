@@ -11,9 +11,21 @@ const moment = require("moment");
 ////                                              ///  ADD Ride ///                                                                   ///
 
 router.post("/Ride", upload.none(), auth, async (req, res) => {
+  console.log(req.body);
   if (!req.body.Stops) {
     req.body.Stops = [];
   }
+  if (req.body.type) {
+    if (!mongoose.Types.ObjectId.isValid(req.body.type)) {
+      throw new Error("Vehicle Not Valid");
+    }
+    req.body.type = new mongoose.Types.ObjectId(req.body.type);
+  }
+  req.body.ScheduleTime = moment(
+    req.body.ScheduleTime,
+    "DD/MM/YYYY, HH:mm:ss"
+  ).format("YYYY-MM-DDTHH:mm:ssZZ");
+
   try {
     const Ride = new CreateRide(req.body);
     await Ride.save();
@@ -46,8 +58,38 @@ router.post("/Ride", upload.none(), auth, async (req, res) => {
 
 router.get("/Ride", async (req, res) => {
   try {
-    const Rides = await CreateRide.find({Status: { $ne: 'Cancelled' }});
-    res.status(200).send(Rides);
+    // const Rides = await CreateRide.find({ Status: { $ne: "Cancelled" } });
+
+    const rides = await CreateRide.aggregate([
+      {
+        $lookup: {
+          from: "myusers",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      {
+        $unwind: "$userInfo",
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      {
+        $unwind: "$VehicleInfo",
+      },
+      {
+        $match: {
+          Status: { $nin: [0, 6] },
+        },
+      },
+    ]);
+    res.status(200).send(rides);
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
@@ -58,63 +100,47 @@ router.get("/Ride", async (req, res) => {
 
 router.post("/RideFilter", upload.none(), auth, async (req, res) => {
   let { Search, Status, Type, FromDate, toDate } = req.body;
+  
+  console.log(req.body);
 
-  if (Search === "null" && !!Search) {
-    Search = "";
-  }
-  if (Status === "null" && !!Status) {
-    Status = "";
-  }
-  if (Type === "null" && !!Type) {
-    Type = "";
-  }
-  if (FromDate !== "null" && FromDate) {
-    FromDate = new Date(FromDate).toISOString();
-  }
-  if (toDate !== "null" && toDate) {
-    toDate = new Date(toDate).toISOString();
-  }
-
-  let Rides;
   try {
-    if (mongoose.Types.ObjectId.isValid(Search)) {
-      Rides = await CreateRide.find({
-        $and: [
-          {
-            $or: [
-              { UserName: { $regex: Search } },
-              { user_id: new mongoose.Types.ObjectId(Search) },
-            ],
-          },
-          { Status: Status },
-          { type: Type },
-          FromDate && toDate !== "null"
-            ? {
-                ScheduleTime: {
-                  $gte: new Date(FromDate),
-                  $lte: new Date(toDate),
-                },
-              }
-            : {},
-        ],
-      });
-    } else {
-      Rides = await CreateRide.find({
-        $and: [
-          { $or: [{ UserName: { $regex: Search } }] },
-          { Status: Status },
-          { type: Type },
-          FromDate && toDate !== "null"
-            ? {
-                ScheduleTime: {
-                  $gte: new Date(FromDate),
-                  $lte: new Date(toDate),
-                },
-              }
-            : {},
-        ],
-      });
-    }
+    let Rides = await CreateRide.aggregate([
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      {
+        $unwind: "$VehicleInfo",
+      },
+      {
+        $match: {
+          $and: [
+            Search && Search !== "null"
+              ? mongoose.Types.ObjectId.isValid(Search)
+                ? { user_id: new mongoose.Types.ObjectId(Search) }
+                : { UserName: { $regex: Search, $options: "i" } }
+              : {},
+
+            Status && Status !== "null" ? { Status: +Status } : {},
+            FromDate && toDate !== "null"
+              ? {
+                  ScheduleTime: {
+                    $gte: new Date(FromDate),
+                    $lte: new Date(toDate),
+                  },
+                }
+              : {},
+            Type && mongoose.Types.ObjectId.isValid(Type)
+              ? { type: new mongoose.Types.ObjectId(Type) }
+              : {},
+          ],
+        },
+      },
+    ]);
 
     res.status(200).json(Rides);
   } catch (error) {
@@ -136,11 +162,11 @@ router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
 
   try {
     const Ride = await CreateRide.findById(req.params.id);
-    const driver = await Driver.findByIdAndUpdate(
-      { _id: req.body.DriverId },
-      { status: "online" },
-      { new: true }
-    );
+    // const driver = await Driver.findByIdAndUpdate(
+    //   { _id: req.body.DriverId },
+    //   { status: "online" },
+    //   { new: true }
+    // );
     fieldtoupdate.forEach((field) => {
       Ride[field] = req.body[field];
     });
@@ -152,25 +178,18 @@ router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
   }
 });
 
-// function convertToLocalTime(time) {
-//   const now = new Date(time);
-//   const utcNow = moment.utc(now);
-//   return utcNow.local().format("MM/DD/YYYY, HH:mm:ss");
-// }
-
-
 ////                                              ///  Ride History   ///                                                                   ///
-
 
 router.get("/Ride/History", async (req, res) => {
   try {
-    const Rides = await CreateRide.find({$or:[{Status:'Cancelled'},{Status:'Completed'}]});
+    const Rides = await CreateRide.find({
+      $or: [{ Status: 0 }, { Status: 6 }],
+    });
     res.status(200).send(Rides);
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
   }
 });
-
 
 module.exports = router;
