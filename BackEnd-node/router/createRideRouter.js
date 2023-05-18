@@ -54,12 +54,10 @@ router.post("/Ride", upload.none(), auth, async (req, res) => {
   }
 });
 
-////                                              ///  Get All Ride ///                                                                   ///
+////                                              ///  Get All Pending And Assigning Ride ///                                                                   ///
 
 router.get("/Ride", async (req, res) => {
   try {
-    // const Rides = await CreateRide.find({ Status: { $ne: "Cancelled" } });
-
     const rides = await CreateRide.aggregate([
       {
         $lookup: {
@@ -84,8 +82,19 @@ router.get("/Ride", async (req, res) => {
         $unwind: "$VehicleInfo",
       },
       {
+        $lookup: {
+          from: "drivers",
+          localField: "DriverId",
+          foreignField: "_id",
+          as: "DriverInfo",
+        },
+      },
+      {
+        $unwind: "$DriverInfo",
+      },
+      {
         $match: {
-          Status: { $nin: [0, 6] },
+          Status: { $in: [1,100] },
         },
       },
     ]);
@@ -96,11 +105,64 @@ router.get("/Ride", async (req, res) => {
   }
 });
 
+////                                              ///  Get All Assignd and Other Ride ///                                                                   ///
+
+
+router.get("/Ride/Assigned", async (req, res) => {
+  try {
+    const rides = await CreateRide.aggregate([
+      {
+        $lookup: {
+          from: "myusers",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      {
+        $unwind: "$userInfo",
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      {
+        $unwind: "$VehicleInfo",
+      },
+      {
+        $lookup: {
+          from: "drivers",
+          localField: "DriverId",
+          foreignField: "_id",
+          as: "DriverInfo",
+        },
+      },
+      {
+        $unwind: "$DriverInfo",
+      },
+      {
+        $match: {
+          Status: { $nin: [0,1,5] },
+        },
+      },
+    ]);
+    res.status(200).send(rides);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+
 ////                                              ///  Filter  Ride ///                                                                   ///
 
 router.post("/RideFilter", upload.none(), auth, async (req, res) => {
   let { Search, Status, Type, FromDate, toDate } = req.body;
-  
+
   console.log(req.body);
 
   try {
@@ -150,33 +212,33 @@ router.post("/RideFilter", upload.none(), auth, async (req, res) => {
 
 ////                                              ///  Edit  Ride ///                                                                   ///
 
-router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
-  let fieldtoupdate = Object.keys(req.body);
-  if ((req.body.DriverId === "undefined") | null | "null" | "") {
-    req.body.DriverId = null;
-  } else if (
-    req.body.DriverId &&
-    !mongoose.Types.ObjectId.isValid(req.body.DriverId)
-  ) {
-  }
+// router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
+//   let fieldtoupdate = Object.keys(req.body);
+//   if ((req.body.DriverId === "undefined") | null | "null" | "") {
+//     req.body.DriverId = null;
+//   } else if (
+//     req.body.DriverId &&
+//     !mongoose.Types.ObjectId.isValid(req.body.DriverId)
+//   ) {
+//   }
 
-  try {
-    const Ride = await CreateRide.findById(req.params.id);
-    // const driver = await Driver.findByIdAndUpdate(
-    //   { _id: req.body.DriverId },
-    //   { status: "online" },
-    //   { new: true }
-    // );
-    fieldtoupdate.forEach((field) => {
-      Ride[field] = req.body[field];
-    });
-    await Ride.save();
-    res.status(200).json({ change: "updated", Ride });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
-  }
-});
+//   try {
+//     const Ride = await CreateRide.findById(req.params.id);
+//     // const driver = await Driver.findByIdAndUpdate(
+//     //   { _id: req.body.DriverId },
+//     //   { status: "online" },
+//     //   { new: true }
+//     // );
+//     fieldtoupdate.forEach((field) => {
+//       Ride[field] = req.body[field];
+//     });
+//     await Ride.save();
+//     res.status(200).json({ change: "updated", Ride });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).json(error);
+//   }
+// });
 
 ////                                              ///  Ride History   ///                                                                   ///
 

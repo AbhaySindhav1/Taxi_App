@@ -23,7 +23,7 @@ export class RideService {
     return this.http.get<any>('http://localhost:3000/Ride');
   }
 
-  initGetLocationValidation(array: any,city:any) {
+  initGetLocationValidation(array: any, city: any) {
     return this.http.get<any>(
       `http://localhost:3000/CityCordinates?loc=${array}&city=${city}`
     );
@@ -37,11 +37,30 @@ export class RideService {
     return this.http.patch<any>('http://localhost:3000/Ride/' + id, FormData);
   }
 
-  initFilterRide(FormData:any){
+  initFilterRide(FormData: any) {
     return this.http.post<any>('http://localhost:3000/RideFilter', FormData);
   }
 
-  initRideHistory(){
+  initRideHistory() {
     return this.http.get<any>('http://localhost:3000/Ride/History');
+  }
+
+  initGetStatus(Status: any) {
+    if (Status == 0) {
+      return 'Cancelled';
+    } else if (Status == 1) {
+      return 'pending';
+    } else if (Status == 2) {
+      return 'Accepted';
+    } else if (Status == 3) {
+      return 'Arrived';
+    } else if (Status == 4) {
+      return 'Started';
+    } else if (Status == 5) {
+      return 'Completed';
+    } else if (Status == 100) {
+      return 'Assigning';
+    } 
+    return 'Unknown'
   }
 }

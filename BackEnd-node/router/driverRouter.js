@@ -178,7 +178,6 @@ router.get("/Driver", auth, async (req, res) => {
 //                                Get Specific Driver
 
 router.post("/Driver/List", auth, handleDriversUpload, async (req, res) => {
-  console.log(req.body);
   try {
     const Drivers = await Driver.aggregate([
       // {
@@ -206,7 +205,6 @@ router.post("/Driver/List", auth, handleDriversUpload, async (req, res) => {
         },
       },
     ]);
-    console.log(Drivers.length);
     res.status(200).json(Drivers);
   } catch (error) {
     console.log(error);

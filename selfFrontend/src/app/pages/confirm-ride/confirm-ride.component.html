@@ -7,9 +7,8 @@
 
         <option value="2">Accepted</option>
         <option value="3">Arrived</option>
-        <option value="4">Picked</option>
-        <option value="5">Started</option>
-        <option value="6">Completed</option>
+        <option value="4">Started</option>
+        <option value="5">Completed</option>
       </select>
     </div>
     <div class="Vehicle-select select d-column">
@@ -194,7 +193,7 @@
           <th class="ellipsis">Drop Point</th>
           <th class="ellipsis">Type</th>
           <th class="ellipsis">Schdule Time</th>
-          <th class="ellipsis">Driver ID</th>
+          <th class="ellipsis">Driver </th>
           <th class="ellipsis">Trip Fee</th>
           <th class="ellipsis">Status</th>
           <th style="min-width: 250px">Action</th>
@@ -261,7 +260,7 @@
                 class="btn btn-danger"
                 style="width: 70px; padding: 5px"
                 [disabled]="Ride.Status == 0"
-                (click)="StatusChange(Ride, 0)"
+                (click)="CancelRide(Ride, 0)"
               >
                 Cancel
               </button>

@@ -60,10 +60,18 @@ export class DriverComponent implements OnInit {
       // ServiceType: new FormControl('', [Validators.required]),
     });
 
-    this.socketService.socket.on('UpdateDriverStatus', (data: any) => {
+    this.socketService.socket.on('CancelledRide', (data: any) => {
       console.log(data);
-      this.getStatus(data._id, data.status);
+      // DriverID,Status
+      if (data.Driver) {
+        this.getStatus(data.Driver.DriverID, data.Driver.Status);
+      }
     });
+
+    // this.socketService.socket.on('UpdateDriverStatus', (data: any) => {
+    //   console.log(data);
+    //   this.getStatus(data._id, data.status);
+    // });
   }
 
   ngOnInit(): void {

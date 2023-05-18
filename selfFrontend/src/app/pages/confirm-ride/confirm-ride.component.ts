@@ -41,8 +41,15 @@ export class ConfirmRideComponent implements OnInit {
     this.socketService.socket.on('AssignedReqDeclined', (data: any) => {
       this.onDeclinedReq(data);
     });
-    this.socketService.socket.on('AssignedReqAccepted', (data: any) => {
-      this.onDeclinedReq(data);
+    this.socketService.socket.on('toSendDriver', (data: any) => {
+      const ride = this.RideList.find((r: any) => r._id === data.Ride._id);
+      ride.Driver = data.AssignDriver.DriverName;
+    });
+    this.socketService.socket.on('CancelledRide', (data: any) => {
+      this.RideList = this.RideList.filter((ride: any) => {
+        console.log(data.Ride.RideId);
+        return ride._id !== data.Ride.RideId;
+      });
     });
   }
 
@@ -55,17 +62,7 @@ export class ConfirmRideComponent implements OnInit {
         this.toastr.error(error.errors);
       },
     });
-
     this.GetAllData();
-
-    // this.driverService.initGetDriver().subscribe({
-    //   next: (data) => {
-    //     this.driverData = data;
-    //   },
-    //   error: (error) => {
-    //     this.toastr.error(error);
-    //   },
-    // });
   }
 
   OnAssign(Ride: any) {
@@ -75,8 +72,6 @@ export class ConfirmRideComponent implements OnInit {
 
     this.driverService.initSpeceficDrivers(formdata).subscribe({
       next: (data) => {
-        console.log(data);
-        
         this.driverData = data;
       },
       error: (error) => {
@@ -88,51 +83,22 @@ export class ConfirmRideComponent implements OnInit {
     this.SelectedRow = {};
   }
 
-  StatusChange(Ride: any, Status?: any, DriverId?: any) {
-    if (Status === 'Assigning') {
-    } else if (Status === 'Cancelled') {
+  CancelRide(Ride: any, Status?: any) {
+    if (Status == 0) {
       let Confirm = confirm('Are You Want Cancel Ride');
       if (!Confirm) return;
-      this.AssignDriver(Ride, 'Cancelled');
+
+      this.socketService.socket.emit('ride', {
+        ride: Ride,
+        Status: Status,
+      });
     }
-
-    // let formdata = new FormData();
-    // formdata.append('Status', Status);
-
-    // // formdata.append('DriverId', DriverId);
-    // this.rideService.initEditRide(id, formdata).subscribe({
-    //   next: (data) => {
-
-    //     if (data !== 'updated') {
-    //     }
-    //     const ride = this.RideList.find((r: any) => r._id === id);
-    //     if (ride && Status === 'Cancelled') {
-    //       const rideIndex = this.RideList.findIndex((r: any) => r._id === id);
-    //       if (rideIndex !== -1) {
-    //         ride.Status = Status;
-    //         this.RideList.splice(rideIndex, 1);
-    //       }
-    //     } else {
-    //       ride.Status = Status;
-    //     }
-    //   },
-    // });
-  }
-
-  GetAllData() {
-    this.rideService.initGetAllRides().subscribe({
-      next: (data) => {
-        console.log(data);
-        
-        this.RideList = data;
-      },
-    });
   }
 
   AssignDriver(ride: any, Status?: any) {
-    console.log(this.SelectedRow, ride,Status);
+    console.log(this.SelectedRow, ride, Status);
 
-    this.socketService.rideEmit({
+    this.socketService.socket.emit('ride', {
       ride: ride,
       driver: this.SelectedRow._id,
       Status: Status,
@@ -143,6 +109,15 @@ export class ConfirmRideComponent implements OnInit {
     this.selectedRowIndex = index;
     this.SelectedRow = row;
   }
+
+  onDeclinedReq(data: any) {
+    if (!data) return;
+    const ride = this.RideList.find((r: any) => r._id === data.id);
+    ride.Status = data.Status;
+    ride.Driver = data.Driver;
+  }
+
+  ////////////////////////////////////////////////////////////    Get  Filter  Rides      /////////////////////////////////////////////////////////////////////
 
   Filter() {
     let form = new FormData();
@@ -163,10 +138,13 @@ export class ConfirmRideComponent implements OnInit {
     });
   }
 
-  onDeclinedReq(data: any) {
-    if (!data) return;
-    const ride = this.RideList.find((r: any) => r._id === data.id);
-    ride.Status = data.Status;
-    ride.Driver = data.Driver;
+  ////////////////////////////////////////////////////////////    Get   All  Rides      /////////////////////////////////////////////////////////////////////
+
+  GetAllData() {
+    this.rideService.initGetAllRides().subscribe({
+      next: (data) => {
+        this.RideList = data;
+      },
+    });
   }
 }

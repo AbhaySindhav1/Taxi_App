@@ -88,21 +88,73 @@
       <thead>
         <tr>
           <th class="ellipsis">Ride ID</th>
-          <th class="ellipsis">User ID</th>
           <th class="ellipsis">User Name</th>
           <th class="ellipsis">PickUp Point</th>
-          <th class="ellipsis">Stops</th>
           <th class="ellipsis">Drop Point</th>
-          <th class="ellipsis">Type</th>
-          <th class="ellipsis">Booking Time</th>
           <th class="ellipsis">Schdule Time</th>
           <th class="ellipsis">Driver ID</th>
-          <th class="ellipsis">Trip Fee</th>
           <th class="ellipsis">Status</th>
           <th style="min-width: 250px">Action</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        <tr
+          *ngIf="RideList && RideList.length === 0"
+          style="text-align: center; vertical-align: middle"
+        >
+          <td colspan="8">No Rides</td>
+        </tr>
+        <tr *ngFor="let Ride of RideList">
+          <td class="ellipsis" title="{{ Ride._id }}">{{ Ride._id }}</td>
+          <td class="ellipsis" title="{{ Ride.UserName }}">
+            {{ Ride.UserName }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.PickupPoint }}">
+            {{ Ride.PickupPoint }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.DropPoint }}">
+            {{ Ride.DropPoint }}
+          </td>
+
+          <td class="ellipsis" title="{{ Ride.ScheduleTime }}">
+            {{ Ride.ScheduleTime }}
+          </td>
+          <td class="ellipsis" title="{{ Ride.Driver }}">
+            {{ Ride.Driver || "Assigning" }}
+          </td>
+         
+          <td class="ellipsis" title="{{ Ride.Status }}">
+            {{ Ride.Status }}
+          </td>
+          <td>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-evenly;
+              "
+            >
+              <button
+                class="btn btn-primary"
+                style="width: 70px; padding: 5px; background-color: #6d7ae0"
+                (click)="OnAccept(Ride)"
+                data-toggle="modal"
+                data-target="#staticBackdrop"
+              >
+                Accept
+              </button>
+              <button
+                class="btn btn-danger"
+                style="width: 70px; padding: 5px"
+                [disabled]="Ride.Status == 0"
+                (click)="CancelRide(Ride, 0)"
+              >
+                Cancel
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </div>

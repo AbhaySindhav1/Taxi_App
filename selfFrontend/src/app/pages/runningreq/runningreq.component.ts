@@ -12,6 +12,7 @@ export class RunningreqComponent implements OnInit {
 
   Trip: any = {};
   Clicked = false;
+  RideList:any;
 
   constructor(
     config: NgbModalConfig,
@@ -21,18 +22,23 @@ export class RunningreqComponent implements OnInit {
     config.backdrop = 'static';
     config.keyboard = false;
     this.socketService.socket.on('toSendDriver', (data: any) => {
-      this.Trip = data.ride;
       console.log(data);
-      let Interval = setTimeout(() => {
-        if (this.Clicked) return;     
-        this.initResponse('Declined', this.Trip._id);
-        this.closeModel();
-      }, 10000);
-      this.open();
+      
+      // this.Trip = data.ride;
+      // console.log(data);
+      // let Interval = setTimeout(() => {
+      //   if (this.Clicked) return;     
+      //   this.initResponse('Declined', this.Trip._id);
+      //   this.closeModel();
+      // }, 10000);
+      // this.open();
     });
-    this.socketService.socket.on('AssignedReqAccepted', (data: any) => {});
+    // this.socketService.socket.on('AssignedReqAccepted', (data: any) => {});
   }
-  ngOnInit(): void {}
+  ngOnInit(): void {
+
+
+  }
 
   open(content?: any) {
     this.staticBackdrop.nativeElement.classList.add('show');
@@ -50,4 +56,7 @@ export class RunningreqComponent implements OnInit {
   }
 
   initStatus() {}
+
+  OnAccept(Ride:any){}
+  CancelRide(Ride:any, Status:any){}
 }

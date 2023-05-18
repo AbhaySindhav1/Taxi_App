@@ -36,7 +36,6 @@ router.post("/price", handleUpload, auth, async (req, res) => {
       city: new mongoose.Types.ObjectId(req.body.city),
       type: new mongoose.Types.ObjectId(req.body.type),
     });
-    console.log("ex.", existingModel);
 
     if (existingModel) {
       return res.status(400).send({
@@ -80,7 +79,6 @@ router.patch("/price/:id", auth, handleUpload, async (req, res) => {
     });
 
     if (existingModel && !priceId.equals(existingModel._id)) {
-      console.log("1");
       return res.status(400).send({
         code: 39,
         message: "A model with these details already exists",
@@ -157,7 +155,6 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Get Zone Pricing        ////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/price/pricing", handleUpload, auth, async (req, res) => {
-  console.log(req.body);
   if(!(req.body.city && req.body.type)) return
   try {
     const prices = await Price.aggregate([
