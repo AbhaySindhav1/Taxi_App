@@ -16,7 +16,7 @@
         <div class="modal-body">
           <div
             class="text-right"
-            (click)="initResponse('Declined',Trip._id);closeModel();"
+            (click)="closeModel();"
             style="cursor: pointer"
           >
             <i class="fa fa-close close" data-dismiss="modal"></i>
@@ -57,22 +57,14 @@
                 </div>
               </div>
               <div class="text-center mt-5">
-                <button
-                  type="button"
-                  class="btn"
-                  style="background-color: #6d7ae0; color: white"
-                  (click)="initResponse('Accepted',Trip._id);closeModel();"
-                >
-                  Accept
-                </button>
-                | |
+              
                 <button
                   type="button"
                   class="btn"
                   style="background-color: #c5c4c4; color: black"
-                  (click)="initResponse('Declined',Trip._id);closeModel();"
+                  (click)="closeModel();"
                 >
-                  Decline
+                  Close
                 </button>
               </div>
             </div>
@@ -82,6 +74,9 @@
     </div>
   </div>
 
+  <div style="margin:35px auto 40px 45px">
+    <h1 style="font-family: candara; font-weight: 600; font-size:2.5rem">Running  Requests</h1>
+  </div>
 
   <div class="ct-table-container">
     <table class="table-city table table-striped">
@@ -90,8 +85,8 @@
           <th class="ellipsis">Ride ID</th>
           <th class="ellipsis">User Name</th>
           <th class="ellipsis">PickUp Point</th>
+          <th class="ellipsis">Stops</th>
           <th class="ellipsis">Drop Point</th>
-          <th class="ellipsis">Schdule Time</th>
           <th class="ellipsis">Driver ID</th>
           <th class="ellipsis">Status</th>
           <th style="min-width: 250px">Action</th>
@@ -104,7 +99,7 @@
         >
           <td colspan="8">No Rides</td>
         </tr>
-        <tr *ngFor="let Ride of RideList">
+        <tr *ngFor="let Ride of RideList" >
           <td class="ellipsis" title="{{ Ride._id }}">{{ Ride._id }}</td>
           <td class="ellipsis" title="{{ Ride.UserName }}">
             {{ Ride.UserName }}
@@ -124,7 +119,7 @@
           </td>
          
           <td class="ellipsis" title="{{ Ride.Status }}">
-            {{ Ride.Status }}
+            {{ initStatus(Ride.Status) }}
           </td>
           <td>
             <div
@@ -134,20 +129,43 @@
                 justify-content: space-evenly;
               "
             >
+            <button
+                class="btn btn-primary"
+                style="padding: 8px; background-color: #6d7ae0"
+                (click)="Oninformation(Ride)"
+                >
+                <!-- data-toggle="modal"
+                data-target="#staticBackdrop" -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-info-circle"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                  />
+                  <path
+                    d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+                  />
+                </svg>
+              </button>
               <button
                 class="btn btn-primary"
                 style="width: 70px; padding: 5px; background-color: #6d7ae0"
                 (click)="OnAccept(Ride)"
-                data-toggle="modal"
-                data-target="#staticBackdrop"
-              >
+                >
                 Accept
               </button>
+              <!-- data-toggle="modal"
+              data-target="#staticBackdrop" -->
               <button
                 class="btn btn-danger"
                 style="width: 70px; padding: 5px"
                 [disabled]="Ride.Status == 0"
-                (click)="CancelRide(Ride, 0)"
+                (click)="CancelRide(Ride)"
               >
                 Cancel
               </button>

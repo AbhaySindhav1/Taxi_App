@@ -7,12 +7,20 @@ import { RideService } from 'src/app/Services/ride.service';
   styleUrls: ['./history.component.css'],
 })
 export class HistoryComponent implements OnInit {
+  RideList: any;
   constructor(private rideService: RideService) {}
   ngOnInit(): void {
-    this.rideService.initRideHistory().subscribe({
+    this.rideService.GetAllRides().subscribe({
       next: (data) => {
-        console.log(data);
+        this.RideList = data.filter((ride: any) => {
+          return ride.Status === 0 || ride.Status === 5 ;
+        });
+        
       },
     });
+  }
+
+  Oninformation(Ride: any) {
+    console.log(Ride);
   }
 }

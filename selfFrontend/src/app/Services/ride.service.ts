@@ -22,6 +22,9 @@ export class RideService {
   initGetAllRides() {
     return this.http.get<any>('http://localhost:3000/Ride');
   }
+  GetAllRides() {
+    return this.http.get<any>('http://localhost:3000/Ride/Assigned');
+  }
 
   initGetLocationValidation(array: any, city: any) {
     return this.http.get<any>(

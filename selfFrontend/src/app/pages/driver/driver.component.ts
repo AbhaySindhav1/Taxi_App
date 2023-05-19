@@ -61,15 +61,12 @@ export class DriverComponent implements OnInit {
     });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
-      console.log(data);
-      // DriverID,Status
       if (data.Driver) {
         this.getStatus(data.Driver.DriverID, data.Driver.Status);
       }
     });
 
     // this.socketService.socket.on('UpdateDriverStatus', (data: any) => {
-    //   console.log(data);
     //   this.getStatus(data._id, data.status);
     // });
   }
@@ -97,7 +94,6 @@ export class DriverComponent implements OnInit {
   onCountrySelect() {
     this.error = null;
     this.DriverForm.get('city')?.setValue('');
-    console.log(document.getElementById('DriverCountry') as HTMLSelectElement);
 
     let value = (document.getElementById('DriverCountry') as HTMLSelectElement)
       .value;
@@ -105,7 +101,6 @@ export class DriverComponent implements OnInit {
     this.cityService.initGetAllCountry(value).subscribe({
       next: (data) => {
         this.CityList = data;
-        console.log(this.CityList);
 
         // Update the value of the city form control to the first item in the list
         if (this.CityList.length > 0) {
@@ -122,8 +117,6 @@ export class DriverComponent implements OnInit {
   /// when form Submitted
 
   onFormSubmit() {
-    console.log(this.DriverForm.value);
-
     this.isSubmitted = true;
 
     if (!this.DriverForm.valid) {
@@ -215,8 +208,6 @@ export class DriverComponent implements OnInit {
   ////  Edit Driver Info
 
   onEditDriver(Driver: any) {
-    console.log(Driver);
-
     this.isEditMode = true;
     this.isSearchMode = false;
     this.DriverId = Driver._id;
@@ -232,14 +223,16 @@ export class DriverComponent implements OnInit {
       // ServiceType: Driver.ServiceType,
     });
     this.onCountrySelect();
-    this.cd.detectChanges();
+    setTimeout(() => {
+      this.DriverForm.patchValue({ DriverCity: Driver.DriverCity });
+
+      this.cd.detectChanges();
+    }, 10);
   }
 
   initDriverEditReq(formData: any) {
     this.driverService.initEditDriver(this.DriverId, formData).subscribe({
       next: (data) => {
-        console.log(data);
-
         this.getDriverReq();
         this.initReset();
       },
@@ -260,15 +253,14 @@ export class DriverComponent implements OnInit {
 
   onupdateDriver(Driver: any) {
     this.DriverId = Driver._id;
-    console.log(this.DriverId);
 
     (document.getElementById('ServiceType') as HTMLSelectElement).value =
       Driver.ServiceType;
   }
+
   onAssignService() {
     let data = (document.getElementById('ServiceType') as HTMLSelectElement)
       .value;
-    console.log(data);
 
     let formData = new FormData();
     formData.append('ServiceType', data);
@@ -307,8 +299,6 @@ export class DriverComponent implements OnInit {
   getDriverReq() {
     this.driverService.initGetDriver().subscribe({
       next: (data) => {
-        console.log(data);
-
         this.DriverData = data;
         this.initReset();
       },

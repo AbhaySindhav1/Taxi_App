@@ -44,11 +44,16 @@ export class ConfirmRideComponent implements OnInit {
     this.socketService.socket.on('toSendDriver', (data: any) => {
       const ride = this.RideList.find((r: any) => r._id === data.Ride._id);
       ride.Driver = data.AssignDriver.DriverName;
+      ride.Status = data.Ride.Status;
     });
     this.socketService.socket.on('CancelledRide', (data: any) => {
       this.RideList = this.RideList.filter((ride: any) => {
-        console.log(data.Ride.RideId);
         return ride._id !== data.Ride.RideId;
+      });
+    });
+    this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {     
+      this.RideList = this.RideList.filter((ride: any) => {
+        return ride._id !== data.Ride._id;
       });
     });
   }
@@ -66,9 +71,9 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   OnAssign(Ride: any) {
-    console.log(Ride);
     let formdata = new FormData();
     formdata.append('ServiceType', Ride.type);
+    formdata.append('RideCity', Ride.RideCity);
 
     this.driverService.initSpeceficDrivers(formdata).subscribe({
       next: (data) => {
@@ -80,7 +85,7 @@ export class ConfirmRideComponent implements OnInit {
     });
     this.Ride = Ride;
     this.selectedRowIndex = null;
-    this.SelectedRow = {};
+    this.SelectedRow = null;
   }
 
   CancelRide(Ride: any, Status?: any) {
@@ -96,8 +101,8 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   AssignDriver(ride: any, Status?: any) {
-    console.log(this.SelectedRow, ride, Status);
-
+    console.log(ride);
+    if(!ride) return;
     this.socketService.socket.emit('ride', {
       ride: ride,
       driver: this.SelectedRow._id,
@@ -143,6 +148,9 @@ export class ConfirmRideComponent implements OnInit {
   GetAllData() {
     this.rideService.initGetAllRides().subscribe({
       next: (data) => {
+      data.forEach((element:any) => {
+        element.Stops  = JSON.parse(element.Stops)
+      });
         this.RideList = data;
       },
     });

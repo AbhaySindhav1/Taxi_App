@@ -180,17 +180,7 @@ router.get("/Driver", auth, async (req, res) => {
 router.post("/Driver/List", auth, handleDriversUpload, async (req, res) => {
   try {
     const Drivers = await Driver.aggregate([
-      // {
-      //   $lookup: {
-      //     from: "taxis",
-      //     localField: "ServiceType",
-      //     foreignField: "_id",
-      //     as: "ServiceTypeInfo",
-      //   },
-      // },
-      // {
-      //   $unwind: "$ServiceTypeInfo",
-      // },
+      
       {
         $match: {
           $and: [
@@ -199,6 +189,11 @@ router.post("/Driver/List", auth, handleDriversUpload, async (req, res) => {
             {
               ServiceType: mongoose.Types.ObjectId.isValid(req.body.ServiceType)
                 ? new mongoose.Types.ObjectId(req.body.ServiceType)
+                : null,
+            },
+            {
+              DriverCity: mongoose.Types.ObjectId.isValid(req.body.RideCity)
+                ? new mongoose.Types.ObjectId(req.body.RideCity)
                 : null,
             },
           ],

@@ -55,6 +55,10 @@ const RideSchema = mongoose.Schema(
       type: Number,
       default: 1,
     },
+    RideCity: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+    },
   },
   { timestamps: true }
 );

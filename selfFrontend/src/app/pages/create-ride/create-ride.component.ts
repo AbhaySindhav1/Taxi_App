@@ -8,6 +8,7 @@ import { PricingService } from 'src/app/Services/pricing.service';
 declare var google: any;
 let directionsRenderer = new google.maps.DirectionsRenderer();
 let directionsService = new google.maps.DirectionsService();
+
 @Component({
   selector: 'app-create-ride',
   templateUrl: './create-ride.component.html',
@@ -196,7 +197,7 @@ export class CreateRideComponent implements OnInit {
                 console.log(data);
 
                 this.isServiceZone = data[0];
-                console.log(this.isServiceZone.city);
+                console.log(this.isServiceZone._id);
 
                 this.pricingService
                   .initGetAllVehicle(this.isServiceZone.city)
@@ -333,6 +334,7 @@ export class CreateRideComponent implements OnInit {
     formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
     formData.append('Distance', this.tripDetails.Distance);
     formData.append('Time', this.tripDetails.Time);
+    formData.append('RideCity', this.isServiceZone._id);
     formData.append(
       'PickupPoint',
       (document.getElementById('PickupPoint') as HTMLInputElement).value

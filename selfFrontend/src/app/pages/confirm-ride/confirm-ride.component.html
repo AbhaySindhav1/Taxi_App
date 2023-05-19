@@ -3,7 +3,7 @@
     <div class="Status-select select d-column">
       <label for="Status">Select Status</label>
       <select id="Status" name="Status" formControlName="Status">
-        <option value="null" selected >Select Status</option>
+        <option value="null" selected>Select Status</option>
 
         <option value="2">Accepted</option>
         <option value="3">Arrived</option>
@@ -110,6 +110,9 @@
                     <th>Email</th>
                   </thead>
                   <tbody>
+                    <tr *ngIf="driverData?.length == 0">
+                      <td colspan="4">NO Driver Found</td>
+                    </tr>
                     <tr
                       *ngFor="let driver of driverData; let i = index"
                       (click)="getTrData(i, driver)"
@@ -193,7 +196,7 @@
           <th class="ellipsis">Drop Point</th>
           <th class="ellipsis">Type</th>
           <th class="ellipsis">Schdule Time</th>
-          <th class="ellipsis">Driver </th>
+          <th class="ellipsis">Driver</th>
           <th class="ellipsis">Trip Fee</th>
           <th class="ellipsis">Status</th>
           <th style="min-width: 250px">Action</th>
@@ -218,7 +221,7 @@
             {{ Ride.PickupPoint }}
           </td>
           <td class="ellipsis" title="{{ Ride.Stops }}">
-            {{ Ride.Stops.split('","').length || 0 }}
+            {{ Ride.Stops.length }}
           </td>
           <td class="ellipsis" title="{{ Ride.DropPoint }}">
             {{ Ride.DropPoint }}
@@ -237,7 +240,13 @@
             {{ Ride.TripFee }}
           </td>
           <td class="ellipsis" title="{{ Ride.Status }}">
-            {{ Ride.Status }}
+            {{
+              Ride.Status === 1
+                ? "Pending"
+                : Ride.Status === 100
+                ? "Assigning"
+                : ""
+            }}
           </td>
           <td>
             <div
@@ -251,6 +260,7 @@
                 class="btn btn-primary"
                 style="width: 70px; padding: 5px; background-color: #6d7ae0"
                 (click)="OnAssign(Ride)"
+                [disabled]="Ride.Status == 100"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
               >

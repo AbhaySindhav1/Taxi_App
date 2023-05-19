@@ -21,44 +21,37 @@ module.exports = function (io) {
       if (data.Status == "Assign") {
         AssignRide(data.ride, data.driver);
       }
-     
-      //   io.emit("UpdateDriverStatus", driver);
-      //   io.emit("toSendDriver", { ride, driver });
-      // }
     });
 
     socket.on("DriverResponse", async (data) => {
-      try {
-        let ride = await Ride.findByIdAndUpdate(data.id, { new: true });
-        if (data.response === "Accepted") {
-          ride.Status = "Accepted";
-          ride.Driver = driver.DriverName;
-          ride.DriverId = driver._id;
-          await driver.save();
-          await ride.save();
-          io.emit("AssignedReqAccepted", {
-            id: ride._id,
-            Status: "Accepted",
-            Driver: driver.DriverName,
-          });
-        } else if (data.response === "Declined") {
-          driver.status = "online";
-          ride.Status = "pending";
-          ride.Driver = null;
-          await driver.save();
-          await ride.save();
-          io.emit("AssignedReqDeclined", {
-            id: ride._id,
-            Status: ride.Status,
-            Driver: "Assigning",
-          });
-          io.emit("UpdateDriverStatus", driver);
-        }
-      } catch (error) {
-        console.log(error);
+      if (!data) return;
+      if (data.Status == 0) {
+        CancelRide(data.Ride);
+      }
+      if (data.Status == 1) {
+        AcceptRide(data.Ride, data.Ride.DriverInfo._id, "Accepted");
       }
     });
   });
+
+  /////////////////////////////////////////////////////////////        Driver Accepted  Ride    ////////////////////////////////////////////////////////////////////////
+
+  AcceptRide = async (Ride, DriverID) => {
+    if (!Ride) return;
+    if (!(mongoose.Types.ObjectId.isValid(DriverID))) return;
+    let ride = await Rides.findByIdAndUpdate(Ride._id,{Status:2,DriverId:new mongoose.Types.ObjectId(DriverID)});
+    let AssignDriver = await Driver.findByIdAndUpdate(
+      DriverID,
+      { status: "busy" },
+      { new: true }
+      );
+      Ride.Status = ride.Status;
+      Ride.DriverId = ride.DriverId;
+      Ride.Driver = ride.Driver;
+      
+      io.emit("ReqAcceptedByDriver", { Ride, AssignDriver });
+
+  };
 
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +66,10 @@ module.exports = function (io) {
 
     Ride.Status = 100;
     ride.Status = 100;
+    Ride.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
     ride.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
+    Ride.Driver = AssignDriver.DriverName;
+    Ride.AssignDriver = AssignDriver;
     ride.Driver = AssignDriver.DriverName;
     await ride.save();
 

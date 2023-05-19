@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { RideService } from 'src/app/Services/ride.service';
 import { SocketService } from 'src/app/Services/socket.service';
 @Component({
   selector: 'app-runningreq',
@@ -12,32 +13,47 @@ export class RunningreqComponent implements OnInit {
 
   Trip: any = {};
   Clicked = false;
-  RideList:any;
+  RideList: any;
+  Interval: any;
+  TimeOut:any = 10000;
 
   constructor(
     config: NgbModalConfig,
-    private modalService: NgbModal,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private rideService: RideService
   ) {
     config.backdrop = 'static';
     config.keyboard = false;
     this.socketService.socket.on('toSendDriver', (data: any) => {
       console.log(data);
-      
-      // this.Trip = data.ride;
-      // console.log(data);
-      // let Interval = setTimeout(() => {
-      //   if (this.Clicked) return;     
-      //   this.initResponse('Declined', this.Trip._id);
-      //   this.closeModel();
-      // }, 10000);
-      // this.open();
+      this.RideList.push(data.Ride);
+      this.Interval = setTimeout(() => {
+        this.CancelRide(data.Ride);
+      }, this.TimeOut);
     });
-    // this.socketService.socket.on('AssignedReqAccepted', (data: any) => {});
+
+    this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {     
+      
+      const ride = this.RideList.find((r: any) => r._id === data.Ride._id);
+      
+      ride.Driver = data.AssignDriver.DriverName;
+      ride.Status = data.Ride.Status;
+      console.log(ride);
+    });
   }
   ngOnInit(): void {
-
-
+    this.rideService.GetAllRides().subscribe({
+      next: (data) => {
+        this.RideList = data.filter((ride: any) => {
+          return (
+            ride.Status === 2 ||
+            ride.Status === 3 ||
+            ride.Status === 4 ||
+            ride.Status === 100
+          );
+        });
+      },
+    });
   }
 
   open(content?: any) {
@@ -50,13 +66,30 @@ export class RunningreqComponent implements OnInit {
     this.staticBackdrop.nativeElement.style.display = 'none';
   }
 
-  initResponse(response: string, id: any) {
-    clearTimeout
-    this.socketService.socket.emit('DriverResponse', { response, id });
+  initStatus(status: any) {
+    return this.rideService.initGetStatus(status);
   }
 
-  initStatus() {}
+  OnAccept(Ride: any) {
+    this.socketService.socket.emit('DriverResponse', { Ride, Status: 1 });
+    this.Clicked = true;
+    if (this.Interval) {
+      clearTimeout(this.Interval);
+    }
+  }
 
-  OnAccept(Ride:any){}
-  CancelRide(Ride:any, Status:any){}
+  CancelRide(Ride: any) {
+    this.socketService.socket.emit('DriverResponse', { Ride, Status: 0 });
+    this.RideList = this.RideList.filter((ride: any) => {
+      console.log(ride._id, Ride._id);
+      return ride._id !== Ride._id;
+    });
+    if (this.Interval) {
+      clearTimeout(this.Interval);
+    }
+  }
+
+  Oninformation(Ride: any) {
+    console.log(Ride);
+  }
 }

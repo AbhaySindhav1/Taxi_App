@@ -11,7 +11,6 @@ const moment = require("moment");
 ////                                              ///  ADD Ride ///                                                                   ///
 
 router.post("/Ride", upload.none(), auth, async (req, res) => {
-  console.log(req.body);
   if (!req.body.Stops) {
     req.body.Stops = [];
   }
@@ -20,6 +19,12 @@ router.post("/Ride", upload.none(), auth, async (req, res) => {
       throw new Error("Vehicle Not Valid");
     }
     req.body.type = new mongoose.Types.ObjectId(req.body.type);
+  }
+  if (req.body.RideCity) {
+    if (!mongoose.Types.ObjectId.isValid(req.body.RideCity)) {
+      throw new Error("Services Not Found");
+    }
+    req.body.RideCity = new mongoose.Types.ObjectId(req.body.RideCity);
   }
   req.body.ScheduleTime = moment(
     req.body.ScheduleTime,
@@ -81,20 +86,20 @@ router.get("/Ride", async (req, res) => {
       {
         $unwind: "$VehicleInfo",
       },
-      {
-        $lookup: {
-          from: "drivers",
-          localField: "DriverId",
-          foreignField: "_id",
-          as: "DriverInfo",
-        },
-      },
-      {
-        $unwind: "$DriverInfo",
-      },
+      // {
+      //   $lookup: {
+      //     from: "drivers",
+      //     localField: "DriverId",
+      //     foreignField: "_id",
+      //     as: "DriverInfo",
+      //   },
+      // },
+      // {
+      //   $unwind: "$DriverInfo",
+      // },
       {
         $match: {
-          Status: { $in: [1,100] },
+          Status: { $in: [1, 100] },
         },
       },
     ]);
@@ -106,7 +111,6 @@ router.get("/Ride", async (req, res) => {
 });
 
 ////                                              ///  Get All Assignd and Other Ride ///                                                                   ///
-
 
 router.get("/Ride/Assigned", async (req, res) => {
   try {
@@ -142,11 +146,9 @@ router.get("/Ride/Assigned", async (req, res) => {
         },
       },
       {
-        $unwind: "$DriverInfo",
-      },
-      {
-        $match: {
-          Status: { $nin: [0,1,5] },
+        $unwind: {
+          path: "$DriverInfo",
+          preserveNullAndEmptyArrays: true,
         },
       },
     ]);
@@ -156,7 +158,6 @@ router.get("/Ride/Assigned", async (req, res) => {
     res.status(400).send(error);
   }
 });
-
 
 ////                                              ///  Filter  Ride ///                                                                   ///
 
@@ -242,16 +243,16 @@ router.post("/RideFilter", upload.none(), auth, async (req, res) => {
 
 ////                                              ///  Ride History   ///                                                                   ///
 
-router.get("/Ride/History", async (req, res) => {
-  try {
-    const Rides = await CreateRide.find({
-      $or: [{ Status: 0 }, { Status: 6 }],
-    });
-    res.status(200).send(Rides);
-  } catch (error) {
-    console.log(error);
-    res.status(400).send(error);
-  }
-});
+// router.get("/Ride/History", async (req, res) => {
+//   try {
+//     const Rides = await CreateRide.find({
+//       $or: [{ Status: 0 }, { Status: 6 }],
+//     });
+//     res.status(200).send(Rides);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).send(error);
+//   }
+// });
 
 module.exports = router;
