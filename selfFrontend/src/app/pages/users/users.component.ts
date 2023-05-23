@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from 'src/app/Services/users.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'app-users',
@@ -18,7 +20,7 @@ export class UsersComponent implements OnInit {
   userId: any;
   isEditMode = false;
 
-  constructor(private usersService: UsersService) {
+  constructor(private usersService: UsersService, public dialog: MatDialog) {
     this.UsersForm = new FormGroup({
       UserFile: new FormControl(null),
       UserName: new FormControl(null, [Validators.required]),
@@ -28,6 +30,15 @@ export class UsersComponent implements OnInit {
         Validators.required,
         Validators.pattern('^((\\+91-?)|0)?[0-9\\s-]{10}$'),
       ]),
+    });
+  }
+  openDialog(enterAnimationDuration: string, exitAnimationDuration: string) {
+    const dialogRef = this.dialog.open(CardComponent, {
+      width: '1000px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(`Dialog result: ${result}`);
     });
   }
   ngOnInit(): void {
@@ -186,7 +197,9 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  getImageSource(user:any) {
-    return user.profile ? `http://localhost:3000/uploads/Users/${user.profile}` : 'http://localhost:3000/uploads/nouser.png';
+  getImageSource(user: any) {
+    return user.profile
+      ? `http://localhost:3000/uploads/Users/${user.profile}`
+      : 'http://localhost:3000/uploads/nouser.png';
   }
 }

@@ -14,6 +14,8 @@ const UsersRoute = require("../router/usersRouter");
 const DriverRoute = require("../router/driverRouter");
 const createRideRoute = require("../router/createRideRouter");
 const Sockets = require('../Controller/Functions/Socket')
+const Crone = require('../Controller/Functions/Crone')
+const Stripe = require('../Controller/Functions/Stripe')
 
 
 const bodyParser = require("body-parser");
@@ -42,4 +44,5 @@ const server = app.listen(port, () => {
 
 const io = require('socket.io')(server);
 
-Sockets(io)
+Sockets(io);
+Crone(io);

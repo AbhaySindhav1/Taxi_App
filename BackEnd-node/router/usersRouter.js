@@ -5,6 +5,7 @@ const fs = require("fs");
 const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
 const { handleUserUpload } = require("../Controller/middleware/multer");
+const { createCustomer } = require("../Controller/Functions/Stripe");
 
 //////                                                        ////         Add   User       ////                                                           ///////
 
@@ -22,8 +23,17 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
       req.body.UserPhone = req.body.UserPhone;
     }
     const myUser = new Users(req.body);
+    await myUser.save();
+
+    const StripeCustomer = await createCustomer(
+      myUser.UserEmail,
+      myUser.UserName
+    );
+
+    myUser.StripeId = StripeCustomer.id;
 
     await myUser.save();
+
     res.status(201).send({
       massage: "User Created",
       code: 1,
@@ -110,7 +120,6 @@ router.get("/MyUser", auth, async (req, res) => {
   }
 });
 
-
 //////                                                        ////        Edit   User       ////                                                           ///////
 
 router.patch("/MyUser/:id", auth, handleUserUpload, async (req, res) => {
@@ -131,12 +140,7 @@ router.patch("/MyUser/:id", auth, handleUserUpload, async (req, res) => {
     const users = await Users.findById(req.params.id);
     const oldImg = `uploads/Users/${users.profile}`;
     fieldtoupdate.forEach((field) => {
-      // if (!req.body[field] && field !== "profile") {
-      //   throw new Error(`${field} is required`);
-      // } else
-      // if (req.body[field]) {
       users[field] = req.body[field];
-      // }
     });
     await users.save();
     if (req.file) {
@@ -174,6 +178,13 @@ router.patch("/MyUser/:id", auth, handleUserUpload, async (req, res) => {
       res.status(400).send(error);
     }
   }
+});
+
+//////                                                        ////         Set up User  Intent      ////                                                           ///////
+
+router.post("MyUser/stripe/:id", auth, handleUserUpload, async (req, res) => {
+  console.log(req.body);
+  
 });
 
 //////                                                        ////         Delete   User       ////                                                           ///////

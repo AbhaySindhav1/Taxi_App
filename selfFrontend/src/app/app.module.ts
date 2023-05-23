@@ -8,10 +8,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboradModule } from './dashborad/dashborad.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {  MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { PopUpComponent } from './pages/pop-up/pop-up.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 
 @NgModule({

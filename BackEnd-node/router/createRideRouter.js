@@ -86,17 +86,6 @@ router.get("/Ride", async (req, res) => {
       {
         $unwind: "$VehicleInfo",
       },
-      // {
-      //   $lookup: {
-      //     from: "drivers",
-      //     localField: "DriverId",
-      //     foreignField: "_id",
-      //     as: "DriverInfo",
-      //   },
-      // },
-      // {
-      //   $unwind: "$DriverInfo",
-      // },
       {
         $match: {
           Status: { $in: [1, 100] },

@@ -130,7 +130,7 @@
     </div>
 
     <div class="btn-container">
-      <button class="btn btn-primary button" *ngIf="!isEditMode">
+      <button class="btn btn-primary button" *ngIf="!isEditMode" >
         Add User
       </button>
       <button
@@ -276,13 +276,16 @@
             <button class="btn btn-success button" (click)="onEditUser(user)">
               Edit
             </button>
-            <button
+            <button class="btn Button" (click)="openDialog('100ms', '100ms')">
+              Add Card
+            </button>
+            <!-- <button
               class="btn btn-danger button"
               style="color: white;"
               (click)="onDeleteUser(user._id)"
             >
               Delete
-            </button>
+            </button> -->
           </td>
         </tr>
       </tbody>

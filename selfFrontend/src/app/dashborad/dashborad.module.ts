@@ -27,6 +27,8 @@ import { DurationPipePipe } from '../pipes/duration-pipe.pipe';
 import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.component';
 import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
 import { HistoryComponent } from '../pages/history/history.component';
+import { CardComponent } from '../pages/card/card.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,8 @@ import { HistoryComponent } from '../pages/history/history.component';
     DurationPipePipe,
     ConfirmRideComponent,
     RunningreqComponent,
-    HistoryComponent
+    HistoryComponent,
+    CardComponent
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),
@@ -58,6 +61,7 @@ import { HistoryComponent } from '../pages/history/history.component';
     HttpClientModule,
     CommonModule,
     MatButtonModule,
+    MatDialogModule
     
   ],
   providers: [],

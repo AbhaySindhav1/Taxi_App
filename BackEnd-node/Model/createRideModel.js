@@ -59,6 +59,10 @@ const RideSchema = mongoose.Schema(
       type: mongoose.Types.ObjectId,
       required: true,
     },
+    RejectedRide: {
+      type: Array,
+      default: null,
+    },
   },
   { timestamps: true }
 );

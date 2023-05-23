@@ -1,0 +1,31 @@
+<div class="Payment" style="max-height: 50vh">
+  <div class="card-body">
+    
+    <ul>
+      <li
+        class="card-detail"
+        *ngFor="let card of cards"
+        [class.selected]="card === selectedCard"
+        (click)="handleCardSelection(card)"
+      >
+        <img
+          [src]="card.imageUrl"
+          alt="Card"
+          style="height: 50px; width: 70px"
+        />
+        <h4 style="margin: 0; font-size: 20px">{{ card.cardNumber }}</h4>
+      </li>
+    </ul>
+  </div>
+  <div style="padding: 40px;">
+  <form id="payment-form">
+    <div id="payment-element">
+      <!-- Elements will create form elements here -->
+    </div>
+    <button mat-raised-button color="primary" id="submit">Submit</button>
+    <div id="error-message">
+      <!-- Display error message to your customers here -->
+    </div>
+  </form>
+</div>
+</div>

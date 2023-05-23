@@ -35,6 +35,9 @@ const UsersSchema = mongoose.Schema({
     unique: true,
     validate: [validatePhoneNumber, "Please enter a valid phone number"],
   },
+  StripeId:{
+    type:String,
+  }
 });
 
 const Users = mongoose.model("MyUser", UsersSchema);
