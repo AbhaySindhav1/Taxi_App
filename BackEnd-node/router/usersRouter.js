@@ -5,7 +5,12 @@ const fs = require("fs");
 const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
 const { handleUserUpload } = require("../Controller/middleware/multer");
-const { createCustomer } = require("../Controller/Functions/Stripe");
+const {
+  createCustomer,
+  SetUpIntant,
+  retrievePaymentMethods,
+  deletePaymentMethod,
+} = require("../Controller/Functions/Stripe");
 
 //////                                                        ////         Add   User       ////                                                           ///////
 
@@ -182,9 +187,57 @@ router.patch("/MyUser/:id", auth, handleUserUpload, async (req, res) => {
 
 //////                                                        ////         Set up User  Intent      ////                                                           ///////
 
-router.post("MyUser/stripe/:id", auth, handleUserUpload, async (req, res) => {
-  console.log(req.body);
-  
+router.post("/StripeInt/:id", async (req, res) => {
+  console.log(req.params.id);
+  try {
+    let user = await Users.findById(req.params.id);
+    if (!user.StripeId) {
+      let customer = await createCustomer(user.UserEmail, user.UserName);
+      user.StripeId = customer.id;
+      await user.save();
+      let intent = await SetUpIntant(customer.id);
+      res.json({ client_secret: intent.client_secret });
+    } else {
+      let intent = await SetUpIntant(user.StripeId);
+      res.json({ client_secret: intent.client_secret });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error : " + error.message });
+  }
+});
+
+//////                                                        ////         Get User Payments Details      ////                                                           ///////
+
+router.post("/StripeInt/payments/:id", async (req, res) => {
+  try {
+    let user = await Users.findById(req.params.id);
+    if (!user.StripeId) {
+      let customer = await createCustomer(user.UserEmail, user.UserName);
+      user.StripeId = customer.id;
+      await user.save();
+      let payment = await retrievePaymentMethods(customer.id);
+      res.json(payment);
+    } else {
+      let payment = await retrievePaymentMethods(user.StripeId);
+      res.json(payment);
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error : " + error.message });
+  }
+});
+
+//////                                                        ////         Delete Payments Details      ////                                                           ///////
+
+router.post("/StripeInt/delete/:id", async (req, res) => {
+  console.log(req.params.id);
+  try {
+    let card = await deletePaymentMethod(req.params.id);
+    if (card) {
+      res.json({card:card.id,massge:"Card Deleted Successfully !"});
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error : " + error.message });
+  }
 });
 
 //////                                                        ////         Delete   User       ////                                                           ///////

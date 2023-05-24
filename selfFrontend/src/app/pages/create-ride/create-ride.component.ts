@@ -143,7 +143,8 @@ export class CreateRideComponent implements OnInit {
   }
 
   OnRideFormSubmit() {
-    this.isSubmitted = true;
+    this.isSubmitted = true; 
+
     this.errMassage = null;
     if (!this.RideForm.valid) return;
 
@@ -204,22 +205,18 @@ export class CreateRideComponent implements OnInit {
                   .subscribe({
                     next: (data) => {
                       console.log(data);
-                      
+
                       this.Vehicles = data;
                     },
                     error: (error) => {
-                      console.log(error);
-                      // this.errMassage = error;
-                      // this.error = true;
+                      this.toastr.error(error);
                     },
                   });
               }
             },
 
             error: (error) => {
-              console.log(error);
-              // this.errMassage = error;
-              // this.error = true;
+              this.toastr.error(error);
             },
           });
       }

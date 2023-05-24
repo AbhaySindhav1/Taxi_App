@@ -1,31 +1,56 @@
 <div class="Payment" style="max-height: 50vh">
   <div class="card-body">
-    
     <ul>
+      <li class="card-detail" *ngIf="cards?.length == 0">No Card Yet</li>
       <li
         class="card-detail"
         *ngFor="let card of cards"
         [class.selected]="card === selectedCard"
-        (click)="handleCardSelection(card)"
+        (click)="handleCardSelection(card.id,card)"
       >
         <img
-          [src]="card.imageUrl"
+        [src]="getImageSource(card.card.brand)"
           alt="Card"
           style="height: 50px; width: 70px"
         />
-        <h4 style="margin: 0; font-size: 20px">{{ card.cardNumber }}</h4>
+        <h4 style="margin: 0; font-size: 20px"> XXXX XXXX XXXX {{ card.card.last4 }}</h4>
+        <span style="margin-left: 20px;"><img [src]="getImageSource('delete')" alt="Delete" srcset="" (click)="DeleteCards(card.id)"></span>
       </li>
-    </ul>
+    </ul> 
   </div>
-  <div style="padding: 40px;">
-  <form id="payment-form">
-    <div id="payment-element">
-      <!-- Elements will create form elements here -->
-    </div>
-    <button mat-raised-button color="primary" id="submit">Submit</button>
-    <div id="error-message">
-      <!-- Display error message to your customers here -->
-    </div>
-  </form>
+  <div style="display: flex; justify-content:center ; align-items: center; margin: 20px 0px;">
+  <button
+    mat-raised-button
+    color="primary"
+    type="button"
+    id="AddCard"
+    (click)="addCardButton()"
+    *ngIf="!FormDisplay"
+  >
+   ADD CARD
+  </button>
 </div>
+
+  <div style="padding: 30px" *ngIf="FormDisplay">
+    <form id="payment-form">
+      <div
+        id="payment-element"
+        style="border: 2px solid black; padding: 20px; border-radius: 5px"
+      >
+        <!-- Elements will create form elements here -->
+      </div>
+      <button
+        mat-raised-button
+        color="primary"
+        class="mt-4"
+        id="submit"
+        (click)="AddCards()"
+      >
+        Submit
+      </button>
+      <div id="error-message">
+        <!-- Display error message to your customers here -->
+      </div>
+    </form>
+  </div>
 </div>

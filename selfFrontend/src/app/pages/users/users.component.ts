@@ -32,13 +32,10 @@ export class UsersComponent implements OnInit {
       ]),
     });
   }
-  openDialog(enterAnimationDuration: string, exitAnimationDuration: string) {
+  openDialog(user: any) {
     const dialogRef = this.dialog.open(CardComponent, {
-      width: '1000px',
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log(`Dialog result: ${result}`);
+      width: '500px',
+      data: user,
     });
   }
   ngOnInit(): void {

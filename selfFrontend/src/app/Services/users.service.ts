@@ -11,6 +11,15 @@ export class UsersService {
     return this.http.post<any>('http://localhost:3000/MyUser', formData);
   }
 
+  onDeleteCard(data: any) {
+    console.log(data);
+
+    return this.http.post<any>(
+      'http://localhost:3000/StripeInt/delete/' + data,
+      data
+    );
+  }
+
   initGetUsers(data?: any, sortData?: any) {
     const Value = { Value: data || '' };
     const sort = { sortValue: sortData || '' };
