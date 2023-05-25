@@ -25,7 +25,6 @@ export class RunningreqComponent implements OnInit {
     config.backdrop = 'static';
     config.keyboard = false;
     this.socketService.socket.on('toSendDriver', (data: any) => {
-      console.log(data);
       this.RideList.push(data.Ride);
       this.Interval = setTimeout(() => {
         this.CancelRide(data.Ride);
@@ -71,7 +70,14 @@ export class RunningreqComponent implements OnInit {
   }
 
   OnAccept(Ride: any) {
-    this.socketService.socket.emit('DriverResponse', { Ride, Status: 1 });
+    this.socketService.socket.emit('DriverResponse', { Ride, Status: 2 });
+    this.Clicked = true;
+    if (this.Interval) {
+      clearTimeout(this.Interval);
+    }
+  }
+  OnPending(Ride: any) {
+    this.socketService.socket.emit('DriverResponse', { Ride, Status:  1});
     this.Clicked = true;
     if (this.Interval) {
       clearTimeout(this.Interval);

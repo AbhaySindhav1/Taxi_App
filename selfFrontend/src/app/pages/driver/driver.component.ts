@@ -3,11 +3,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CityService } from 'src/app/Services/city.service';
 import { DriverService } from 'src/app/Services/driver.service';
 
-import {
-  MatDialog,
-  MAT_DIALOG_DATA,
-  MatDialogRef,
-} from '@angular/material/dialog';
 import { CountryService } from 'src/app/Services/country.service';
 import { VehicleService } from 'src/app/Services/vehicle.service';
 import { SocketService } from 'src/app/Services/socket.service';
@@ -61,14 +56,19 @@ export class DriverComponent implements OnInit {
     });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
+     
       if (data.Driver) {
         this.getStatus(data.Driver.DriverID, data.Driver.Status);
       }
     });
 
-    // this.socketService.socket.on('UpdateDriverStatus', (data: any) => {
-    //   this.getStatus(data._id, data.status);
-    // });
+    this.socketService.socket.on('UpdateDriverStatus', (data: any) => {
+      this.getStatus(data._id, data.status);
+    });
+
+    this.socketService.socket.on('toSendDriver', (data: any) => {     
+      this.getStatus(data._id, data.status);
+    });
   }
 
   ngOnInit(): void {

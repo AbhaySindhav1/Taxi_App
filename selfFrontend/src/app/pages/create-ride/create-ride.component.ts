@@ -140,10 +140,12 @@ export class CreateRideComponent implements OnInit {
         this.setupAutocomplete(inputElement.id);
       }
     }, 1);
+
+   
   }
 
   OnRideFormSubmit() {
-    this.isSubmitted = true; 
+    this.isSubmitted = true;
 
     this.errMassage = null;
     if (!this.RideForm.valid) return;
@@ -157,6 +159,7 @@ export class CreateRideComponent implements OnInit {
   }
 
   setupAutocomplete(fieldName: string) {
+    this.tripDetails.TripCharge = null;
     const autocomplete = new google.maps.places.Autocomplete(
       document.getElementById(fieldName),
       {
@@ -169,6 +172,8 @@ export class CreateRideComponent implements OnInit {
       if (place.geometry === undefined || place.geometry === null) {
         return;
       }
+
+    
 
       this.RideForm.get(fieldName)?.setValue(
         (document.getElementById(fieldName) as HTMLInputElement).value
@@ -183,43 +188,26 @@ export class CreateRideComponent implements OnInit {
           .initGetLocationValidation(location, place.formatted_address)
           .subscribe({
             next: (data) => {
-              console.log(data);
-
               if (data.length === 0) {
                 this.toastr.error('For This Location Service is Unavailable');
-                (
-                  document.getElementById(`${fieldName}`) as HTMLInputElement
-                ).value = '';
+                this.RideDetailsForm.reset();
                 (
                   document.getElementById(`${fieldName}`) as HTMLInputElement
                 ).focus();
                 return;
               } else {
-                console.log(data);
-
                 this.isServiceZone = data[0];
-                console.log(this.isServiceZone._id);
 
-                this.pricingService
-                  .initGetAllVehicle(this.isServiceZone.city)
-                  .subscribe({
-                    next: (data) => {
-                      console.log(data);
-
-                      this.Vehicles = data;
-                    },
-                    error: (error) => {
-                      this.toastr.error(error);
-                    },
-                  });
+                this.GetCityVehicle(this.isServiceZone.city);
               }
             },
-
             error: (error) => {
               this.toastr.error(error);
             },
           });
       }
+
+      this.initDirection()
     });
   }
 
@@ -315,6 +303,7 @@ export class CreateRideComponent implements OnInit {
   }
 
   CheckPricing() {
+    this.tripDetails.TripCharge = null;
     this.initDirection();
   }
 
@@ -415,6 +404,17 @@ export class CreateRideComponent implements OnInit {
       },
       error: (error) => {
         console.log(error);
+      },
+    });
+  }
+
+  GetCityVehicle(city: any) {
+    this.pricingService.initGetAllVehicle(city).subscribe({
+      next: (data) => {
+        this.Vehicles = data;
+      },
+      error: (error) => {
+        this.toastr.error(error);
       },
     });
   }

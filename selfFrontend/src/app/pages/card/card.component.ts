@@ -39,7 +39,7 @@ export class CardComponent implements OnInit {
     );
   }
 
-  async ngOnInit() {
+  async ngOnInit() {   
     this.getCards();
     this.loadStripe();
   }
@@ -129,6 +129,8 @@ export class CardComponent implements OnInit {
       return 'http://localhost:3000/uploads/cards/rupay.svg';
     } else if (name == 'delete') {
       return 'http://localhost:3000/uploads/cards/delete.svg';
+    }else if (name == 'close') {
+      return 'http://localhost:3000/uploads/cards/close.svg';
     }
     return null;
   }
@@ -141,10 +143,17 @@ export class CardComponent implements OnInit {
       }
     );
     let PaymentsData = await res.json();
+
     this.cards = PaymentsData;
   }
 
   async DeleteCards(id: any) {
+    let confimed = confirm('Are You Want Remove Card');
+    if (!confimed) return;
+    let btn = document.getElementById('DeleteCard') as HTMLButtonElement;
+
+    btn.disabled = true;
+
     this.userService.onDeleteCard(id).subscribe({
       next: (data) => {
         this.cards = this.cards.filter((card: any) => {
@@ -157,6 +166,23 @@ export class CardComponent implements OnInit {
         console.log(error);
 
         this.toastr.error(error);
+      },
+    });
+  }
+
+  async addDefaultCard(selectedCard: any) {
+    console.log(selectedCard.id, this.data);
+
+    let btn = document.getElementById('SetCard') as HTMLButtonElement;
+    btn.disabled = true;
+
+
+    this.userService.initDefaultCard(this.data._id, selectedCard).subscribe({
+      next: (data) => {
+        console.log(data.defaultPayment);
+        this.data.defaultPayment = data.defaultPayment
+    btn.disabled = false;
+
       },
     });
   }

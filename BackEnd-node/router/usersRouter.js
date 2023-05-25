@@ -10,6 +10,8 @@ const {
   SetUpIntant,
   retrievePaymentMethods,
   deletePaymentMethod,
+  updateDefaultCard,
+  getCustomer,
 } = require("../Controller/Functions/Stripe");
 
 //////                                                        ////         Add   User       ////                                                           ///////
@@ -191,15 +193,17 @@ router.post("/StripeInt/:id", async (req, res) => {
   console.log(req.params.id);
   try {
     let user = await Users.findById(req.params.id);
+    let customer;
     if (!user.StripeId) {
-      let customer = await createCustomer(user.UserEmail, user.UserName);
+      customer = await createCustomer(user.UserEmail, user.UserName);
       user.StripeId = customer.id;
       await user.save();
       let intent = await SetUpIntant(customer.id);
       res.json({ client_secret: intent.client_secret });
     } else {
       let intent = await SetUpIntant(user.StripeId);
-      res.json({ client_secret: intent.client_secret });
+      customer = await getCustomer(user.StripeId);
+      res.json({ customer, client_secret: intent.client_secret });
     }
   } catch (error) {
     res.status(500).json({ error: "Internal server error : " + error.message });
@@ -228,19 +232,37 @@ router.post("/StripeInt/payments/:id", async (req, res) => {
 
 //////                                                        ////         Delete Payments Details      ////                                                           ///////
 
-router.post("/StripeInt/delete/:id", async (req, res) => {
+router.post("/StripeInt/delete/:id", handleUserUpload, async (req, res) => {
   console.log(req.params.id);
   try {
     let card = await deletePaymentMethod(req.params.id);
     if (card) {
-      res.json({card:card.id,massge:"Card Deleted Successfully !"});
+      res.json({ card: card.id, massge: "Card Deleted Successfully !" });
     }
   } catch (error) {
     res.status(500).json({ error: "Internal server error : " + error.message });
   }
 });
 
-//////                                                        ////         Delete   User       ////                                                           ///////
+//////                                                        ////         Update Default Payments Details      ////                                                           ///////
+
+router.post("/StripeInt/update/:id", async (req, res) => {
+  try {
+    let user = await Users.findById(req.params.id);
+    if (!user) {
+      throw new Error("User NOt Found");
+    }
+
+    let card = await updateDefaultCard(user.StripeId, req.body.id);
+    user.defaultPayment = card.invoice_settings.default_payment_method;
+    await user.save();
+    res.status(200).send(user);
+  } catch (error) {
+    res.send(error);
+  }
+});
+
+//////                                                        ///  /         Delete   User       ////                                                           ///////
 
 router.delete("/MyUser/:id", auth, async (req, res) => {
   try {

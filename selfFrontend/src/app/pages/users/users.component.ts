@@ -34,7 +34,7 @@ export class UsersComponent implements OnInit {
   }
   openDialog(user: any) {
     const dialogRef = this.dialog.open(CardComponent, {
-      width: '500px',
+      width: '600px',
       data: user,
     });
   }

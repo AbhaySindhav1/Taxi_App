@@ -26,17 +26,17 @@ module.exports = function (io) {
     socket.on("DriverResponse", async (data) => {
       if (!data) return;
       if (data.Status == 0) {
-        CancelRide(data.Ride);
+        CancelRide(data.Ride,data.Status);
       }
-      if (data.Status == 1) {
-        AcceptRide(data.Ride, data.Ride.DriverInfo._id, "Accepted");
+      if (data.Status == 2) {
+        AcceptRide(data.Ride, data.Ride.DriverInfo._id, data.Status);
       }
     });
   });
 
   /////////////////////////////////////////////////////////////        Driver Accepted  Ride    ////////////////////////////////////////////////////////////////////////
 
-  AcceptRide = async (Ride, DriverID) => {
+  AcceptRide = async (Ride, DriverID,Status) => {
     if (!Ride) return;
     if (!(mongoose.Types.ObjectId.isValid(DriverID))) return;
     let ride = await Rides.findByIdAndUpdate(Ride._id,{Status:2,DriverId:new mongoose.Types.ObjectId(DriverID)});
@@ -45,7 +45,7 @@ module.exports = function (io) {
       { status: "busy" },
       { new: true }
       );
-      Ride.Status = ride.Status;
+      Ride.Status = Status;
       Ride.DriverId = ride.DriverId;
       Ride.Driver = ride.Driver;
       
@@ -101,3 +101,20 @@ module.exports = function (io) {
     }
   };
 };
+
+
+  ///////////////////////////////////////////////////////////////       Not Reject  Ride          //////////////////////////////////////////////////////////////////////
+
+
+  CancelRide = async (Ride) => {
+
+    Ride.Status = 1
+
+    if (mongoose.Types.ObjectId.isValid(Ride.DriverId)) {
+      let FoundDriver = await Driver.findByIdAndUpdate(
+        Ride.DriverId,
+        { status: "online" },
+        { new: true }
+      );
+      }
+  }

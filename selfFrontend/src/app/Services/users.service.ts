@@ -20,6 +20,16 @@ export class UsersService {
     );
   }
 
+  initDefaultCard(id:any,data:any){
+    console.log(data);
+    console.log(id);
+    
+    return this.http.post<any>(
+      'http://localhost:3000/StripeInt/update/' + id,
+      data
+    );
+  }
+
   initGetUsers(data?: any, sortData?: any) {
     const Value = { Value: data || '' };
     const sort = { sortValue: sortData || '' };

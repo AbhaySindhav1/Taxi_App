@@ -8,6 +8,7 @@
     align-items: center;
     text-align: center;
     margin: 25px;
+    position: relative;
 }
 .selected {
     background-color: #d4e3fc; /* Add styling to indicate selected item */

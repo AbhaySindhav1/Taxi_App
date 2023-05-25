@@ -37,6 +37,9 @@ const UsersSchema = mongoose.Schema({
   },
   StripeId:{
     type:String,
+  },
+  defaultPayment:{
+    type:String
   }
 });
 

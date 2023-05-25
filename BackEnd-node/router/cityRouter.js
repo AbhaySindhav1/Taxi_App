@@ -18,8 +18,7 @@ router.post("/city", handleUpload, auth, async (req, res) => {
       throw new Error("Zone Is Required");
     }
 
-    console.log(req.body.country);
-    console.log(Types.ObjectId.isValid(req.body.country));
+    
 
     const city = new City({
       country: new mongoose.Types.ObjectId(req.body.country),
@@ -133,6 +132,8 @@ router.get("/CityCordinates", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Edit  County         ////////////////////////////////////////////////////////////////////////////////////
 
 router.patch("/city/:id", auth, handleUpload, async (req, res) => {
+    
+  ;
   if (req.body.zone) {
     req.body.zone = JSON.parse(req.body.zone);
   }

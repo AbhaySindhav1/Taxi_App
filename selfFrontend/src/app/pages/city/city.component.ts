@@ -48,15 +48,13 @@ export class CityComponent implements OnInit {
       });
     this.countryService.initonlyCountry().subscribe({
       next: (data) => {
-        this.ContryList = data.sort();        
+        this.ContryList = data.sort();
       },
     });
     this.initMap();
     this.cityService.initGetAllCities().subscribe({
       next: (data) => {
         this.Citylist = data;
-        console.log(this.Citylist);
-        
       },
       error: (error) => {
         console.log(error);
@@ -92,8 +90,6 @@ export class CityComponent implements OnInit {
       this.drawingManager,
       'overlaycomplete',
       (event: any) => {
-        // console.log(event.path.b[0]);
-
         if (this.isPolygonDrawn) {
           this.polygon.setMap(null);
         }
@@ -117,13 +113,14 @@ export class CityComponent implements OnInit {
         this.coordinates = [...cordinatesAraa, cordinatesAraa[0]];
 
         this.zone = ArrayOfZoneCordinates;
-        console.log(this.coordinates);
 
         this.polygon.setEditable(true);
         this.drawingManager.setDrawingMode(null);
       }
     );
   }
+
+  ///////////////////////////////////////////////////////////////////   On Country Change   ///////////////////////////////////////////////////////////////////////
 
   onCountrySelect() {
     this.changed = false;
@@ -137,10 +134,8 @@ export class CityComponent implements OnInit {
       this.selectElement.nativeElement.options[
         this.selectElement.nativeElement.selectedIndex
       ].innerText;
-      console.log(selectCountry,selectedCountryName);
-      
 
-    if (selectCountry == 'null' && selectedCountryName=='null') {
+    if (selectCountry == 'null' && selectedCountryName == 'null') {
       this.error = 'Please Select Country';
       this.changed = false;
       return;
@@ -154,9 +149,6 @@ export class CityComponent implements OnInit {
       this.array
     );
 
-    console.log(contryobject);
-    
-
     this.updateAutoComplete(contryobject[0].cca2);
 
     (document.getElementById('city') as HTMLInputElement).value = '';
@@ -166,10 +158,10 @@ export class CityComponent implements OnInit {
     }
   }
 
+  ///////////////////////////////////////////////////////////////////   On Form Submit   ///////////////////////////////////////////////////////////////////////
+
   onSubmit() {
     this.changed = false;
-    console.log(this.city);
-
     if (!this.country && !this.zone && !this.city) {
       this.error = 'Country, zone, and city are required';
       return;
@@ -196,14 +188,10 @@ export class CityComponent implements OnInit {
     }
 
     let formData = new FormData();
-    console.log(this.country);
-    
+
     formData.append('country', this.country);
     formData.append('city', this.city);
-    console.log(this.coordinates);
     formData.append('zone', JSON.stringify(this.zone));
-
-    
 
     if (!this.IsEditMode) {
       formData.append(
@@ -260,18 +248,18 @@ export class CityComponent implements OnInit {
     }
   }
 
+  ///////////////////////////////////////////////////////////////////   On Country Edit   ///////////////////////////////////////////////////////////////////////
+
   onEdit(city: any) {
-    this.coordinates = city.Location.coordinates
-    console.log(this.coordinates);
-    console.log(city);
-    
+    this.coordinates = city.Location.coordinates;
+
     this.UserID = city._id;
     this.city = city.city;
     if (this.polygon) {
       this.polygon.setMap(null);
     }
 
-    const Value = { Value: city.country };
+    // const Value = { Value: city.country };
 
     this.polygons.forEach((polygon: any) => {
       polygon.setMap(null);
@@ -326,26 +314,6 @@ export class CityComponent implements OnInit {
     (document.getElementById('city') as HTMLInputElement).value = city.city;
   }
 
-  onDelete(city: any) {
-    this.cityService.initDeleteCountry(city._id).subscribe({
-      next: (data) => {
-        this.cityService.initGetAllCities().subscribe({
-          next: (data) => {
-            this.Citylist = data;
-          },
-          error: (error) => {
-            this.error = error;
-            this.changed = false;
-          },
-        });
-      },
-      error: (error) => {
-        this.error = error;
-        this.changed = false;
-      },
-    });
-  }
-
   getCordinates(path: any) {
     let ArrayOfZoneCordinates: any = [];
     const cord: any = []; //
@@ -354,17 +322,17 @@ export class CityComponent implements OnInit {
         lng: latLng.lng(),
         lat: latLng.lat(),
       });
-
       cord.push([latLng.lng(), latLng.lat()]); ///
     });
-    this.coordinates = [...cord, cord[0]];
-    console.log(this.coordinates);
-    
+
+    let newCord = [...cord, cord[0]];
+    this.coordinates = [newCord];
+
     this.zone = ArrayOfZoneCordinates;
   }
 
   initAutoComplete(country: any) {
-    // create the Autocomplete with the specified country
+
     this.autocomplete = new google.maps.places.Autocomplete(
       document.getElementById('city') as HTMLInputElement,
       {
@@ -373,12 +341,10 @@ export class CityComponent implements OnInit {
       }
     );
 
-    // add a listener to handle when a place is selected
     this.autocomplete.addListener('place_changed', () => {
       const place = this.autocomplete.getPlace();
-      
+
       this.city = place.formatted_address;
-      console.log(this.city);
       if (!place.geometry) {
         console.error(`No geometry for ${place.name}`);
         return;

@@ -446,3 +446,33 @@ export class CardComponent implements OnInit {
     //     console.log(error);
     //   }
     // });
+
+
+
+
+
+
+
+
+
+
+
+  onDelete(city: any) {
+    this.cityService.initDeleteCountry(city._id).subscribe({
+      next: (data) => {
+        this.cityService.initGetAllCities().subscribe({
+          next: (data) => {
+            this.Citylist = data;
+          },
+          error: (error) => {
+            this.error = error;
+            this.changed = false;
+          },
+        });
+      },
+      error: (error) => {
+        this.error = error;
+        this.changed = false;
+      },
+    });
+  }

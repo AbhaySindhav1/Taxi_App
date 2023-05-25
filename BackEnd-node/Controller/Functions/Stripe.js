@@ -54,9 +54,33 @@ async function deletePaymentMethod(paymentMethodId) {
   }
 }
 
+async function updateDefaultCard(customerId, cardId) {
+  try {
+    const updatedCustomer = await stripe.customers.update(customerId, {
+      invoice_settings: {
+        default_payment_method: cardId
+      }
+    });
+    return updatedCustomer;
+  } catch (error) {
+    console.error("Error updating default card:", error);
+  }
+}
+
+async function getCustomer(customerId) {
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    return customer;
+  } catch (error) {
+    return error;
+  }
+}
+
 module.exports = {
   createCustomer,
   SetUpIntant,
   retrievePaymentMethods,
   deletePaymentMethod,
+  updateDefaultCard,
+  getCustomer
 };
