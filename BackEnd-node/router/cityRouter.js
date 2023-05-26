@@ -107,22 +107,31 @@ router.get("/CityCountryZone", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Get Check Zone         ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/CityCordinates", auth, async (req, res) => {
+  console.log(req.query.city);
   try {
-    const Cord = await City.find({
-      city: req.query.city,
-      Location: {
-        $geoIntersects: {
-          $geometry: {
-            type: "Point",
-            coordinates: [
-              +req.query.loc.split(",")[0],
-              +req.query.loc.split(",")[1],
-            ],
+    const Cord = await City.aggregate([
+      {
+        $match: {
+          Location: {
+            $geoIntersects: {
+              $geometry: {
+                type: "Point",
+                coordinates: [
+                  +req.query.loc.split(",")[0],
+                  +req.query.loc.split(",")[1],
+                ],
+              },
+            },
           },
         },
       },
-    });
-    res.status(200).send(Cord);
+      // {
+      //   $match: {
+      //     city: req.query.city,
+      //   },
+      // },
+    ]);
+    res.status(200).send(Cord[0]);
   } catch (error) {
     console.log(error);
     res.status(400).send(error);

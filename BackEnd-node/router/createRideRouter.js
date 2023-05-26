@@ -88,7 +88,7 @@ router.get("/Ride", async (req, res) => {
       },
       {
         $match: {
-          Status: { $in: [1, 100] },
+          Status: { $in: [1, 2, 100] },
         },
       },
     ]);

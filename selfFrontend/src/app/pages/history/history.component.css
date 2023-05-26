@@ -21,9 +21,9 @@
     padding: 10px;
     vertical-align: middle;
   }
-  .ellipsis {
+  .ellipsisRow {
     max-width: 150px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsisRow;
   }

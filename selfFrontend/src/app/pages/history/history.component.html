@@ -6,12 +6,12 @@
   <table class="table-city table table-striped">
     <thead>
       <tr>
-        <th class="ellipsis">Ride ID</th>
-        <th class="ellipsis">User Name</th>
-        <th class="ellipsis">PickUp Point</th>
-        <th class="ellipsis">Drop Point</th>
-        <th class="ellipsis">Driver</th>
-        <th class="ellipsis">Status</th>
+        <th class="ellipsisRow">Ride ID</th>
+        <th class="ellipsisRow">User Name</th>
+        <th class="ellipsisRow">PickUp Point</th>
+        <th class="ellipsisRow">Drop Point</th>
+        <th class="ellipsisRow">Driver</th>
+        <th class="ellipsisRow">Status</th>
         <th style="min-width: 150px">Action</th>
       </tr>
     </thead>
@@ -25,22 +25,22 @@
 
       <!-- <div *ngFor="let Ride of RideList"> -->
       <tr *ngIf="Ride.Status === 0 || Ride.Status === 5">
-        <td class="ellipsis" title="{{ Ride._id }}">{{ Ride._id }}</td>
-        <td class="ellipsis" title="{{ Ride.UserName }}">
+        <td class="ellipsisRow" title="{{ Ride._id }}">{{ Ride._id }}</td>
+        <td class="ellipsisRow" title="{{ Ride.UserName }}">
           {{ Ride.UserName | uppercase }}
         </td>
-        <td class="ellipsis" title="{{ Ride.PickupPoint }}">
+        <td class="ellipsisRow" title="{{ Ride.PickupPoint }}">
           {{ Ride.PickupPoint }}
         </td>
-        <td class="ellipsis" title="{{ Ride.DropPoint }}">
+        <td class="ellipsisRow" title="{{ Ride.DropPoint }}">
           {{ Ride.DropPoint }}
         </td>
 
-        <td class="ellipsis" title="{{ Ride.Driver }}">
+        <td class="ellipsisRow" title="{{ Ride.Driver }}">
           {{ Ride.Driver || "Assigning" | uppercase }}
         </td>
 
-        <td class="ellipsis" title="{{ Ride.Status }}">
+        <td class="ellipsisRow" title="{{ Ride.Status }}">
           {{
             Ride.Status === 0
               ? "Cancelled"

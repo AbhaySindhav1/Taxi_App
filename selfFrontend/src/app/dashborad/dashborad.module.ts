@@ -29,6 +29,7 @@ import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
 import { HistoryComponent } from '../pages/history/history.component';
 import { CardComponent } from '../pages/card/card.component';
 import {MatDialogModule} from '@angular/material/dialog';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @NgModule({
   declarations: [
@@ -61,8 +62,8 @@ import {MatDialogModule} from '@angular/material/dialog';
     HttpClientModule,
     CommonModule,
     MatButtonModule,
-    MatDialogModule
-    
+    MatDialogModule,
+    NgxPaginationModule
   ],
   providers: [],
   bootstrap: [],

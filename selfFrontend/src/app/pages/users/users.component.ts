@@ -19,6 +19,7 @@ export class UsersComponent implements OnInit {
   UsersData: any;
   userId: any;
   isEditMode = false;
+  p=1;
 
   constructor(private usersService: UsersService, public dialog: MatDialog) {
     this.UsersForm = new FormGroup({

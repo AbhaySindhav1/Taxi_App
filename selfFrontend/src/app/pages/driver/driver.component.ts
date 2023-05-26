@@ -56,18 +56,17 @@ export class DriverComponent implements OnInit {
     });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
-     
       if (data.Driver) {
         this.getStatus(data.Driver.DriverID, data.Driver.Status);
       }
     });
 
-    this.socketService.socket.on('UpdateDriverStatus', (data: any) => {
-      this.getStatus(data._id, data.status);
+    this.socketService.socket.on('reqtoSendDriver', (data: any) => {
+      this.getStatus(data.Driver.DriverID, data.Driver.Status);
     });
-
-    this.socketService.socket.on('toSendDriver', (data: any) => {     
-      this.getStatus(data._id, data.status);
+    
+    this.socketService.socket.on('NotReactedRide', (data: any) => {
+      this.getStatus(data.Driver.DriverID, data.Driver.Status);
     });
   }
 

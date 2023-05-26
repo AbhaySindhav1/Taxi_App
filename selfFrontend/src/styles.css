@@ -48,11 +48,11 @@ table th {
   padding: 10px;
   vertical-align: middle;
 }
-.ellipsis {
+.ellipsisRow {
   max-width: 150px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsisRow;
 }
 thead {
   background-color: #6d7ae0;
@@ -78,3 +78,4 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+

@@ -2,8 +2,8 @@ let cron = require("node-cron");
 let CroneTime = 30;
 const CreateRide = require("../../Model/createRideModel");
 
-// const interval = 6;
-// let schedule = `*/${interval} * * * * *`;
+const interval = 6;
+let schedule = `*/${interval} * * * * *`;
 
 module.exports = function (io) {
     // cron.schedule(schedule, async () => {

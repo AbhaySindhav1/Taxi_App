@@ -82,13 +82,13 @@
     <table class="table-city table table-striped">
       <thead>
         <tr>
-          <th class="ellipsis">Ride ID</th>
-          <th class="ellipsis">User Name</th>
-          <th class="ellipsis">PickUp Point</th>
-          <th class="ellipsis">Stops</th>
-          <th class="ellipsis">Drop Point</th>
-          <th class="ellipsis">Driver ID</th>
-          <th class="ellipsis">Status</th>
+          <th class="ellipsisRow">Ride ID</th>
+          <th class="ellipsisRow">User Name</th>
+          <th class="ellipsisRow">PickUp Point</th>
+          <th class="ellipsisRow">Stops</th>
+          <th class="ellipsisRow">Drop Point</th>
+          <th class="ellipsisRow">Driver ID</th>
+          <th class="ellipsisRow">Status</th>
           <th style="min-width: 250px">Action</th>
         </tr>
       </thead>
@@ -100,25 +100,25 @@
           <td colspan="8">No Rides</td>
         </tr>
         <tr *ngFor="let Ride of RideList" >
-          <td class="ellipsis" title="{{ Ride._id }}">{{ Ride._id }}</td>
-          <td class="ellipsis" title="{{ Ride.UserName }}">
+          <td class="ellipsisRow" title="{{ Ride._id }}">{{ Ride._id }}</td>
+          <td class="ellipsisRow" title="{{ Ride.UserName }}">
             {{ Ride.UserName }}
           </td>
-          <td class="ellipsis" title="{{ Ride.PickupPoint }}">
+          <td class="ellipsisRow" title="{{ Ride.PickupPoint }}">
             {{ Ride.PickupPoint }}
           </td>
-          <td class="ellipsis" title="{{ Ride.DropPoint }}">
+          <td class="ellipsisRow" title="{{ Ride.DropPoint }}">
             {{ Ride.DropPoint }}
           </td>
 
-          <td class="ellipsis" title="{{ Ride.ScheduleTime }}">
+          <td class="ellipsisRow" title="{{ Ride.ScheduleTime }}">
             {{ Ride.ScheduleTime }}
           </td>
-          <td class="ellipsis" title="{{ Ride.Driver }}">
+          <td class="ellipsisRow" title="{{ Ride.Driver }}">
             {{ Ride.Driver || "Assigning" }}
           </td>
          
-          <td class="ellipsis" title="{{ Ride.Status }}">
+          <td class="ellipsisRow" title="{{ Ride.Status }}">
             {{ initStatus(Ride.Status) }}
           </td>
           <td>
