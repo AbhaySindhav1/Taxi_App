@@ -153,8 +153,6 @@ router.get("/Ride/Assigned", async (req, res) => {
 router.post("/RideFilter", upload.none(), auth, async (req, res) => {
   let { Search, Status, Type, FromDate, toDate } = req.body;
 
-  console.log(req.body);
-
   try {
     let Rides = await CreateRide.aggregate([
       {

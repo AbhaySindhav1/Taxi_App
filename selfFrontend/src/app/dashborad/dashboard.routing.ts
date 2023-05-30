@@ -9,6 +9,7 @@ import { CreateRideComponent } from '../pages/create-ride/create-ride.component'
 import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.component';
 import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
 import { HistoryComponent } from '../pages/history/history.component';
+import { SettingComponent } from '../pages/setting/setting.component';
 import { CardComponent } from '../pages/card/card.component';
 
 export const DashBoardRoutes: Routes = [
@@ -22,7 +23,8 @@ export const DashBoardRoutes: Routes = [
   { path: 'Confirm', component: ConfirmRideComponent },
   { path: 'runningReq', component: RunningreqComponent },
   { path: 'History', component: HistoryComponent },
-  { path: 'Settings', component: CardComponent },
+  { path: 'Settings', component: SettingComponent },
+  
 ];
 
 export class AppRoutingModule {}

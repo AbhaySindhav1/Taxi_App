@@ -30,6 +30,7 @@ import { HistoryComponent } from '../pages/history/history.component';
 import { CardComponent } from '../pages/card/card.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { SettingComponent } from '../pages/setting/setting.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     ConfirmRideComponent,
     RunningreqComponent,
     HistoryComponent,
-    CardComponent
+    CardComponent,
+    SettingComponent
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),

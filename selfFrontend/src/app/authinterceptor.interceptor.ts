@@ -17,7 +17,7 @@ export class AuthinterceptorInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     const userdata = localStorage.getItem('userData');
-    let user;
+    let user;    
 
     if (userdata !== null) {
       user = JSON.parse(userdata);

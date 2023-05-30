@@ -33,7 +33,7 @@
         <label for="CityDrop"> City </label>
         <select id="CityDrop" name="CityDrop" formControlName="city">
           <option value="" selected hidden>Select City</option>
-          <option value="{{City._id}}" *ngFor="let City of CityList">
+          <option value="{{ City._id }}" *ngFor="let City of CityList">
             {{ City.city }}
           </option>
           <option value="" *ngIf="CityList.length === 0">
@@ -282,6 +282,16 @@
     </form>
   </div>
 </div>
+<select
+  [(ngModel)]="limit"
+  style="width: 100px; float: right; margin: 20px 50px; border-radius: 10px;"
+  (change)="page = 1; getData()"
+>
+  <option value="2">2</option>
+  <option value="5">5</option>
+  <option value="10">10</option>
+  <option value="20">20</option>
+</select>
 <div class="ct-table-container">
   <table class="table-city">
     <thead>
@@ -300,7 +310,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let price of PricingList">
+      <tr *ngFor="let price of PricingList  | paginate : { itemsPerPage: +limit, currentPage: +page, totalItems: totalPriceList };">
         <td>{{ price.countryInfo[0].countryname }}</td>
         <td>{{ price.cityInfo[0].city }}</td>
         <td>{{ price.VehicleInfo[0].types }}</td>
@@ -330,4 +340,10 @@
       </tr>
     </tbody>
   </table>
+</div>
+<div style="float: right;  margin: 30px 50px 40px auto">
+  <pagination-controls
+    class="paginationlink"
+    (pageChange)="getData($event)"
+  ></pagination-controls>
 </div>

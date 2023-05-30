@@ -10,13 +10,13 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
 import {  MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
-import { PopUpComponent } from './pages/pop-up/pop-up.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 
+
 @NgModule({
-  declarations: [AppComponent, PopUpComponent],
+  declarations: [AppComponent],
   imports: [
     AppRoutingModule,
     DashboradModule,

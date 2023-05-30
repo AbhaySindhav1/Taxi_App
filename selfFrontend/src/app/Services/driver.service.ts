@@ -12,12 +12,7 @@ export class DriverService {
   }
 
   initGetDriver(data?: any, sortData?: any) {
-    const Value = { Value: data || '' };
-    const sort = { sortValue: sortData || '' };
-
-    return this.http.get<any>('http://localhost:3000/Driver', {
-      params: { ...Value, ...sort },
-    });
+    return this.http.post<any>('http://localhost:3000/Driver/GetAllDriver',data);
   }
 
   initDeleteDriver(id: any) {

@@ -77,11 +77,20 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
 
 //////                                                        ////         Get   User       ////                                                           ///////
 
-router.get("/MyUser", auth, async (req, res) => {
-  const searchQuery = req.query.Value || "";
-  const sortColumn = req.query.sortValue || "UserName";
+router.post("/MyUser/getUsers", auth, async (req, res) => {
+  const searchQuery = req.body.searchValue || "";
+  const sortColumn = req.body.sortColomn || "UserName";
+  const limit = req.body.limit || 10;
+  const page = req.body.page || 1;
 
+  const options = {
+    sort: { [sortColumn]: 1 },
+    skip: (page - 1) * limit,
+    limit: limit,
+  };
+  
   let users;
+  let totalCount;
   try {
     let regext = null;
     if (searchQuery.charAt(0) === "+") {
@@ -90,6 +99,15 @@ router.get("/MyUser", auth, async (req, res) => {
       regext = new RegExp(`${searchQuery}`, "i");
     }
     if (!mongoose.Types.ObjectId.isValid(req.query.Value)) {
+
+      totalCount = await Users.countDocuments({
+        $or: [
+          { UserName: regext },
+          { UserEmail: regext },
+          { UserPhone: regext },
+        ],
+      });
+
       users = await Users.find(
         {
           $or: [
@@ -99,11 +117,18 @@ router.get("/MyUser", auth, async (req, res) => {
           ],
         },
         null, // Projection
-        {
-          sort: { [sortColumn]: 1 },
-        }
+        options // Use the options object for pagination
       );
     } else {
+
+      totalCount = await Users.countDocuments({
+        $or: [
+          { UserName: regext },
+          { UserEmail: regext },
+          { UserPhone: regext },
+        ],
+      });
+
       users = await Users.find(
         {
           $or: [
@@ -114,13 +139,10 @@ router.get("/MyUser", auth, async (req, res) => {
           ],
         },
         null, // Projection
-        {
-          sort: { [sortColumn]: 1 },
-        }
+        options // Use the options object for pagination
       );
     }
-
-    res.status(200).send(users);
+    res.status(200).send({users,totalCount});
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
@@ -190,7 +212,6 @@ router.patch("/MyUser/:id", auth, handleUserUpload, async (req, res) => {
 //////                                                        ////         Set up User  Intent      ////                                                           ///////
 
 router.post("/StripeInt/:id", async (req, res) => {
-  console.log(req.params.id);
   try {
     let user = await Users.findById(req.params.id);
     let customer;

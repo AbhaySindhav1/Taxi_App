@@ -71,3 +71,20 @@ button {
   flex-direction: column;
   justify-content: space-evenly;
 }
+
+.paginationlink /deep/ .ngx-pagination .current {
+  background: rgb(82, 133, 244);
+  border-radius: 50%;
+
+}
+
+.paginationlink /deep/ .ngx-pagination {
+  padding: 7px;
+  margin: 7px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 10px rgb(82, 133, 244)    ;
+}
+
+.paginationlink /deep/ .ngx-pagination .ng-star-inserted {
+  text-decoration: none;
+}

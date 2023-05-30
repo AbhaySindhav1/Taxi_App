@@ -13,9 +13,9 @@ const priceRoute = require("../router/pricingRouter");
 const UsersRoute = require("../router/usersRouter");
 const DriverRoute = require("../router/driverRouter");
 const createRideRoute = require("../router/createRideRouter");
+const settingRoute = require("../router/settingRouter");
 const Sockets = require('../Controller/Functions/Socket')
 const Crone = require('../Controller/Functions/Crone')
-const Stripe = require('../Controller/Functions/Stripe')
 
 
 const bodyParser = require("body-parser");
@@ -37,6 +37,7 @@ app.use(priceRoute);
 app.use(UsersRoute);
 app.use(DriverRoute);
 app.use(createRideRoute);
+app.use(settingRoute);
 
 const server = app.listen(port, () => {
   console.log("Server Started" + " " + port);

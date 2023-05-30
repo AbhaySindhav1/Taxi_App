@@ -80,17 +80,19 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
 
 //////                                                        ////         Get   Driver       ////                                                           ///////
 
-router.get("/Driver", auth, async (req, res) => {
-  const searchQuery = req.query.Value || "";
+router.post("/Driver/GetAllDriver", auth, async (req, res) => {
+  console.log(req.body);
+  const searchQuery = req.body.searchValue || "";
   if (searchQuery.charAt(0) === "+") {
     {
       $regex: `\\${searchQuery}.*`;
     }
   }
-  const sortColumn = req.query.sortValue || "DriverName";
+  const sortColumn = req.body.sortColumn || "DriverName";
 
   let drivers;
   try {
+
     let matchQuery = {
       $or: [
         { DriverName: { $regex: `.*${searchQuery}.*`, $options: "i" } },
@@ -122,9 +124,9 @@ router.get("/Driver", auth, async (req, res) => {
       ],
     };
 
-    if (mongoose.Types.ObjectId.isValid(req.query.Value)) {
+    if (mongoose.Types.ObjectId.isValid(req.body.searchValue)) {
       matchQuery.$or.push({
-        _id: new mongoose.Types.ObjectId(req.query.Value),
+        _id: new mongoose.Types.ObjectId(req.body.searchValue),
       });
     }
 
@@ -148,7 +150,7 @@ router.get("/Driver", auth, async (req, res) => {
       {
         $lookup: {
           from: "taxis",
-          localField: "ServiceType",
+          localField: "ServiceType",  
           foreignField: "_id",
           as: "ServiceTypeInfo",
         },
@@ -156,6 +158,16 @@ router.get("/Driver", auth, async (req, res) => {
     ];
 
     // Add the lookup stages to the aggregation pipeline
+
+    const driverCount = await Driver.countDocuments([
+      ...lookupStages,
+      {
+        $match: matchQuery,
+      },
+      {
+        $sort: { [sortColumn]: 1 },
+      },
+    ]);
 
     const drivers = await Driver.aggregate([
       ...lookupStages,
@@ -168,7 +180,7 @@ router.get("/Driver", auth, async (req, res) => {
     ]);
 
     // Handle the drivers result
-    res.status(200).send(drivers);
+    res.status(200).send({drivers,driverCount});
   } catch (error) {
     console.log(error);
     res.status(400).send(error);

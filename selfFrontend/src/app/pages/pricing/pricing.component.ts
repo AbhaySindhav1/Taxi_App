@@ -21,6 +21,9 @@ export class PricingComponent implements OnInit {
   displayerror = false;
   isEditMode = false;
   userId: any;
+  limit:any = 10;
+  page:any = 1;
+  totalPriceList:any;
   @ViewChild('PricingCountry') PricingCountry: any;
 
   constructor(
@@ -138,12 +141,19 @@ export class PricingComponent implements OnInit {
     }
   }
 
-  getData() {
-    this.priceService.initGetAllZonePricing().subscribe({
+  getData(event?: any) {
+    let data = {
+      limit: +this.limit,
+      // searchValue: (document.getElementById('searchBtn') as HTMLInputElement)
+      //   ?.value,
+      page: event ? event : this.page,
+    };
+    this.page = event ? event : this.page;
+    this.priceService.initGetAllZonePricing(data).subscribe({
       next: (data) => {
         console.log(data);
-
-        this.PricingList = data;
+        this.PricingList = data.prices;
+        this.totalPriceList = data.priceCount;
       },
       error: (error) => {
         this.displayerror = true;

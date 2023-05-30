@@ -12,15 +12,10 @@ export class PricingService {
   }
 
   initGetAllZonePricing(data?: any) {
-    const Value = { Value: data };
-
-    if (data) {
-      return this.http.get<any>('http://localhost:3000/price', {
-        params: Value,
-      });
-    } else {
-      return this.http.get<any>('http://localhost:3000/price');
-    }
+    return this.http.post<any>(
+      'http://localhost:3000/price/GetAllPrice',
+      data
+    );
   }
 
   initGetPricingForZone(formData: any) {

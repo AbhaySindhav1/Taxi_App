@@ -21,6 +21,9 @@ export class ConfirmRideComponent implements OnInit {
   Ride: any = {};
   selectedRowIndex?: any;
   SelectedRow: any;
+  limit: any = 10;
+  page: any = 1;
+  totalRides: any;
 
   constructor(
     private rideService: RideService,
@@ -66,7 +69,6 @@ export class ConfirmRideComponent implements OnInit {
       });
     });
 
-
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
       this.RideList = this.RideList.filter((ride: any) => {
         return ride._id !== data.Ride._id;
@@ -110,7 +112,6 @@ export class ConfirmRideComponent implements OnInit {
       if (!Confirm) return;
 
       console.log(Ride);
-      
 
       this.socketService.socket.emit('ride', {
         rideID: Ride._id,
@@ -171,12 +172,16 @@ export class ConfirmRideComponent implements OnInit {
 
   ////////////////////////////////////////////////////////////    Get   All  Rides      /////////////////////////////////////////////////////////////////////
 
-  GetAllData() {
+  GetAllData(event?: any) {
     this.rideService.initGetAllRides().subscribe({
       next: (data) => {
         data.forEach((element: any) => {
           element.Stops = JSON.parse(element.Stops);
         });
+        this.RideList = data.filter((ride: any) => {
+          return ride.Status === 1 || ride.Status === 2 || ride.Status === 100;
+        });
+        this.totalRides = this.RideList.length;
         this.RideList = data;
       },
     });

@@ -71,19 +71,18 @@ export class CreateRideComponent implements OnInit {
         +(document.getElementById('CountryCode') as HTMLInputElement).value +
         '-' +
         e.value;
-
-      this.usersService.initGetUsers(number).subscribe({
-        next: (data) => {
-          if (data.length === 0) {
+      this.usersService.initGetUsers({searchValue:number}).subscribe({
+        next: (data) => {          
+          if (data.users.length === 0) {
             this.toastr.error('no user found');
             return;
           } else {
-            if (data[0]) {
-              this.user = data[0];
+            if (data.users[0]) {
+              this.user = data.users[0];
             }
             this.RideForm.patchValue({
-              UserName: data[0].UserName,
-              UserEmail: data[0].UserEmail,
+              UserName: data.users[0].UserName,
+              UserEmail: data.users[0].UserEmail,
             });
           }
         },
@@ -140,8 +139,6 @@ export class CreateRideComponent implements OnInit {
         this.setupAutocomplete(inputElement.id);
       }
     }, 1);
-
-   
   }
 
   OnRideFormSubmit() {
@@ -173,8 +170,6 @@ export class CreateRideComponent implements OnInit {
         return;
       }
 
-    
-
       this.RideForm.get(fieldName)?.setValue(
         (document.getElementById(fieldName) as HTMLInputElement).value
       );
@@ -188,7 +183,7 @@ export class CreateRideComponent implements OnInit {
           .initGetLocationValidation(location, place.formatted_address)
           .subscribe({
             next: (data) => {
-              if (data.length === 0) {
+              if (!data) {
                 this.toastr.error('For This Location Service is Unavailable');
                 this.RideDetailsForm.reset();
                 (
@@ -196,7 +191,7 @@ export class CreateRideComponent implements OnInit {
                 ).focus();
                 return;
               } else {
-                this.isServiceZone = data[0];
+                this.isServiceZone = data;
 
                 this.GetCityVehicle(this.isServiceZone.city);
               }
@@ -207,7 +202,7 @@ export class CreateRideComponent implements OnInit {
           });
       }
 
-      this.initDirection()
+      this.initDirection();
     });
   }
 
@@ -375,7 +370,6 @@ export class CreateRideComponent implements OnInit {
 
     this.pricingService.initGetPricingForZone(formData).subscribe({
       next: (data) => {
-        console.log(data);
         if (data.length > 0) {
           if (!this.Distance || !this.Time) {
             return;

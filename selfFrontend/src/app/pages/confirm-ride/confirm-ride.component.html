@@ -184,6 +184,23 @@
     </div>
   </div>
 
+  <select
+    [(ngModel)]="limit"
+    style="
+      width: 100px;
+      float: right;
+      margin: 50px 50px 0px auto;
+      background-color: #6d7ae075;
+      border-radius: 10px;
+    "
+    (change)="page = 1; GetAllData()"
+  >
+    <option value="2">2</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+  </select>
+
   <div class="ct-table-container">
     <table class="table-city table table-striped">
       <thead>
@@ -209,7 +226,17 @@
         >
           <td colspan="13">No Rides</td>
         </tr>
-        <tr *ngFor="let Ride of RideList">
+        <tr
+          *ngFor="
+            let Ride of RideList
+              | paginate
+                : {
+                    itemsPerPage: +limit,
+                    currentPage: +page,
+                    totalItems: +totalRides
+                  }
+          "
+        >
           <td class="ellipsisRow" title="{{ Ride._id }}">{{ Ride._id }}</td>
           <td class="ellipsisRow" title="{{ Ride.user_id }}">
             {{ Ride.user_id }}
@@ -279,5 +306,12 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <div style="float: right; margin-right: 50px; margin: 0px 40px 40px auto">
+    <pagination-controls
+      class="paginationlink"
+      (pageChange)="GetAllData($event)"
+    ></pagination-controls>
   </div>
 </div>

@@ -114,7 +114,9 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
         },
       },
       {
-        $unwind: "$cityInfo",
+        $unwind:{
+          path: "$cityInfo"      //preserveNullAndEmptyArrays is false by default.
+      }
       },
       {
         $match: {
@@ -130,7 +132,9 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
         },
       },
       {
-        $unwind: "$VehicleInfo",
+        $unwind:{
+          path: "$VehicleInfo"      //preserveNullAndEmptyArrays is false by default.
+      }
       },
       {
         $group: {
@@ -146,6 +150,7 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
         },
       },
     ]);
+    
     res.status(200).send(prices);
   } catch (error) {
     res.status(400).send(error);
@@ -195,11 +200,11 @@ router.post("/price/pricing", handleUpload, auth, async (req, res) => {
 
 /////////////////////////////////////////////////////////          Get All Zone priceList        ////////////////////////////////////////////////////////////////////////////////////
 
-router.get("/price", handleUpload, auth, async (req, res) => {
-  const searchQuery = req.query.Value || "";
-  const regext = new RegExp(searchQuery, "i");
+router.post("/price/GetAllPrice", auth, async (req, res) => {
+  let skip = (req.body.page - 1) * req.body.limit;
+  let limit = req.body.limit;
   try {
-    const prices = await Price.aggregate([
+    const priceCount = await Price.countDocuments([
       {
         $lookup: {
           from: "countries",
@@ -225,7 +230,36 @@ router.get("/price", handleUpload, auth, async (req, res) => {
         },
       },
     ]);
-    res.status(200).send(prices);
+
+    const prices = await Price.aggregate([
+      {
+        $lookup: {
+          from: "countries",
+          localField: "country",
+          foreignField: "_id",
+          as: "countryInfo",
+        },
+      },
+      {
+        $lookup: {
+          from: "zones",
+          localField: "city",
+          foreignField: "_id",
+          as: "cityInfo",
+        },
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+    res.status(200).send({prices,priceCount});
   } catch (error) {
     res.status(400).send(error);
   }

@@ -1,6 +1,22 @@
 <div style="margin:35px auto 20px 45px">
   <h1 style="font-family: candara; font-weight: 600; font-size:2.5rem">Ride History</h1>
 </div>
+<select
+[(ngModel)]="limit"
+style="
+  width: 100px;
+  float: right;
+  margin: 50px 50px 0px auto;
+  background-color: #6d7ae075;
+  border-radius: 10px;
+"
+(change)="page = 1; GetRideHistory()"
+>
+<option value="2">2</option>
+<option value="5">5</option>
+<option value="10">10</option>
+<option value="20">20</option>
+</select>
 
 <div class="ct-table-container">
   <table class="table-city table table-striped">
@@ -15,16 +31,19 @@
         <th style="min-width: 150px">Action</th>
       </tr>
     </thead>
-    <tbody *ngFor="let Ride of RideList">
-      <!-- <tr
-        *ngIf="RideList && RideList.length == 0"
+    <tbody>
+      <tr
+        *ngIf="RideList?.length == 0"
         style="text-align: center; vertical-align: middle"
       >
         <td colspan="8">No Rides</td>
-      </tr> -->
-
-      <!-- <div *ngFor="let Ride of RideList"> -->
-      <tr *ngIf="Ride.Status === 0 || Ride.Status === 5">
+      </tr>
+      <tr  *ngFor="let Ride of RideList  | paginate
+      : {
+          itemsPerPage: +limit,
+          currentPage: +page,
+          totalItems: +totalRides
+        };">
         <td class="ellipsisRow" title="{{ Ride._id }}">{{ Ride._id }}</td>
         <td class="ellipsisRow" title="{{ Ride.UserName }}">
           {{ Ride.UserName | uppercase }}
@@ -85,4 +104,10 @@
       </tr>
     </tbody>
   </table>
+</div>
+<div style="float: right; margin-right: 50px; margin: 0px 40px 40px auto">
+  <pagination-controls
+    class="paginationlink"
+    (pageChange)="GetRideHistory($event)"
+  ></pagination-controls>
 </div>

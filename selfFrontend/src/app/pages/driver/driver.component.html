@@ -253,6 +253,23 @@
     </div>
   </div>
 
+  <select
+    [(ngModel)]="limit"
+    style="
+      width: 100px;
+      float: right;
+      margin: 50px 50px 0px auto;
+      background-color: #6d7ae075;
+      border-radius: 10px;
+    "
+    (change)="page = 1; getDriverReq()"
+  >
+    <option value="2">2</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+  </select>
+
   <div class="ct-table-container">
     <table class="tables">
       <thead>
@@ -362,7 +379,18 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let driver of DriverData; let i = index">
+        <tr
+          *ngFor="
+            let driver of DriverData
+              | paginate
+                : {
+                    itemsPerPage: +limit,
+                    currentPage: +page,
+                    totalItems: +totalDriver
+                  };
+            let i = index
+          "
+        >
           <td>{{ i + 1 }}</td>
           <td>
             <div class="d-flex justify-content-center" style="width: 100%">
@@ -396,7 +424,7 @@
             {{ driver.CityInfo[0].city }}
           </td>
           <td style="min-width: 150px">
-            {{ driver.ServiceTypeInfo[0]?.types || '' }}
+            {{ driver.ServiceTypeInfo[0]?.types || "" }}
             <span
               style="margin: 0px 10px; cursor: pointer"
               (click)="onupdateDriver(driver)"
@@ -452,6 +480,12 @@
         </tr>
       </tbody>
     </table>
+  </div>
+  <div style="float: right; margin-right: 50px; margin: 0px 50px 40px auto">
+    <pagination-controls
+      class="paginationlink"
+      (pageChange)="getDriverReq($event)"
+    ></pagination-controls>
   </div>
 </div>
 

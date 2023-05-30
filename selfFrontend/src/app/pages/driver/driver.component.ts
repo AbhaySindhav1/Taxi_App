@@ -29,6 +29,10 @@ export class DriverComponent implements OnInit {
   driver: any;
   CountryList: any;
   VehicleList: any;
+  limit:any =10;
+  page:any =1;
+  totalDriver:any =1;
+  sortColumn:any
 
   constructor(
     private driverService: DriverService,
@@ -181,27 +185,8 @@ export class DriverComponent implements OnInit {
   ////  search Driver Details
 
   onSearchDriver(SortColomb?: any) {
-    let searchValue;
-
-    if (!(document.getElementById('searchBtn') as HTMLInputElement)) {
-      searchValue = '';
-    } else {
-      searchValue = (document.getElementById('searchBtn') as HTMLInputElement)
-        .value;
-    }
-
-    this.driverService.initGetDriver(searchValue, SortColomb).subscribe({
-      next: (data) => {
-        this.DriverData = data;
-        this.initReset();
-      },
-      error: (error) => {
-        console.log(error);
-
-        this.error = error;
-        this.displayerror = true;
-      },
-    });
+   this.sortColumn = SortColomb;
+   this.getDriverReq();
   }
 
   ////  Edit Driver Info
@@ -295,15 +280,24 @@ export class DriverComponent implements OnInit {
     this.DriverForm.reset();
   }
 
-  getDriverReq() {
-    this.driverService.initGetDriver().subscribe({
-      next: (data) => {
-        this.DriverData = data;
+  getDriverReq(event?:any) {
+    let data = {
+      limit: +this.limit,
+      searchValue: (document.getElementById('searchBtn') as HTMLInputElement)
+        ?.value,
+      page: event ? event : this.page,
+      sortColumn:this.sortColumn
+    };
+    this.page = event ? event : this.page;
+
+    this.driverService.initGetDriver(data).subscribe({
+      next: (data) => {        
+        this.DriverData = data.drivers;
+        this.totalDriver = data.driverCount;
         this.initReset();
       },
       error: (error) => {
         console.log(error);
-
         this.error = error;
         this.displayerror = true;
       },

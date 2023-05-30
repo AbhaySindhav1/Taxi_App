@@ -18,8 +18,6 @@ router.post("/city", handleUpload, auth, async (req, res) => {
       throw new Error("Zone Is Required");
     }
 
-    
-
     const city = new City({
       country: new mongoose.Types.ObjectId(req.body.country),
       city: req.body.city,
@@ -50,15 +48,11 @@ router.post("/city", handleUpload, auth, async (req, res) => {
 
 /////////////////////////////////////////////////////////          Get City         ////////////////////////////////////////////////////////////////////////////////////
 
-router.get("/Cities", auth, async (req, res) => {
-  const searchQuery = req.query.Value || "";
-  const regext = new RegExp(searchQuery, "i");
-
+router.post("/Cities/GetAll", auth, async (req, res) => {
+  let skip = (req.body.page - 1) * req.body.limit;
+  let limit = req.body.limit;
   try {
-    // const cities = await City.find({
-    //   $or: [{ country: regext }, { city: regext }],
-    // });
-    const cities = await City.aggregate([
+    const ZoneCount = await City.countDocuments([
       {
         $lookup: {
           from: "countries",
@@ -68,7 +62,20 @@ router.get("/Cities", auth, async (req, res) => {
         },
       },
     ]);
-    res.status(200).send(cities);
+    const cities = await City.aggregate([
+      {
+        $lookup: {
+          from: "countries",
+          localField: "country",
+          foreignField: "_id",
+          as: "countryInfo",
+        },
+      },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    res.status(200).send({ cities, ZoneCount });
   } catch (error) {
     res.status(400).send(error);
   }
@@ -78,14 +85,13 @@ router.get("/Cities", auth, async (req, res) => {
 
 router.get("/CityCountry", auth, async (req, res) => {
   const searchQuery = req.query.Value || "";
-if(searchQuery){
-  searchQuery.trim()
-}
+  if (searchQuery) {
+    searchQuery.trim();
+  }
   try {
     const cities = await City.find({
       $or: [{ country: new mongoose.Types.ObjectId(searchQuery) }],
-    })
-      .select("_id city")
+    }).select("_id city");
 
     res.status(200).send(cities);
   } catch (error) {
@@ -107,7 +113,6 @@ router.get("/CityCountryZone", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Get Check Zone         ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/CityCordinates", auth, async (req, res) => {
-  console.log(req.query.city);
   try {
     const Cord = await City.aggregate([
       {
@@ -141,8 +146,6 @@ router.get("/CityCordinates", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Edit  County         ////////////////////////////////////////////////////////////////////////////////////
 
 router.patch("/city/:id", auth, handleUpload, async (req, res) => {
-    
-  ;
   if (req.body.zone) {
     req.body.zone = JSON.parse(req.body.zone);
   }

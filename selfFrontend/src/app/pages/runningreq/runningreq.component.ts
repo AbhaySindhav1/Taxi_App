@@ -14,7 +14,10 @@ export class RunningreqComponent implements OnInit {
   Trip: any = {};
   RideList: any;
   Interval: any;
-  TimeOut:any = 10000;
+  TimeOut: any = 10000;
+  limit: any = 10;
+  page: any = 1;
+  totalRides: any ;
 
   constructor(
     config: NgbModalConfig,
@@ -31,17 +34,23 @@ export class RunningreqComponent implements OnInit {
       }, this.TimeOut);
     });
 
-    this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {     
+    this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
       const ride = this.RideList.find((r: any) => r._id === data.Ride._id);
       ride.Driver = data.AssignDriver.DriverName;
       ride.Status = data.Ride.Status;
     });
 
-    this.socketService.socket.on("CancelledRide",(data:any)=>{
-      this.RideList = this.RideList.filter((ride:any) => {return ride._id !== data.Ride.RideId})
-    })
+    this.socketService.socket.on('CancelledRide', (data: any) => {
+      this.RideList = this.RideList.filter((ride: any) => {
+        return ride._id !== data.Ride.RideId;
+      });
+    });
   }
   ngOnInit(): void {
+    this.GetRides()
+  }
+
+  GetRides(event?:any) {
     this.rideService.GetAllRides().subscribe({
       next: (data) => {
         this.RideList = data.filter((ride: any) => {
@@ -52,6 +61,7 @@ export class RunningreqComponent implements OnInit {
             ride.Status === 100
           );
         });
+        this.totalRides =  this.RideList.length
       },
     });
   }
@@ -77,8 +87,10 @@ export class RunningreqComponent implements OnInit {
   }
 
   OnNotReactedByDriver(Ride: any) {
-    this.socketService.socket.emit('DriverResponse', { Ride, Status:  1});
-    this.RideList = this.RideList.filter((ride:any) => {return ride._id !== Ride._id})
+    this.socketService.socket.emit('DriverResponse', { Ride, Status: 1 });
+    this.RideList = this.RideList.filter((ride: any) => {
+      return ride._id !== Ride._id;
+    });
     if (this.Interval) {
       clearTimeout(this.Interval);
     }

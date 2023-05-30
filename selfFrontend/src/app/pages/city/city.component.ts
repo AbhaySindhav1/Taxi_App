@@ -31,6 +31,9 @@ export class CityComponent implements OnInit {
   coordinates: any = [];
   autocomplete: google.maps.places.Autocomplete | any;
   city: any;
+  page: any = 1;
+  limit: any = 10;
+  totalZones: any;
   constructor(
     private cityService: CityService,
     private countryService: CountryService
@@ -42,9 +45,6 @@ export class CityComponent implements OnInit {
       .initGetDataFromUrl('https://restcountries.com/v3.1/all')
       .subscribe((data: any) => {
         this.array = data;
-        // this.ContryDetailList = data.sort((a: any, b: any) =>
-        //   a.name.common.localeCompare(b.name.common)
-        // );
       });
     this.countryService.initonlyCountry().subscribe({
       next: (data) => {
@@ -52,17 +52,7 @@ export class CityComponent implements OnInit {
       },
     });
     this.initMap();
-    this.cityService.initGetAllCities().subscribe({
-      next: (data) => {
-        this.Citylist = data;
-      },
-      error: (error) => {
-        console.log(error);
-
-        this.error = error;
-        this.changed = false;
-      },
-    });
+    this.getAllZones();
   }
 
   initMap(lat = 23, lng = 73, zoom = 7) {
@@ -202,18 +192,7 @@ export class CityComponent implements OnInit {
         next: (data) => {
           this.changed = true;
           this.onReset();
-          this.cityService.initGetAllCities().subscribe({
-            next: (data) => {
-              this.Citylist = data;
-              this.onReset();
-            },
-            error: (error) => {
-              console.log(error);
-
-              this.error = error;
-              this.changed = false;
-            },
-          });
+          this.getAllZones();
         },
         error: (error) => {
           console.log(error);
@@ -227,19 +206,10 @@ export class CityComponent implements OnInit {
         JSON.stringify({ type: 'Polygon', coordinates: this.coordinates })
       );
       this.cityService.initEditCity(this.UserID, formData).subscribe({
-        next: (data) => {
-          this.cityService.initGetAllCities().subscribe({
-            next: (data) => {
-              this.Citylist = data;
-              this.IsEditMode = false;
-              this.onReset();
-              this.drawingManager.setMap(this.map);
-            },
-            error: (error) => {
-              this.error = error;
-              this.changed = false;
-            },
-          });
+        next: async (data) => {
+          await this.getAllZones();
+          this.IsEditMode = false;
+          this.drawingManager.setMap(this.map);
         },
         error: (error) => {
           this.error = error.error;
@@ -332,7 +302,6 @@ export class CityComponent implements OnInit {
   }
 
   initAutoComplete(country: any) {
-
     this.autocomplete = new google.maps.places.Autocomplete(
       document.getElementById('city') as HTMLInputElement,
       {
@@ -373,6 +342,34 @@ export class CityComponent implements OnInit {
     (document.getElementById('city') as HTMLInputElement).value = '';
     this.polygons.forEach((polygon: any) => {
       polygon.setMap(null);
+    });
+  }
+
+  getAllZones(event?: any) {
+    if(this.totalZones<this.page*this.limit){
+      this.page = 1
+    }
+    let data = {
+      limit: +this.limit,
+      // searchValue: (document.getElementById('searchBtn') as HTMLInputElement)
+      //   ?.value,
+      page: event ? event : this.page,
+    };
+    this.page = event ? event : this.page;
+
+    this.cityService.initGetAllCities(data).subscribe({
+      next: (data) => {
+        console.log(data);
+        this.Citylist = data.cities;
+        this.totalZones = data.ZoneCount;
+        this.onReset();
+      },
+      error: (error) => {
+        console.log(error);
+
+        this.error = error;
+        this.changed = false;
+      },
     });
   }
 }

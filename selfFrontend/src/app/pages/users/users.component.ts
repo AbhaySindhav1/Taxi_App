@@ -19,7 +19,10 @@ export class UsersComponent implements OnInit {
   UsersData: any;
   userId: any;
   isEditMode = false;
-  p=1;
+  p = 1;
+  sortColomn: any;
+  totalUser: any;
+  limit = 10;
 
   constructor(private usersService: UsersService, public dialog: MatDialog) {
     this.UsersForm = new FormGroup({
@@ -60,7 +63,6 @@ export class UsersComponent implements OnInit {
     formData.append('UserEmail', this.UsersForm.get('UserEmail').value);
     formData.append('CountryCode', this.UsersForm.get('CountryCode').value);
     formData.append('UserPhone', this.UsersForm.get('UserPhone').value);
-    console.log(formData);
 
     if (!this.isEditMode) {
       this.usersService.initUsers(formData).subscribe({
@@ -116,27 +118,32 @@ export class UsersComponent implements OnInit {
     this.selectedFile = event.target.files[0];
   }
 
+  // onSearchUsers(sortColomnn?: any) {
+  //   let searchValue;
+  //   if (!(document.getElementById('searchBtn') as HTMLInputElement)) {
+  //     searchValue = '';
+  //   } else {
+  //     searchValue = (document.getElementById('searchBtn') as HTMLInputElement)
+  //       .value;
+  //   }
+
+  //   this.usersService.initGetUsers(searchValue, sortColomnn).subscribe({
+  //     next: (data) => {
+  //       this.UsersData = data;
+  //       this.initReset();
+  //     },
+  //     error: (error) => {
+  //       console.log(error);
+
+  //       this.error = error;
+  //       this.displayerror = true;
+  //     },
+  //   });
+  // }
+
   onSearchUsers(sortColomnn?: any) {
-    let searchValue;
-    if (!(document.getElementById('searchBtn') as HTMLInputElement)) {
-      searchValue = '';
-    } else {
-      searchValue = (document.getElementById('searchBtn') as HTMLInputElement)
-        .value;
-    }
-
-    this.usersService.initGetUsers(searchValue, sortColomnn).subscribe({
-      next: (data) => {
-        this.UsersData = data;
-        this.initReset();
-      },
-      error: (error) => {
-        console.log(error);
-
-        this.error = error;
-        this.displayerror = true;
-      },
-    });
+    this.sortColomn = sortColomnn;
+    this.getAllUserReq()
   }
 
   oncencel() {
@@ -180,10 +187,24 @@ export class UsersComponent implements OnInit {
     this.UsersForm.reset();
   }
 
-  getAllUserReq() {
-    this.usersService.initGetUsers().subscribe({
+  getAllUserReq(event?: any) {   
+    if(this.totalUser < this.limit*this.p){
+      this.p = 1;
+    }
+    let data = {
+      limit: +this.limit,
+      searchValue: (document.getElementById('searchBtn') as HTMLInputElement)
+        ?.value,
+      page: event ? event : this.p,
+      sortColomn:this.sortColomn
+    };
+
+    this.p = event ? event : this.p;
+
+    this.usersService.initGetUsers(data).subscribe({
       next: (data) => {
-        this.UsersData = data;
+        this.UsersData = data.users;
+        this.totalUser = data.totalCount;
         this.initReset();
       },
       error: (error) => {
