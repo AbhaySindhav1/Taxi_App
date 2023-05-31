@@ -23,12 +23,10 @@ module.exports = function (io) {
     });
 
     socket.on("DriverResponse", async (data) => {
-      console.log(data);
       if (!data) return;
       if (data.Status == 0) {
         CancelRide(data.Ride._id, data.Ride.DriverId);
       } else if (data.Status == 1) {
-        console.log(data);
         NotReactedRide(data.Ride, data.Status);
       }
       if (data.Status == 2) {
@@ -47,23 +45,18 @@ module.exports = function (io) {
       { status: "busy" },
       { new: true }
     );
-    // let ride = await Rides.findById(Ride._id, {
-    //   Status: 2,
-    //   DriverId: new mongoose.Types.ObjectId(DriverID),
-    //   Driver: AssignDriver.DriverName,
-    // });
+    let ride = await Rides.findByIdAndUpdate(Ride._id, {
+      Status: 2,
+      DriverId: new mongoose.Types.ObjectId(DriverID),
+      Driver: AssignDriver.DriverName,
+    });
 
-    let ride = await GetRideDetail(Ride._id);
-    ride.Status = 2;
-    ride.DriverId = new mongoose.Types.ObjectId(DriverID);
-    ride.Driver = AssignDriver.DriverName;
-    await ride.save();
+    let FullRideDetail = await GetRideDetail(ride._id);
 
-    Ride.Status = Status;
-    Ride.DriverId = ride.DriverId;
-    Ride.Driver = ride.Driver;
+    console.log(FullRideDetail);
+    
 
-    io.emit("ReqAcceptedByDriver", { Ride, AssignDriver });
+    io.emit("ReqAcceptedByDriver", FullRideDetail);
   };
 
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
@@ -172,7 +165,7 @@ async function GetRideDetail(ID) {
       },
     },
     {
-      $unwind: "$VehicleInfo",
+      $unwind: "$DriverInfo",
     },
     {
       $lookup: {

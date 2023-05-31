@@ -41,11 +41,6 @@ export class ConfirmRideComponent implements OnInit {
       Search: new FormControl(null),
     });
 
-    // this.socketService.socket.on('AssignedReqDeclined', (data: any) => {
-    //   //rideID:any,RideStatus:any,RideDriverId:any,RideDriver:any
-    //   this.initRideDataChange(data);
-    // });
-
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
       this.initRideDataChange(
         data.ride._id,
@@ -71,14 +66,14 @@ export class ConfirmRideComponent implements OnInit {
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
       this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data.Ride._id;
+        return ride._id !== data[0]._id;
       });
     });
   }
 
   ngOnInit(): void {
     this.vehicleService.initGetTypesOfVehicles().subscribe({
-      next: (data) => {
+      next: (data) => {        
         this.VehicleList = data;
       },
       error: (error) => {
@@ -171,7 +166,7 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   ////////////////////////////////////////////////////////////    Get   All  Rides      /////////////////////////////////////////////////////////////////////
-
+  
   GetAllData(event?: any) {
     this.rideService.initGetAllRides().subscribe({
       next: (data) => {
@@ -181,9 +176,18 @@ export class ConfirmRideComponent implements OnInit {
         this.RideList = data.filter((ride: any) => {
           return ride.Status === 1 || ride.Status === 2 || ride.Status === 100;
         });
-        this.totalRides = this.RideList.length;
+        this.totalRides = this.RideList.length;        
         this.RideList = data;
       },
     });
+  }
+  
+  
+  
+  ////////////////////////////////////////////////////////////    Get  Rides  Details     /////////////////////////////////////////////////////////////////////
+  
+  Oninformation(Ride:any){
+    console.log(Ride);
+    
   }
 }

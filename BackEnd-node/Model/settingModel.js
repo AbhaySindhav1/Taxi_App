@@ -2,9 +2,15 @@ const mongoose = require("mongoose");
 
 
 const SettingSchema = mongoose.Schema({
-    country: {
-        type: mongoose.Types.ObjectId,
+    ReqCronTime: {
+        type: Number,
         required: true,
+        default:30
+      },
+    RideStops: {
+        type: Number,
+        required: true,
+        default:1
       },
 });
 

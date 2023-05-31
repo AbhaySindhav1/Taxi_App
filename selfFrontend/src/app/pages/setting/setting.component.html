@@ -1,4 +1,31 @@
-<div class="card-body">
-    <img src="http://localhost:3000/uploads/cards/close.svg" width="25px" style="margin: 10px 20px 10px auto; cursor: pointer; " alt="X" srcset="" mat-dialog-close>
-    
+<div class="main-body container">
+  <h1>Settings</h1>
+  <form class="form" [formGroup]="SettingForm" (ngSubmit)="onSave(Settinglist._id)" >
+    <div style="margin: 0px auto">
+      <label for="RideStops" class="form-label">Maximum Number Of Stops</label>
+      <select name="RideStops" id="RideStops" formControlName="RideStops">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    <div style="margin: 0px auto">
+      <label for="ReqCronTime" class="form-label">Request Time</label>
+      <select name="ReqCronTime" id="ReqCronTime" formControlName="ReqCronTime">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="45">45</option>
+        <option value="60">60</option>
+        <option value="90">90</option>
+        <option value="120">120</option>
+      </select>
+    </div>
+    <div class="btn-container">
+    <button type="submit" class="btn bg-primary">Save</button>
+    <button type="button" class="btn bg-danger" (click)="onCancel()">Cancel</button>
   </div>
+  </form>
+</div>

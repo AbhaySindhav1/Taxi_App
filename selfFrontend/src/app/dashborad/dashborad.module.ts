@@ -6,7 +6,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {
+  MatDialog,
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+} from '@angular/material/dialog';
 
 import { DropdownDirective } from '../Shared/drop-down.directive';
 import { LoginComponent } from '../auth/login/login.component';
@@ -28,9 +32,10 @@ import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.compone
 import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
 import { HistoryComponent } from '../pages/history/history.component';
 import { CardComponent } from '../pages/card/card.component';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SettingComponent } from '../pages/setting/setting.component';
+import { RideDetailComponent } from '../popup/ride-detail/ride-detail.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +58,8 @@ import { SettingComponent } from '../pages/setting/setting.component';
     RunningreqComponent,
     HistoryComponent,
     CardComponent,
-    SettingComponent
+    SettingComponent,
+    RideDetailComponent,
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),
@@ -65,7 +71,7 @@ import { SettingComponent } from '../pages/setting/setting.component';
     CommonModule,
     MatButtonModule,
     MatDialogModule,
-    NgxPaginationModule
+    NgxPaginationModule,
   ],
   providers: [],
   bootstrap: [],

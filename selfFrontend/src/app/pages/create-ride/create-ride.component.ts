@@ -4,6 +4,7 @@ import { ToastrService } from 'ngx-toastr';
 import { RideService } from 'src/app/Services/ride.service';
 import { UsersService } from 'src/app/Services/users.service';
 import { PricingService } from 'src/app/Services/pricing.service';
+import { SettingService } from 'src/app/Services/setting.service';
 
 declare var google: any;
 let directionsRenderer = new google.maps.DirectionsRenderer();
@@ -34,12 +35,14 @@ export class CreateRideComponent implements OnInit {
   wayPoints: any = [];
   TripCharge: any;
   ways: any;
+  maxStops: any;
 
   constructor(
     private usersService: UsersService,
     private rideService: RideService,
     private toastr: ToastrService,
-    private pricingService: PricingService
+    private pricingService: PricingService,
+    private SettingsService: SettingService
   ) {
     this.RideForm = new FormGroup({
       UserPhone: new FormControl(null, [
@@ -61,6 +64,12 @@ export class CreateRideComponent implements OnInit {
 
   ngOnInit(): void {
     this.initMap();
+
+    this.SettingsService.initGetSettings().subscribe({
+      next: (data:any) => {        
+        this.maxStops = data[0]?.RideStops
+      },
+    });
   }
 
   onInput(e: any) {
@@ -71,8 +80,8 @@ export class CreateRideComponent implements OnInit {
         +(document.getElementById('CountryCode') as HTMLInputElement).value +
         '-' +
         e.value;
-      this.usersService.initGetUsers({searchValue:number}).subscribe({
-        next: (data) => {          
+      this.usersService.initGetUsers({ searchValue: number }).subscribe({
+        next: (data) => {
           if (data.users.length === 0) {
             this.toastr.error('no user found');
             return;
@@ -117,6 +126,7 @@ export class CreateRideComponent implements OnInit {
   }
 
   onAddStop() {
+
     const newStopIndex = this.stops.length + 1;
 
     this.RideDetailsForm.addControl(
@@ -127,10 +137,10 @@ export class CreateRideComponent implements OnInit {
       `Drop${newStopIndex}`
     ].updateValueAndValidity();
 
-    if (this.stops.length >= 2) {
+    if (this.stops.length >= this.maxStops) {
       return;
     }
-
+    
     this.stops.push(`Drop${newStopIndex}`);
 
     setTimeout(() => {
@@ -259,7 +269,6 @@ export class CreateRideComponent implements OnInit {
     this.ways.push(
       (document.getElementById('DropPoint') as HTMLInputElement).value
     );
-    console.log('ways', this.ways);
 
     var service = new google.maps.DistanceMatrixService();
     service.getDistanceMatrix(
@@ -342,15 +351,12 @@ export class CreateRideComponent implements OnInit {
     }
     formData.append('ScheduleTime', time);
     formData.append('TripFee', this.tripDetails.TripCharge);
-    console.log(formData);
     this.rideService.initAddRideDetails(formData).subscribe({
       next: (data) => {
         this.toastr.success(data.message);
         this.OnReset();
       },
       error: (error) => {
-        console.log(this.ways);
-
         console.log(error);
       },
     });

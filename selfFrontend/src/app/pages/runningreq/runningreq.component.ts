@@ -35,9 +35,11 @@ export class RunningreqComponent implements OnInit {
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
-      const ride = this.RideList.find((r: any) => r._id === data.Ride._id);
-      ride.Driver = data.AssignDriver.DriverName;
-      ride.Status = data.Ride.Status;
+      console.log(data);
+      
+      const ride = this.RideList.find((r: any) => r._id === data[0]._id);
+      ride.Driver = data[0].DriverInfo.DriverName;
+      ride.Status = data[0].Status;
     });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
