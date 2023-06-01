@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DriverService } from 'src/app/Services/driver.service';
 import { RideService } from 'src/app/Services/ride.service';
 import { SocketService } from 'src/app/Services/socket.service';
 import { VehicleService } from 'src/app/Services/vehicle.service';
+import { RideDetailComponent } from 'src/app/popup/ride-detail/ride-detail.component';
 
 @Component({
   selector: 'app-confirm-ride',
@@ -30,7 +32,8 @@ export class ConfirmRideComponent implements OnInit {
     private vehicleService: VehicleService,
     private toastr: ToastrService,
     private driverService: DriverService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    public dialog: MatDialog
   ) {
     this.OnAssign = this.OnAssign.bind(this);
     this.RideSearchForm = new FormGroup({
@@ -73,7 +76,7 @@ export class ConfirmRideComponent implements OnInit {
 
   ngOnInit(): void {
     this.vehicleService.initGetTypesOfVehicles().subscribe({
-      next: (data) => {        
+      next: (data) => {
         this.VehicleList = data;
       },
       error: (error) => {
@@ -166,7 +169,7 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   ////////////////////////////////////////////////////////////    Get   All  Rides      /////////////////////////////////////////////////////////////////////
-  
+
   GetAllData(event?: any) {
     this.rideService.initGetAllRides().subscribe({
       next: (data) => {
@@ -176,18 +179,16 @@ export class ConfirmRideComponent implements OnInit {
         this.RideList = data.filter((ride: any) => {
           return ride.Status === 1 || ride.Status === 2 || ride.Status === 100;
         });
-        this.totalRides = this.RideList.length;        
+        this.totalRides = this.RideList.length;
         this.RideList = data;
       },
     });
   }
-  
-  
-  
+
   ////////////////////////////////////////////////////////////    Get  Rides  Details     /////////////////////////////////////////////////////////////////////
-  
-  Oninformation(Ride:any){
-    console.log(Ride);
-    
+  openDialog(Ride: any) {
+    const dialogRef = this.dialog.open(RideDetailComponent, {
+      data: Ride,
+    });
   }
 }

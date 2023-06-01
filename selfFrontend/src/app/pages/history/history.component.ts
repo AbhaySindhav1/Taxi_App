@@ -36,6 +36,8 @@ export class HistoryComponent implements OnInit {
   }
 
   openDialog(Ride: any) {
+    Ride.Map = true;
+
     const dialogRef = this.dialog.open(RideDetailComponent, {
       data: Ride,
     });

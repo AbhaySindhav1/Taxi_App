@@ -1,7 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { NgbModalConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RideService } from 'src/app/Services/ride.service';
 import { SocketService } from 'src/app/Services/socket.service';
+import { RideDetailComponent } from 'src/app/popup/ride-detail/ride-detail.component';
 @Component({
   selector: 'app-runningreq',
   templateUrl: './runningreq.component.html',
@@ -22,7 +24,8 @@ export class RunningreqComponent implements OnInit {
   constructor(
     config: NgbModalConfig,
     private socketService: SocketService,
-    private rideService: RideService
+    private rideService: RideService,
+    public dialog: MatDialog
   ) {
     config.backdrop = 'static';
     config.keyboard = false;
@@ -108,7 +111,9 @@ export class RunningreqComponent implements OnInit {
     }
   }
 
-  Oninformation(Ride: any) {
-    console.log(Ride);
+  openDialog(Ride: any) {
+    const dialogRef = this.dialog.open(RideDetailComponent, {
+      data: Ride,
+    });
   }
 }

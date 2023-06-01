@@ -71,7 +71,14 @@
         <li>
           <div class="title">Stops</div>
           :
-          <div class="Value">{{ data?.Stops }}</div>
+          <div class="Value">
+            {{ data?.Stops.length === 0 ? "No Stops" : ""}}
+            <ng-container *ngIf="data?.Stops.length > 0">
+              <span class="Stops" *ngFor="let item of data?.Stops">
+                {{ item.trim().length > 0 ? item.trim() : "No Stops" }}
+              </span>
+            </ng-container>
+          </div>
         </li>
         <li>
           <div class="title">Estimated Fare</div>
@@ -81,13 +88,7 @@
       </ul>
     </div>
   </div>
-  <div
-    style="
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 20px 0px;
-      gap: 40px;
-    "
-  ></div>
+ <div *ngIf="data.Map"  id="map">
+
+ </div>
 </div>
