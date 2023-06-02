@@ -81,7 +81,6 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
 //////                                                        ////         Get   Driver       ////                                                           ///////
 
 router.post("/Driver/GetAllDriver", auth, async (req, res) => {
-  console.log(req.body);
   const searchQuery = req.body.searchValue || "";
   if (searchQuery.charAt(0) === "+") {
     {

@@ -400,6 +400,8 @@ export class CreateRideComponent implements OnInit {
           }
 
           this.tripDetails.TripCharge = Math.ceil(ServiceFees);
+          console.log(this.tripDetails.TripCharge);
+          
         }
       },
       error: (error) => {

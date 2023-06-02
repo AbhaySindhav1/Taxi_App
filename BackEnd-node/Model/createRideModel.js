@@ -63,6 +63,10 @@ const RideSchema = mongoose.Schema(
       type: Array,
       default: null,
     },
+    AssignTime:{
+      type:Number,
+      default:null
+    }
   },
   { timestamps: true }
 );
