@@ -16,10 +16,10 @@ export class RunningreqComponent implements OnInit {
   Trip: any = {};
   RideList: any;
   Interval: any;
-  TimeOut: any = 10000;
+  timeoutValue: any = 10000;
   limit: any = 10;
   page: any = 1;
-  totalRides: any ;
+  totalRides: any;
 
   constructor(
     config: NgbModalConfig,
@@ -31,58 +31,26 @@ export class RunningreqComponent implements OnInit {
     config.keyboard = false;
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
-      this.RideList.push(data.ride);
-      this.Interval = setTimeout(() => {
-        this.OnNotReactedByDriver(data.ride);
-      }, this.TimeOut);
+      console.log(data);
+      
+      this.RideList.push(data);
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
       console.log(data);
-      
-      const ride = this.RideList.find((r: any) => r._id === data[0]._id);
-      ride.Driver = data[0].DriverInfo.DriverName;
-      ride.Status = data[0].Status;
+      this.RideList = this.RideList.filter((ride: any) => {
+        return ride._id !== data._id;
+      });
     });
 
-    this.socketService.socket.on('CancelledRide', (data: any) => {
-      this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data.Ride.RideId;
-      });
+    this.socketService.socket.on('CancelledRide', (data: any) => {      
+      this.CancelRide(data.Ride)
     });
   }
   ngOnInit(): void {
-    this.GetRides()
+    this.GetRides();
   }
 
-  GetRides(event?:any) {
-    this.rideService.GetAllRides().subscribe({
-      next: (data) => {
-        this.RideList = data.filter((ride: any) => {
-          return (
-            ride.Status === 2 ||
-            ride.Status === 3 ||
-            ride.Status === 4 ||
-            ride.Status === 100
-          );
-        });
-        this.totalRides =  this.RideList.length
-      },
-    });
-  }
-
-  open(content?: any) {
-    this.staticBackdrop.nativeElement.classList.add('show');
-    this.staticBackdrop.nativeElement.style.display = 'block';
-  }
-  closeModel() {
-    this.staticBackdrop.nativeElement.classList.remove('show');
-    this.staticBackdrop.nativeElement.style.display = 'none';
-  }
-
-  initStatus(status: any) {
-    return this.rideService.initGetStatus(status);
-  }
 
   OnAccept(Ride: any) {
     this.socketService.socket.emit('DriverResponse', { Ride, Status: 2 });
@@ -101,7 +69,7 @@ export class RunningreqComponent implements OnInit {
     }
   }
 
-  CancelRide(Ride: any) {
+  CancelRide(Ride: any) {    
     this.socketService.socket.emit('DriverResponse', { Ride, Status: 0 });
     this.RideList = this.RideList.filter((ride: any) => {
       return ride._id !== Ride._id;
@@ -111,9 +79,38 @@ export class RunningreqComponent implements OnInit {
     }
   }
 
+
+  GetRides(event?: any) {
+    this.rideService.GetAllRides().subscribe({
+      next: (data) => {        
+        this.RideList = data.filter((ride: any) => {
+          return ride.Status === 100;
+        });
+        this.totalRides = this.RideList.length;
+      },
+    });
+  }
+
+
+
+  initStatus(status: any) {
+    return this.rideService.initGetStatus(status);
+  }
+
+
+
   openDialog(Ride: any) {
     const dialogRef = this.dialog.open(RideDetailComponent, {
       data: Ride,
     });
+  }
+
+  open(content?: any) {
+    this.staticBackdrop.nativeElement.classList.add('show');
+    this.staticBackdrop.nativeElement.style.display = 'block';
+  }
+  closeModel() {
+    this.staticBackdrop.nativeElement.classList.remove('show');
+    this.staticBackdrop.nativeElement.style.display = 'none';
   }
 }

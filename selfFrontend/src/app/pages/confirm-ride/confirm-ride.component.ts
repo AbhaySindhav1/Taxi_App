@@ -46,10 +46,10 @@ export class ConfirmRideComponent implements OnInit {
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
       this.initRideDataChange(
-        data.ride._id,
-        data.ride.Status,
-        data.ride.DriverId,
-        data.ride.Driver
+        data._id,
+        data.Status,
+        data.DriverInfo.DriverId,
+        data.DriverInfo.DriverName
       );
     });
     this.socketService.socket.on('NotReactedRide', (data: any) => {
@@ -68,9 +68,12 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
-      this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data[0]._id;
-      });
+      this.initRideDataChange(
+        data._id,
+        data.Status,
+        data.DriverInfo._id,
+        data.DriverInfo.DriverName
+      );
     });
   }
 
@@ -84,6 +87,10 @@ export class ConfirmRideComponent implements OnInit {
       },
     });
     this.GetAllData();
+  }
+
+  AutoAssign(Ride: any) {
+    this.socketService.socket.emit('RideAssignNearestDriver',Ride._id)
   }
 
   OnAssign(Ride: any) {
@@ -109,8 +116,6 @@ export class ConfirmRideComponent implements OnInit {
       let Confirm = confirm('Are You Want Cancel Ride');
       if (!Confirm) return;
 
-      console.log(Ride);
-
       this.socketService.socket.emit('ride', {
         rideID: Ride._id,
         Status: Status,
@@ -120,7 +125,6 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   AssignDriver(ride: any, Status?: any) {
-    console.log(ride);
     if (!ride) return;
     this.socketService.socket.emit('ride', {
       rideID: ride._id,

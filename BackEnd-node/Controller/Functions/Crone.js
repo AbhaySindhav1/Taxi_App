@@ -1,74 +1,19 @@
 let cron = require("node-cron");
 let CroneTime = 10;
-const CreateRide = require("../../Model/createRideModel");
-const Driver = require("../../Model/driverModel");
+const { getAvailableDrivers, getUnassignedRequests } = require("./functions");
+const { AssignRide } = require("./Socket");
 
 let schedule = `*/${CroneTime} * * * * *`;
 
 module.exports = function (io) {
   cron.schedule(schedule, async () => {
-    // const rides = await getUnassignedRequests();
-    const drivers = await getAvailableDriver();
+    let rides = await getUnassignedRequests();
+    if (!rides) return;
+    let drivers = await getAvailableDrivers();
+    rides.forEach((ride)=>{
+      const driver = drivers.find((driver) =>
+      driver.rideCity.equals(rideCityObjectId)
+    );
+    })
   });
-
-  async function getUnassignedRequests() {
-    const rides = await CreateRide.aggregate([
-      {
-        $lookup: {
-          from: "myusers",
-          localField: "user_id",
-          foreignField: "_id",
-          as: "userInfo",
-        },
-      },
-      {
-        $unwind: "$userInfo",
-        preserveNullAndEmptyArrays: true
-      },
-      {
-        $lookup: {
-          from: "taxis",
-          localField: "type",
-          foreignField: "_id",
-          as: "VehicleInfo",
-        },
-      },
-      {
-        $unwind: "$VehicleInfo",
-        preserveNullAndEmptyArrays: true
-      },
-      {
-        $match: {
-          Status: { $in: [1] },
-        },
-      },
-    ]);
-    return rides;
-  }
-
-  async function getAvailableDriver() {
-    try {
-      let Drivers = await Driver.aggregate([
-        {
-          $match: {
-            $and: [{ approval: "Approve" }, { status: "online" }],
-          },
-        },
-        {
-          $lookup: {
-            from: "taxis",
-            localField: "type",
-            foreignField: "_id",
-            as: "VehicleInfo",
-          },
-        },
-        {
-          $unwind: "$VehicleInfo",
-          preserveNullAndEmptyArrays: true,
-        },
-      ]);
-
-      console.log(Drivers.length);
-    } catch (error) {}
-  }
 };

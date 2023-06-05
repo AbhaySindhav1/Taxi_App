@@ -129,26 +129,26 @@
                   }
           "
         >
-          <td class="ellipsisRow" title="{{ Ride._id }}">{{ Ride._id }}</td>
-          <td class="ellipsisRow" title="{{ Ride.UserName }}">
-            {{ Ride.UserName }}
+          <td class="ellipsisRow" title="{{ Ride?._id }}">{{ Ride?._id }}</td>
+          <td class="ellipsisRow" title="{{ Ride?.UserName }}">
+            {{ Ride?.UserName }}
           </td>
-          <td class="ellipsisRow" title="{{ Ride.PickupPoint }}">
-            {{ Ride.PickupPoint }}
+          <td class="ellipsisRow" title="{{ Ride?.PickupPoint }}">
+            {{ Ride?.PickupPoint }}
           </td>
-          <td class="ellipsisRow" title="{{ Ride.DropPoint }}">
-            {{ Ride.DropPoint }}
-          </td>
-
-          <td class="ellipsisRow" title="{{ Ride.ScheduleTime }}">
-            {{ Ride.ScheduleTime }}
-          </td>
-          <td class="ellipsisRow" title="{{ Ride.Driver }}">
-            {{ Ride.Driver || "Assigning" }}
+          <td class="ellipsisRow" title="{{ Ride?.DropPoint }}">
+            {{ Ride?.DropPoint }}
           </td>
 
-          <td class="ellipsisRow" title="{{ Ride.Status }}">
-            {{ initStatus(Ride.Status) }}
+          <td class="ellipsisRow" title="{{ Ride?.ScheduleTime }}">
+            {{ Ride?.ScheduleTime }}
+          </td>
+          <td class="ellipsisRow" title="{{ Ride?.Driver }}">
+            {{ Ride?.Driver || "Assigning" }}
+          </td>
+
+          <td class="ellipsisRow" title="{{ Ride?.Status }}">
+            {{ initStatus(Ride?.Status) }}
           </td>
           <td>
             <div
@@ -198,6 +198,9 @@
               >
                 Cancel
               </button>
+            </div>
+            <div>
+              <app-timer [timeout]="timeoutValue"></app-timer>
             </div>
           </td>
         </tr>

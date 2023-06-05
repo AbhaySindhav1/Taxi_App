@@ -66,8 +66,8 @@ export class CreateRideComponent implements OnInit {
     this.initMap();
 
     this.SettingsService.initGetSettings().subscribe({
-      next: (data:any) => {        
-        this.maxStops = data[0]?.RideStops
+      next: (data: any) => {
+        this.maxStops = data[0]?.RideStops;
       },
     });
   }
@@ -126,7 +126,6 @@ export class CreateRideComponent implements OnInit {
   }
 
   onAddStop() {
-
     const newStopIndex = this.stops.length + 1;
 
     this.RideDetailsForm.addControl(
@@ -140,7 +139,7 @@ export class CreateRideComponent implements OnInit {
     if (this.stops.length >= this.maxStops) {
       return;
     }
-    
+
     this.stops.push(`Drop${newStopIndex}`);
 
     setTimeout(() => {
@@ -308,6 +307,7 @@ export class CreateRideComponent implements OnInit {
 
   CheckPricing() {
     this.tripDetails.TripCharge = null;
+    this.TripCharge = null;
     this.initDirection();
   }
 
@@ -400,8 +400,8 @@ export class CreateRideComponent implements OnInit {
           }
 
           this.tripDetails.TripCharge = Math.ceil(ServiceFees);
+          this.TripCharge = Math.ceil(ServiceFees);
           console.log(this.tripDetails.TripCharge);
-          
         }
       },
       error: (error) => {
@@ -435,7 +435,6 @@ export class CreateRideComponent implements OnInit {
     this.allPlaces = {};
     this.tripDetails = {};
     this.wayPoints = [];
-    directionsRenderer.setDirections(null);
     directionsRenderer.setMap(null);
   }
 }

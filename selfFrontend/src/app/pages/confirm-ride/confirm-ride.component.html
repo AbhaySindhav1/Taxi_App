@@ -172,6 +172,7 @@
                   type="button"
                   class="btn"
                   style="background-color: #c5c4c4; color: black"
+                  (click)="AutoAssign(Ride)"
                   data-dismiss="modal"
                 >
                   Assign To Nearest Driver
@@ -213,7 +214,7 @@
           <th class="ellipsisRow">Drop Point</th>
           <th class="ellipsisRow">Type</th>
           <th class="ellipsisRow">Schdule Time</th>
-          <th class="ellipsisRow">Driver</th>
+          <!-- <th class="ellipsisRow">Driver</th> -->
           <th class="ellipsisRow">Trip Fee</th>
           <th class="ellipsisRow">Status</th>
 
@@ -261,9 +262,9 @@
           <td class="ellipsisRow" title="{{ Ride.ScheduleTime }}">
             {{ Ride.ScheduleTime }}
           </td>
-          <td class="ellipsisRow" title="{{ Ride.Driver }}">
+          <!-- <td class="ellipsisRow" title="{{ Ride.Driver }}">
             {{ Ride.Driver || "Assigning" }}
-          </td>
+          </td> -->
           <td class="ellipsisRow" title="{{ Ride.TripFee }}">
             {{ Ride.TripFee }}
           </td>
@@ -286,47 +287,64 @@
                 justify-content: space-evenly;
               "
             >
-            <button
-            class="btn btn-primary"
-            style="padding: 8px; background-color: #6d7ae0"
-            (click)="openDialog(Ride)"
-          >
-            <!-- data-toggle="modal"
-            data-target="#staticBackdrop" -->
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              class="bi bi-info-circle"
-              viewBox="0 0 16 16"
-            >
-              <path
-                d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-              />
-              <path
-                d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
-              />
-            </svg>
-          </button>
               <button
                 class="btn btn-primary"
-                style="width: 70px; padding: 5px; background-color: #6d7ae0"
-                (click)="OnAssign(Ride)"
-                [disabled]="Ride.Status == 100"
-                data-toggle="modal"
-                data-target="#staticBackdrop"
+                style="padding: 8px; background-color: #6d7ae0"
+                (click)="openDialog(Ride)"
               >
-                Assign
+                <!-- data-toggle="modal"
+        data-target="#staticBackdrop" -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-info-circle"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                  />
+                  <path
+                    d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+                  />
+                </svg>
               </button>
-              <button
-                class="btn btn-danger"
-                style="width: 70px; padding: 5px"
-                [disabled]="Ride.Status == 0"
-                (click)="CancelRide(Ride, 0)"
+              <div
+                *ngIf="!Ride.Driver"
+                style="
+                  min-width: 200px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-evenly;
+                "
               >
-                Cancel
-              </button>
+                <button
+                  class="btn btn-primary"
+                  style="width: 70px; padding: 5px; background-color: #6d7ae0"
+                  (click)="OnAssign(Ride)"
+                  [disabled]="Ride.Status != 1"
+                  data-toggle="modal"
+                  data-target="#staticBackdrop"
+                  *ngIf="!Ride.Driver"
+                >
+                  Assign
+                </button>
+                <button
+                  class="btn btn-danger"
+                  style="width: 70px; padding: 5px"
+                  [disabled]="Ride.Status == 0"
+                  (click)="CancelRide(Ride, 0)"
+                >
+                  Cancel
+                </button>
+              </div>
+              <div *ngIf="Ride.Driver"  style="
+              min-width: 200px;
+              display: flex;
+              align-items: center;
+              justify-content: space-evenly;
+            ">{{ Ride.Driver }}</div>
             </div>
           </td>
         </tr>

@@ -36,6 +36,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SettingComponent } from '../pages/setting/setting.component';
 import { RideDetailComponent } from '../popup/ride-detail/ride-detail.component';
+import { TimerComponent } from '../Shared/timer/timer.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { RideDetailComponent } from '../popup/ride-detail/ride-detail.component'
     CardComponent,
     SettingComponent,
     RideDetailComponent,
+    TimerComponent
   ],
   imports: [
     RouterModule.forChild(DashBoardRoutes),

@@ -93,10 +93,10 @@ label {
   vertical-align: middle;
 }
 .ellipsisRow {
-  max-width: 150px;
+  max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsisRow;
+  text-overflow: ellipsis;
 }
 /* .ellipsisRow:hover:after {
   content: attr(title);

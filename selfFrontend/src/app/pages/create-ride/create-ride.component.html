@@ -262,12 +262,12 @@
       >
         <p id="Distance">Distance : {{ tripDetails.Distance }}</p>
         <p id="time">Time : {{ tripDetails.Time }}</p>
-        <p id="time">Services Fees : {{ tripDetails.TripCharge }}</p>
+        <p id="time">Services Fees : {{TripCharge }}</p>
       </div>
       
 
       <div id="btn-container">
-        <button type="submit" class="btn bg-success" [disabled]="!tripDetails.TripCharge">Book Ride</button>
+        <button type="submit" class="btn bg-success" [disabled]="!TripCharge">Book Ride</button>
         <button type="button" class="btn bg-danger" (click)="OnReset()">
           Cancel
         </button>

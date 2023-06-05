@@ -14,9 +14,8 @@ const UsersRoute = require("../router/usersRouter");
 const DriverRoute = require("../router/driverRouter");
 const createRideRoute = require("../router/createRideRouter");
 const settingRoute = require("../router/settingRouter");
-const Sockets = require('../Controller/Functions/Socket')
-const Crone = require('../Controller/Functions/Crone')
-
+const Sockets = require("../Controller/Functions/Socket");
+const Crone = require("../Controller/Functions/Crone");
 
 const bodyParser = require("body-parser");
 const envPath = path.join(__dirname, "../key.env");
@@ -43,7 +42,7 @@ const server = app.listen(port, () => {
   console.log("Server Started" + " " + port);
 });
 
-const io = require('socket.io')(server);
+const io = require("socket.io")(server);
 
 Sockets(io);
 Crone(io);

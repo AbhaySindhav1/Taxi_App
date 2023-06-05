@@ -59,14 +59,16 @@ export class DriverComponent implements OnInit {
       // ServiceType: new FormControl('', [Validators.required]),
     });
 
-    this.socketService.socket.on('CancelledRide', (data: any) => {
+    this.socketService.socket.on('CancelledRide', (data: any) => {      
       if (data.Driver) {
         this.getStatus(data.Driver.DriverID, data.Driver.Status);
       }
     });
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
-      this.getStatus(data.Driver.DriverID, data.Driver.Status);
+      console.log(data);
+      
+      this.getStatus(data.DriverInfo._id, data.DriverInfo.status);
     });
     
     this.socketService.socket.on('NotReactedRide', (data: any) => {
@@ -335,7 +337,9 @@ export class DriverComponent implements OnInit {
   }
 
   getStatus(driverId: any, Status: any) {
-    const ride = this.DriverData.find((r: any) => r._id == driverId);
-    ride.status = Status;
+    console.log(driverId,Status);
+    
+    const driver = this.DriverData.find((r: any) => r._id == driverId);
+    driver.status = Status;
   }
 }

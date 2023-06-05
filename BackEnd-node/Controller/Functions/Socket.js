@@ -1,5 +1,8 @@
 const Driver = require("../../Model/driverModel");
 const Rides = require("../../Model/createRideModel");
+
+const { getAvailableDrivers } = require("./functions");
+
 const { default: mongoose } = require("mongoose");
 
 const users = {};
@@ -13,8 +16,10 @@ module.exports = function (io) {
     });
 
     socket.on("ride", async (data) => {
+      console.log(data);
       if (!data) return;
       if (data.Status == 0) {
+        console.log(data);
         CancelRide(data.rideID, data.driverID);
       }
       if (data.Status == "Assign") {
@@ -25,70 +30,84 @@ module.exports = function (io) {
     socket.on("DriverResponse", async (data) => {
       if (!data) return;
       if (data.Status == 0) {
+        console.log(data);
         CancelRide(data.Ride._id, data.Ride.DriverId);
       } else if (data.Status == 1) {
-        NotReactedRide(data.Ride, data.Status);
+        NotReactedRide(data.Ride._id, data.Status);
       }
       if (data.Status == 2) {
-        AcceptRide(data.Ride, data.Ride.DriverId, data.Status);
+        AcceptRide(data.Ride._id, data.Ride.DriverId, data.Status);
+      }
+    });
+
+    socket.on("RideAssignNearestDriver", async (RideID) => {
+      try {
+        let ride = await Rides.findById(RideID);
+        let drivers = await getAvailableDrivers();
+        if (!drivers.length > 0) return;
+        const driver = drivers.find((driver) =>
+          driver.rideCity.equals(rideCityObjectId)
+        );
+        await AssignRide(RideID, driver._id);
+      } catch (error) {
+        console.log(error);
       }
     });
   });
 
+  /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
+
+  AssignRide = async (RideID, AsDriverID) => {
+    let rides = await Rides.findById(RideID);
+    if (rides.Status != 1) return;
+
+    let AssignDriver = await Driver.findById(AsDriverID);
+    if (!AssignDriver) return;
+    AssignDriver.status = "busy";
+    await AssignDriver.save();
+
+    rides.Status = 100;
+    rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
+    rides.Driver = AssignDriver.DriverName;
+    rides.AssignTime = Date.now();
+    await rides.save();
+
+    if (!rides) return;
+
+    rides = await GetRideDetail(rides._id);
+
+    io.emit("reqtoSendDriver", rides);
+  };
+
   /////////////////////////////////////////////////////////////        Driver Accepted  Ride    ////////////////////////////////////////////////////////////////////////
 
-  AcceptRide = async (Ride, DriverID, Status) => {
-    if (!Ride) return;
+  AcceptRide = async (RideID, DriverID, Status) => {
+    if (!RideID) return;
     if (!mongoose.Types.ObjectId.isValid(DriverID)) return;
     let AssignDriver = await Driver.findByIdAndUpdate(
       DriverID,
       { status: "busy" },
       { new: true }
     );
-    let ride = await Rides.findByIdAndUpdate(Ride._id, {
-      Status: 2,
+    let ride = await Rides.findByIdAndUpdate(RideID, {
+      Status: Status,
       DriverId: new mongoose.Types.ObjectId(DriverID),
       Driver: AssignDriver.DriverName,
     });
 
     let FullRideDetail = await GetRideDetail(ride._id);
 
-    console.log(FullRideDetail);
-    
-
     io.emit("ReqAcceptedByDriver", FullRideDetail);
-  };
-
-  /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
-
-  AssignRide = async (RideID, AsDriverID) => {
-    let ride = await Rides.findById(RideID);
-    if (ride.Status != 1) return;
-
-    let AssignDriver = await Driver.findByIdAndUpdate(
-      AsDriverID,
-      { status: "busy" },
-      { new: true }
-    );
-
-    ride.Status = 100;
-    ride.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
-    ride.Driver = AssignDriver.DriverName;
-    await ride.save();
-
-    io.emit("reqtoSendDriver", {
-      ride,
-      Driver: { DriverID: AssignDriver._id, Status: AssignDriver.status },
-    });
   };
 
   ///////////////////////////////////////////////////////////////       Cancel Ride          //////////////////////////////////////////////////////////////////////
 
   CancelRide = async (RideID, DriverID) => {
+    console.log(RideID, DriverID);
     try {
-      let ride = await GetRideDetail(RideID);
-      ride.Status = 0;
-      await ride.save();
+      let ride = await Rides.findByIdAndUpdate(RideID, {
+        Status: 0,
+      });
 
       if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
         let FoundDriver = await Driver.findByIdAndUpdate(
@@ -96,6 +115,7 @@ module.exports = function (io) {
           { status: "online" },
           { new: true }
         );
+
         io.emit("CancelledRide", {
           Ride: { Status: ride.Status, RideId: ride._id },
           Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
@@ -105,22 +125,27 @@ module.exports = function (io) {
           Ride: { Status: ride.Status, RideId: ride._id },
         });
       }
-    } catch (error) {}
+      console.log(ride);
+    } catch (error) {
+      console.log(error);
+    }
   };
 };
 
 ///////////////////////////////////////////////////////////////       Not Reject  Ride          //////////////////////////////////////////////////////////////////////
 
-NotReactedRide = async (Ride, RideStatus) => {
+NotReactedRide = async (RideID) => {
   console.log(Ride);
   try {
-    let ride = await GetRideDetail(Ride._id);
-    ride.Status = 1;
-    ride.DriverId = null;
-    ride.Driver = none;
-    await ride.save();
+    let ride = await Rides.findByIdAndUpdate(RideID, {
+      Status: 1,
+      DriverId: null,
+      Driver: null,
+    });
 
-    if (mongoose.Types.ObjectId.isValid(Ride.DriverId)) {
+    ride = await GetRideDetail(ride._id);
+
+    if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
       let FoundDriver = await Driver.findByIdAndUpdate(
         Ride.DriverId,
         { status: "online" },
@@ -135,8 +160,12 @@ NotReactedRide = async (Ride, RideStatus) => {
         ride,
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 };
+
+///////////////////////////////////////////////////////////////       Get  FUll  Ride          //////////////////////////////////////////////////////////////////////
 
 async function GetRideDetail(ID) {
   const ride = await Rides.aggregate([
@@ -179,5 +208,5 @@ async function GetRideDetail(ID) {
       $unwind: "$VehicleInfo",
     },
   ]);
-  return ride;
+  return ride[0];
 }

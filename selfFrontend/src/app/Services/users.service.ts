@@ -12,8 +12,6 @@ export class UsersService {
   }
 
   onDeleteCard(data: any) {
-    console.log(data);
-
     return this.http.post<any>(
       'http://localhost:3000/StripeInt/delete/' + data,
       data
@@ -28,8 +26,6 @@ export class UsersService {
   }
 
   initGetUsers(data?: any) {
-    console.log(data);
-    
     return this.http.post<any>('http://localhost:3000/MyUser/getUsers', data);
   }
 
