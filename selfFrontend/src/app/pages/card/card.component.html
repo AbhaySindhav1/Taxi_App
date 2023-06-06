@@ -37,7 +37,7 @@
     type="button"
     id="SetCard"
     (click)="addDefaultCard(selectedCard)"
-    [disabled]="!selectedCard"
+    [disabled]="!selectedCard || data?.defaultPayment == selectedCard?.id"
   >
    SET CARD
   </button>

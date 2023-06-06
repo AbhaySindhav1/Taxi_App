@@ -2,46 +2,58 @@ const CreateRide = require("../../Model/createRideModel");
 const Driver = require("../../Model/driverModel");
 
 async function getUnassignedRequests() {
-  const rides = await CreateRide.aggregate([
-    {
-      $lookup: {
-        from: "myusers",
-        localField: "user_id",
-        foreignField: "_id",
-        as: "userInfo",
+  try {
+    const rides = await CreateRide.aggregate([
+      {
+        $lookup: {
+          from: "myusers",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
       },
-    },
-    {
-      $unwind: "$userInfo",
-      preserveNullAndEmptyArrays: true,
-    },
-    {
-      $lookup: {
-        from: "taxis",
-        localField: "type",
-        foreignField: "_id",
-        as: "VehicleInfo",
+      {
+        $unwind: "$userInfo",
       },
-    },
-    {
-      $unwind: "$VehicleInfo",
-      preserveNullAndEmptyArrays: true,
-    },
-    {
-      $match: {
-        Status: { $in: [100] },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
       },
-    },
-  ]);
-  return rides;
+      {
+        $unwind: "$VehicleInfo",
+      },
+      {
+        $match: {
+          Status: { $in: [100] },
+        },
+      },
+      {
+        $sort: {
+          AssignTime: 1,
+        },
+      },
+    ]);
+    return rides;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-async function getAvailableDrivers() {
+async function getAvailableDrivers(VehicleType, RideCity) {
   try {
     const pipeline = [
       {
         $match: {
-          $and: [{ approval: "Approve" }, { status: "online" }],
+          $and: [
+            { approval: "Approve" },
+            { status: "online" },
+            { ServiceType: VehicleType },
+            { DriverCity: RideCity },
+          ],
         },
       },
     ];

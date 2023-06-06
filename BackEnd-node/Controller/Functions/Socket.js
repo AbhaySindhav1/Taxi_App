@@ -43,12 +43,9 @@ module.exports = function (io) {
     socket.on("RideAssignNearestDriver", async (RideID) => {
       try {
         let ride = await Rides.findById(RideID);
-        let drivers = await getAvailableDrivers();
+        let drivers = await getAvailableDrivers(ride.type, ride.RideCity);
         if (!drivers.length > 0) return;
-        const driver = drivers.find((driver) =>
-          driver.rideCity.equals(rideCityObjectId)
-        );
-        await AssignRide(RideID, driver._id);
+        await AssignRide(RideID, drivers[0]._id);
       } catch (error) {
         console.log(error);
       }
@@ -58,8 +55,10 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
   AssignRide = async (RideID, AsDriverID) => {
+
     let rides = await Rides.findById(RideID);
-    if (rides.Status != 1) return;
+
+    if (rides.Status != 1 && rides.Status != 100) return;
 
     let AssignDriver = await Driver.findById(AsDriverID);
     if (!AssignDriver) return;
@@ -69,7 +68,8 @@ module.exports = function (io) {
     rides.Status = 100;
     rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
     rides.Driver = AssignDriver.DriverName;
-    rides.AssignTime = Date.now();
+    rides.AssignTime = Date.now()+10000;
+    console.log(rides.AssignTime);
     await rides.save();
 
     if (!rides) return;
@@ -78,6 +78,8 @@ module.exports = function (io) {
 
     io.emit("reqtoSendDriver", rides);
   };
+
+  module.exports.AssignRide = AssignRide;
 
   /////////////////////////////////////////////////////////////        Driver Accepted  Ride    ////////////////////////////////////////////////////////////////////////
 
@@ -100,10 +102,11 @@ module.exports = function (io) {
     io.emit("ReqAcceptedByDriver", FullRideDetail);
   };
 
+  module.exports.AcceptRide = AcceptRide;
+
   ///////////////////////////////////////////////////////////////       Cancel Ride          //////////////////////////////////////////////////////////////////////
 
   CancelRide = async (RideID, DriverID) => {
-    console.log(RideID, DriverID);
     try {
       let ride = await Rides.findByIdAndUpdate(RideID, {
         Status: 0,
@@ -130,83 +133,87 @@ module.exports = function (io) {
       console.log(error);
     }
   };
-};
 
-///////////////////////////////////////////////////////////////       Not Reject  Ride          //////////////////////////////////////////////////////////////////////
+  module.exports.CancelRide = CancelRide;
 
-NotReactedRide = async (RideID) => {
-  console.log(Ride);
-  try {
-    let ride = await Rides.findByIdAndUpdate(RideID, {
-      Status: 1,
-      DriverId: null,
-      Driver: null,
-    });
+  ///////////////////////////////////////////////////////////////       Not Reject  Ride          //////////////////////////////////////////////////////////////////////
 
-    ride = await GetRideDetail(ride._id);
-
-    if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
-      let FoundDriver = await Driver.findByIdAndUpdate(
-        Ride.DriverId,
-        { status: "online" },
-        { new: true }
-      );
-      io.emit("NotReactedRide", {
-        ride,
-        Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
+  NotReactedRide = async (RideID) => {
+    console.log(Ride);
+    try {
+      let ride = await Rides.findByIdAndUpdate(RideID, {
+        Status: 1,
+        DriverId: null,
+        Driver: null,
       });
-    } else {
-      io.emit("NotReactedRide", {
-        ride,
-      });
+
+      ride = await GetRideDetail(ride._id);
+
+      if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
+        let FoundDriver = await Driver.findByIdAndUpdate(
+          Ride.DriverId,
+          { status: "online" },
+          { new: true }
+        );
+        io.emit("NotReactedRide", {
+          ride,
+          Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
+        });
+      } else {
+        io.emit("NotReactedRide", {
+          ride,
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
+  };
+
+  module.exports.NotReactedRide = NotReactedRide;
+
+  ///////////////////////////////////////////////////////////////       Get  FUll  Ride          //////////////////////////////////////////////////////////////////////
+
+  async function GetRideDetail(ID) {
+    const ride = await Rides.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(ID),
+        },
+      },
+      {
+        $lookup: {
+          from: "myusers",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      {
+        $unwind: "$userInfo",
+      },
+      {
+        $lookup: {
+          from: "drivers",
+          localField: "DriverId",
+          foreignField: "_id",
+          as: "DriverInfo",
+        },
+      },
+      {
+        $unwind: "$DriverInfo",
+      },
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      {
+        $unwind: "$VehicleInfo",
+      },
+    ]);
+    return ride[0];
   }
 };
-
-///////////////////////////////////////////////////////////////       Get  FUll  Ride          //////////////////////////////////////////////////////////////////////
-
-async function GetRideDetail(ID) {
-  const ride = await Rides.aggregate([
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(ID),
-      },
-    },
-    {
-      $lookup: {
-        from: "myusers",
-        localField: "user_id",
-        foreignField: "_id",
-        as: "userInfo",
-      },
-    },
-    {
-      $unwind: "$userInfo",
-    },
-    {
-      $lookup: {
-        from: "drivers",
-        localField: "DriverId",
-        foreignField: "_id",
-        as: "DriverInfo",
-      },
-    },
-    {
-      $unwind: "$DriverInfo",
-    },
-    {
-      $lookup: {
-        from: "taxis",
-        localField: "type",
-        foreignField: "_id",
-        as: "VehicleInfo",
-      },
-    },
-    {
-      $unwind: "$VehicleInfo",
-    },
-  ]);
-  return ride[0];
-}

@@ -45,6 +45,8 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
+      console.log(data);
+
       this.initRideDataChange(
         data._id,
         data.Status,
@@ -90,7 +92,7 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   AutoAssign(Ride: any) {
-    this.socketService.socket.emit('RideAssignNearestDriver',Ride._id)
+    this.socketService.socket.emit('RideAssignNearestDriver', Ride._id);
   }
 
   OnAssign(Ride: any) {
@@ -146,7 +148,9 @@ export class ConfirmRideComponent implements OnInit {
   ) {
     if (!rideID) return;
     const ride = this.RideList.find((r: any) => r._id === rideID);
-    ride.Status = RideStatus;
+    if (RideStatus) {
+      ride.Status = RideStatus;
+    }
     ride.DriverId = RideDriverId;
     ride.Driver = RideDriver;
   }
