@@ -43,7 +43,7 @@ async function getUnassignedRequests() {
   }
 }
 
-async function getAvailableDrivers(VehicleType, RideCity) {
+async function getAvailableDrivers(VehicleType, RideCity,excludedDriverIds) {
   try {
     const pipeline = [
       {
@@ -53,6 +53,7 @@ async function getAvailableDrivers(VehicleType, RideCity) {
             { status: "online" },
             { ServiceType: VehicleType },
             { DriverCity: RideCity },
+            { _id: { $nin: excludedDriverIds } }
           ],
         },
       },
@@ -60,7 +61,7 @@ async function getAvailableDrivers(VehicleType, RideCity) {
 
     let drivers = await Driver.aggregate(pipeline);
 
-    return drivers;
+    return drivers[0];
   } catch (error) {
     console.log(error);
   }

@@ -59,6 +59,8 @@ export class CreateRideComponent implements OnInit {
       DropPoint: new FormControl(null, [Validators.required]),
       VehicleSelector: new FormControl(null, [Validators.required]),
       Time: new FormControl(null),
+      bookNow: new FormControl("null"),
+      scheduleTime: new FormControl(''),
     });
   }
 
@@ -70,6 +72,21 @@ export class CreateRideComponent implements OnInit {
         this.maxStops = data[0]?.RideStops;
       },
     });
+  }
+
+  handleBookingTypeChange(type: string) {
+    if (type === 'bookNow') {
+      this.RideDetailsForm.patchValue({
+        bookNow: 'null',
+        scheduleTime: '',
+        Time: null
+      });
+    } else if (type === 'scheduleTime') {
+      this.RideDetailsForm.patchValue({
+        bookNow: '',
+        scheduleTime: 'scheduleTime'
+      });
+    }
   }
 
   onInput(e: any) {

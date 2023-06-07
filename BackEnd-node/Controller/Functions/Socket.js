@@ -55,21 +55,19 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
   AssignRide = async (RideID, AsDriverID) => {
-
     let rides = await Rides.findById(RideID);
 
     if (rides.Status != 1 && rides.Status != 100) return;
 
     let AssignDriver = await Driver.findById(AsDriverID);
     if (!AssignDriver) return;
-    AssignDriver.status = "busy";
+    AssignDriver.status = "onRequest";
     await AssignDriver.save();
 
     rides.Status = 100;
     rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
     rides.Driver = AssignDriver.DriverName;
-    rides.AssignTime = Date.now()+10000;
-    console.log(rides.AssignTime);
+    rides.AssignTime = Date.now() + 20000;
     await rides.save();
 
     if (!rides) return;
@@ -139,27 +137,30 @@ module.exports = function (io) {
   ///////////////////////////////////////////////////////////////       Not Reject  Ride          //////////////////////////////////////////////////////////////////////
 
   NotReactedRide = async (RideID) => {
-    console.log(Ride);
     try {
-      let ride = await Rides.findByIdAndUpdate(RideID, {
-        Status: 1,
-        DriverId: null,
-        Driver: null,
-      });
-
-      ride = await GetRideDetail(ride._id);
+      let ride = await Rides.findById(RideID);
 
       if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
         let FoundDriver = await Driver.findByIdAndUpdate(
-          Ride.DriverId,
+          ride.DriverId,
           { status: "online" },
           { new: true }
         );
+
+        ride.Status = 100;
+        ride.DriverId = null;
+        ride.Driver = null;
+        ride.RideStatus = "Assigned";
+        ride.RejectedRide.push(FoundDriver._id);
+        await ride.save();
+
+        ride = await GetRideDetail(ride._id);
         io.emit("NotReactedRide", {
           ride,
           Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
         });
       } else {
+        ride = await GetRideDetail(ride._id);
         io.emit("NotReactedRide", {
           ride,
         });

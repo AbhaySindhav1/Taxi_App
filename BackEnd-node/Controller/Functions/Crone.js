@@ -14,29 +14,47 @@ module.exports = function (io) {
 
   async function AssignRideToDriver(rides) {
     if (!rides) return;
-    rides.forEach(async (ride) => {
+    for await (const ride of rides) {
+      await Sockets.NotReactedRide(ride._id);
       if (ride.AssignTime && ride.AssignTime <= Date.now()) {
-        let drivers = await getAvailableDrivers(ride.type, ride.RideCity);
-        if (drivers.length < 1) return;
-        Sockets.AssignRide(ride._id, drivers[0]._id);
-        console.log("dsb");
+        console.log("ride 1");
+        let driver = GetDriver(ride);
+        await Sockets.AssignRide(ride._id, driver._id);
       } else {
+        console.log("ride 2");
         await Wait(ride.AssignTime, ride);
       }
-    });
+    }
   }
 
   async function Wait(RideAssignedTime, ride) {
-    console.log("waiting",Date.now());
+    let driver = GetDriver(ride);
     while (RideAssignedTime >= Date.now()) {}
-    console.log("waitied",Date.now());
-    let drivers = await getAvailableDrivers(ride.type, ride.RideCity);
-    if (drivers.length < 1) return;
+    await Sockets.AssignRide(ride._id, driver._id);
+  }
 
-    Sockets.AssignRide(ride._id, drivers[0]._id);
+  async function GetDriver(ride) {
+    let drivers = await getAvailableDrivers(
+      ride.type,
+      ride.RideCity,
+      ride.RejectedRide
+    );
+    if (!drivers){
+        // let hasDriver = 
+    }
+
+    // let driver = drivers.find((driver) => {
+    //   !ride.RejectedRide.some((rejectedDriverId) => {
+    //     driver._id === rejectedDriverId;
+    //   });
+    // });
+
+    // if (!driver) {
+    //   if(driver.length <= ride.RejectedRide.length)
+    //   console.log("No Driver FOund");
+    //   return;
+    // }
+    // return driver;
+    return;
   }
 };
-
-// const driver = drivers.find((driver) =>
-//   driver.rideCity.equals(rideCityObjectId)
-// );

@@ -246,12 +246,35 @@
       </div>
 
       <div class="controller" style="margin: 10px 0px">
+        <label for="DropPoint">Ride Time</label>
+        <br />
+        <label>
+          <input
+            type="radio"
+            formControlName="bookNow"
+            value="null"
+            (change)="handleBookingTypeChange('bookNow')"
+          />
+          Book Now
+        </label>
+    
+        <label>
+          <input
+            type="radio"
+            formControlName="scheduleTime"
+            value="scheduleTime"
+            (change)="handleBookingTypeChange('scheduleTime')"
+          />
+          Schedule Time
+        </label>
+    
         <input
           type="datetime-local"
           name="Time"
           id="Time"
           class="form-control"
           formControlName="Time"
+          *ngIf="RideDetailsForm.get('scheduleTime').value === 'scheduleTime'"
         />
       </div>
 
