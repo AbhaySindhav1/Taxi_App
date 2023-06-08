@@ -12,6 +12,34 @@ const SettingSchema = mongoose.Schema({
         required: true,
         default:1
       },
+      smsID:{
+        type:String,
+        required:true
+      },
+      smsToken:{
+        type:String,
+        required:true
+      },
+      StripePublicKey:{
+        type:String,
+        required:true
+      },
+      StripePrivateKey:{
+        type:String,
+        required:true
+      },
+      EmailID:{
+        type:String,
+        required:true
+      },
+      EmailSecret:{
+        type:String,
+        required:true
+      },
+      EmailToken:{
+        type:String,
+        required:true
+      },
 });
 
 const Setting = mongoose.model("Setting", SettingSchema);

@@ -39,6 +39,8 @@ export class CardComponent implements OnInit {
     );
   }
 
+// public key
+
   async ngOnInit() {
     this.getCards();
     this.loadStripe();

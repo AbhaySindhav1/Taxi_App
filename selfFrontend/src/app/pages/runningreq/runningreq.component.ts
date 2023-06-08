@@ -32,8 +32,10 @@ export class RunningreqComponent implements OnInit {
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
       console.log(data);
-      
-      const index = this.RideList.findIndex((ride:any) => ride._id === data._id);
+
+      const index = this.RideList.findIndex(
+        (ride: any) => ride._id === data._id
+      );
       if (index !== -1) {
         this.RideList[index] = data;
       } else {
@@ -47,14 +49,19 @@ export class RunningreqComponent implements OnInit {
         return ride._id !== data._id;
       });
     });
+    this.socketService.socket.on('noDriverFound', (data: any) => {
+      this.RideList = this.RideList.filter((ride: any) => {
+        return ride._id !== data.ride._id;
+      });
+    });
     this.socketService.socket.on('NotReactedRide', (data: any) => {
       console.log(data);
 
       this.initRideDataChange(
-        data.ride._id,
-        data.ride.Status,
-        data.ride.DriverId,
-        data.ride.Driver
+        data.rides._id,
+        data.rides.Status,
+        data.rides.DriverId,
+        data.rides.Driver
       );
     });
 

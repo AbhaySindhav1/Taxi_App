@@ -22,6 +22,25 @@ export class SettingComponent implements OnInit {
       ReqCronTime: new FormControl(this.Settinglist?.ReqCronTime, [
         Validators.required,
       ]),
+      smsID: new FormControl(this.Settinglist?.smsID, [Validators.required]),
+      smsToken: new FormControl(this.Settinglist?.smsToken, [
+        Validators.required,
+      ]),
+      StripePublicKey: new FormControl(this.Settinglist?.StripePublicKey, [
+        Validators.required,
+      ]),
+      StripePrivateKey: new FormControl(this.Settinglist?.StripePrivateKey, [
+        Validators.required,
+      ]),
+      EmailID: new FormControl(this.Settinglist?.EmailID, [
+        Validators.required,
+      ]),
+      EmailSecret: new FormControl(this.Settinglist?.EmailSecret, [
+        Validators.required,
+      ]),
+      EmailToken: new FormControl(this.Settinglist?.EmailToken, [
+        Validators.required,
+      ]),
     });
   }
   ngOnInit(): void {
@@ -35,6 +54,9 @@ export class SettingComponent implements OnInit {
     });
   }
   onSave(id: any) {
+    if (!this.SettingForm.valid) {
+      return;
+    }
     let formData = new FormData();
     formData.append('id', id);
     formData.append('RideStops', this.SettingForm.get('RideStops').value);
@@ -43,7 +65,7 @@ export class SettingComponent implements OnInit {
     this.settingService.initChangeSettings(formData).subscribe({
       next: (data) => {
         this.Settinglist = data;
-        this.toastr.success("Setting Updated")
+        this.toastr.success('Setting Updated');
       },
       error: (error) => {
         this.toastr.error(error.message);
@@ -64,7 +86,7 @@ export class SettingComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.toastr.error(error.message)
+        this.toastr.error(error.message);
       },
     });
   }

@@ -321,14 +321,14 @@
               >
                 <button
                   class="btn btn-primary"
-                  style="width: 70px; padding: 5px; background-color: #6d7ae0"
+                  style="width: 90px; padding: 5px; background-color: #6d7ae0"
                   (click)="OnAssign(Ride)"
                   [disabled]="Ride.Status != 1"
                   data-toggle="modal"
                   data-target="#staticBackdrop"
                   *ngIf="!Ride.Driver"
                 >
-                  Assign
+                {{ Ride?.RideStatus == "Assigned"? "ReAssign":"Assign"}}
                 </button>
                 <button
                   class="btn btn-danger"

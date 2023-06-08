@@ -6,6 +6,9 @@ const { getAvailableDrivers } = require("./functions");
 const { default: mongoose } = require("mongoose");
 
 const users = {};
+function getTime() {
+  return new Date().getTime() + 20000;
+}
 
 module.exports = function (io) {
   io.on("connection", (socket) => {
@@ -31,21 +34,25 @@ module.exports = function (io) {
       if (!data) return;
       if (data.Status == 0) {
         console.log(data);
-        CancelRide(data.Ride._id, data.Ride.DriverId);
+        await CancelRide(data.Ride._id, data.Ride.DriverId);
       } else if (data.Status == 1) {
-        NotReactedRide(data.Ride._id, data.Status);
+        await NotReactedRide(data.Ride._id, data.Status);
       }
       if (data.Status == 2) {
-        AcceptRide(data.Ride._id, data.Ride.DriverId, data.Status);
+        await AcceptRide(data.Ride._id, data.Ride.DriverId, data.Status);
       }
     });
 
     socket.on("RideAssignNearestDriver", async (RideID) => {
       try {
         let ride = await Rides.findById(RideID);
-        let drivers = await getAvailableDrivers(ride.type, ride.RideCity);
-        if (!drivers.length > 0) return;
-        await AssignRide(RideID, drivers[0]._id);
+        let driver = await getAvailableDrivers(
+          ride.type,
+          ride.RideCity,
+          ride.RejectedRide
+        );
+        if (!driver) return;
+        await AssignRide(RideID, driver._id);
       } catch (error) {
         console.log(error);
       }
@@ -67,7 +74,8 @@ module.exports = function (io) {
     rides.Status = 100;
     rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
     rides.Driver = AssignDriver.DriverName;
-    rides.AssignTime = Date.now() + 20000;
+    rides.AssignTime = getTime();
+    console.log("ridetime", rides.AssignTime);
     await rides.save();
 
     if (!rides) return;
@@ -109,8 +117,9 @@ module.exports = function (io) {
       let ride = await Rides.findByIdAndUpdate(RideID, {
         Status: 0,
       });
+      if (!ride) return;
 
-      if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
+      if (mongoose.Types.ObjectId.isValid(ride?.DriverId)) {
         let FoundDriver = await Driver.findByIdAndUpdate(
           DriverID,
           { status: "online" },
@@ -126,7 +135,6 @@ module.exports = function (io) {
           Ride: { Status: ride.Status, RideId: ride._id },
         });
       }
-      console.log(ride);
     } catch (error) {
       console.log(error);
     }
@@ -150,19 +158,20 @@ module.exports = function (io) {
         ride.Status = 100;
         ride.DriverId = null;
         ride.Driver = null;
-        ride.RideStatus = "Assigned";
+        ride.AssignTime = getTime();
         ride.RejectedRide.push(FoundDriver._id);
         await ride.save();
 
-        ride = await GetRideDetail(ride._id);
+        let rides = await GetRideDetail(RideID);
         io.emit("NotReactedRide", {
-          ride,
+          rides,
           Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
+          from: "NotReactedRide function emit",
         });
       } else {
-        ride = await GetRideDetail(ride._id);
+        let rides = await GetRideDetail(RideID);
         io.emit("NotReactedRide", {
-          ride,
+          rides,
         });
       }
     } catch (error) {
@@ -172,13 +181,69 @@ module.exports = function (io) {
 
   module.exports.NotReactedRide = NotReactedRide;
 
+  ///////////////////////////////////////////////////////////////       Free  Ride          //////////////////////////////////////////////////////////////////////
+
+  freeRide = async (RideID) => {
+    console.log("free Ride");
+    try {
+      let ride = await Rides.findById(RideID);
+      // console.log("free Ride 1 ", ride);
+      if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
+        console.log("free Ride 2");
+        let FoundDriver = await Driver.findByIdAndUpdate(
+          ride.DriverId,
+          { status: "online" },
+          { new: true }
+        );
+        console.log("free Ride 3");
+
+        ride.Status = 1;
+        ride.DriverId = null;
+        ride.Driver = null;
+        ride.RideStatus = "Assigned";
+        ride.RejectedRide = [];
+        ride.AssignTime = null;
+        await ride.save();
+        console.log("free Ride 4");
+
+
+        ride = await GetRideDetail(ride._id);
+        console.log("free Ride 6");
+        io.emit("noDriverFound", {
+          ride,
+          Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
+        });
+      } else {
+        console.log("free Ride 22");
+        ride.Status = 1;
+        ride.RideStatus = "Assigned";
+        ride.RejectedRide = [];
+        ride.AssignTime = null;
+        console.log("free Ride 23");
+
+        await ride.save();
+        console.log("free Ride 24");
+        ride = await GetRideDetail(ride._id);
+        console.log("free Ride 25");
+        io.emit("noDriverFound", {
+          ride,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  module.exports.freeRide = freeRide;
+
   ///////////////////////////////////////////////////////////////       Get  FUll  Ride          //////////////////////////////////////////////////////////////////////
 
   async function GetRideDetail(ID) {
+    console.log("Id,", ID);
     const ride = await Rides.aggregate([
       {
         $match: {
-          _id: new mongoose.Types.ObjectId(ID),
+          _id: ID,
         },
       },
       {
@@ -201,7 +266,10 @@ module.exports = function (io) {
         },
       },
       {
-        $unwind: "$DriverInfo",
+        $unwind: {
+          path: "$DriverInfo",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
@@ -215,6 +283,7 @@ module.exports = function (io) {
         $unwind: "$VehicleInfo",
       },
     ]);
+
     return ride[0];
   }
 };
