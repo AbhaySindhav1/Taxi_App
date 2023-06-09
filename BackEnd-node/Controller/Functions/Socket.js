@@ -22,18 +22,16 @@ module.exports = function (io) {
       console.log(data);
       if (!data) return;
       if (data.Status == 0) {
-        console.log(data);
         CancelRide(data.rideID, data.driverID);
       }
       if (data.Status == "Assign") {
-        AssignRide(data.rideID, data.driverID);
+        AssignRide(data.rideID, data.driverID, "single");
       }
     });
 
     socket.on("DriverResponse", async (data) => {
       if (!data) return;
       if (data.Status == 0) {
-        console.log(data);
         await CancelRide(data.Ride._id, data.Ride.DriverId);
       } else if (data.Status == 1) {
         await NotReactedRide(data.Ride._id, data.Status);
@@ -61,7 +59,7 @@ module.exports = function (io) {
 
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
-  AssignRide = async (RideID, AsDriverID) => {
+  AssignRide = async (RideID, AsDriverID, AssigningType = "Cron") => {
     let rides = await Rides.findById(RideID);
 
     if (rides.Status != 1 && rides.Status != 100) return;
@@ -75,7 +73,10 @@ module.exports = function (io) {
     rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
     rides.Driver = AssignDriver.DriverName;
     rides.AssignTime = getTime();
-    console.log("ridetime", rides.AssignTime);
+    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",AssigningType);
+    rides.AssigningType = AssigningType;
+    rides.RejectedRide.push(AssignDriver._id);
+
     await rides.save();
 
     if (!rides) return;
@@ -110,13 +111,14 @@ module.exports = function (io) {
 
   module.exports.AcceptRide = AcceptRide;
 
-  ///////////////////////////////////////////////////////////////       Cancel Ride          //////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////     Admin  Cancel Ride          //////////////////////////////////////////////////////////////////////
 
   CancelRide = async (RideID, DriverID) => {
     try {
       let ride = await Rides.findByIdAndUpdate(RideID, {
         Status: 0,
       });
+
       if (!ride) return;
 
       if (mongoose.Types.ObjectId.isValid(ride?.DriverId)) {
@@ -142,6 +144,41 @@ module.exports = function (io) {
 
   module.exports.CancelRide = CancelRide;
 
+  ///////////////////////////////////////////////////////////////     Driver Reject  Ride          //////////////////////////////////////////////////////////////////////
+
+  RejectRide = async (RideID, AsDriverID) => {
+    let ride = await Rides.findById(RideID);
+
+    if (!ride) return;
+
+    if (!AsDriverID) return;
+    let AssignDriver = await Driver.findById(AsDriverID);
+    if (!AssignDriver) return;
+
+    AssignDriver.status = "online";
+
+    await AssignDriver.save();
+
+    ride.Status = 100;
+    ride.DriverId = null;
+    ride.Driver = null;
+    ride.RejectedRide.push(AssignDriver._id);
+    ride.AssignTime = new Date().getTime();
+
+    await ride.save();
+
+    if (!ride) return;
+
+    ride = await GetRideDetail(ride._id);
+
+    io.emit("RejectRide", {
+      ride,
+      Driver: { id: AssignDriver._id, Status: AssignDriver.status },
+    });
+  };
+
+  module.exports.RejectRide = RejectRide;
+
   ///////////////////////////////////////////////////////////////       Not Reject  Ride          //////////////////////////////////////////////////////////////////////
 
   NotReactedRide = async (RideID) => {
@@ -158,8 +195,8 @@ module.exports = function (io) {
         ride.Status = 100;
         ride.DriverId = null;
         ride.Driver = null;
-        ride.AssignTime = getTime();
-        ride.RejectedRide.push(FoundDriver._id);
+        ride.AssignTime = new Date().getTime();
+        console.log(ride.RejectedRide);
         await ride.save();
 
         let rides = await GetRideDetail(RideID);
@@ -184,18 +221,14 @@ module.exports = function (io) {
   ///////////////////////////////////////////////////////////////       Free  Ride          //////////////////////////////////////////////////////////////////////
 
   freeRide = async (RideID) => {
-    console.log("free Ride");
     try {
       let ride = await Rides.findById(RideID);
-      // console.log("free Ride 1 ", ride);
       if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
-        console.log("free Ride 2");
         let FoundDriver = await Driver.findByIdAndUpdate(
           ride.DriverId,
           { status: "online" },
           { new: true }
         );
-        console.log("free Ride 3");
 
         ride.Status = 1;
         ride.DriverId = null;
@@ -203,28 +236,22 @@ module.exports = function (io) {
         ride.RideStatus = "Assigned";
         ride.RejectedRide = [];
         ride.AssignTime = null;
+        ride.AssigningType = "Cron";
+        
         await ride.save();
-        console.log("free Ride 4");
-
 
         ride = await GetRideDetail(ride._id);
-        console.log("free Ride 6");
         io.emit("noDriverFound", {
           ride,
           Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
         });
       } else {
-        console.log("free Ride 22");
         ride.Status = 1;
         ride.RideStatus = "Assigned";
         ride.RejectedRide = [];
         ride.AssignTime = null;
-        console.log("free Ride 23");
-
         await ride.save();
-        console.log("free Ride 24");
         ride = await GetRideDetail(ride._id);
-        console.log("free Ride 25");
         io.emit("noDriverFound", {
           ride,
         });
@@ -239,7 +266,6 @@ module.exports = function (io) {
   ///////////////////////////////////////////////////////////////       Get  FUll  Ride          //////////////////////////////////////////////////////////////////////
 
   async function GetRideDetail(ID) {
-    console.log("Id,", ID);
     const ride = await Rides.aggregate([
       {
         $match: {
@@ -284,6 +310,7 @@ module.exports = function (io) {
       },
     ]);
 
+    console.log("ride.length", ride.length);
     return ride[0];
   }
 };

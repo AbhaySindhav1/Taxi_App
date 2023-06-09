@@ -70,6 +70,10 @@ const RideSchema = mongoose.Schema(
     AssignTime:{
       type:Number,
       default:null
+    },
+    AssigningType:{
+      type:String,
+      default:"Cron"
     }
   },
   { timestamps: true }

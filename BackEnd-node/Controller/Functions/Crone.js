@@ -19,75 +19,60 @@ module.exports = function (io) {
   async function AssignRideToDriver(rides) {
     if (!rides) return;
     for await (const ride of rides) {
-      await Sockets.NotReactedRide(ride._id);
-      console.log(ride.AssignTime,Date.now());
-      if (ride.AssignTime && (ride.AssignTime <= Date.now())) {
-        console.log("ride 1");
-        console.log("1");
-        let driver = await GetDriver(ride);
-        console.log("2");
-        console.log(driver);
-
-        if (!driver) {
-          console.log("3");
-          await NoDriverFound(ride);
-          console.log("4");
-          return;
-        }
-        console.log("5");
-        await Sockets.AssignRide(ride._id, driver._id);
-        console.log("6");
+      console.log(ride.AssignTime, Date.now());
+      if (ride.AssignTime && ride.AssignTime <= Date.now()) {
+        console.log("ride aayyyyyvi", Date.now());
+        await AssignDriverToRide(ride);
       } else {
-        console.log("ride 2");
-        console.log("21");
-        await Wait(ride.AssignTime, ride);
+        console.log("51");
+        await Wait(ride);
+        console.log("wait pachi", Date.now());
       }
     }
   }
 
-  async function Wait(RideAssignedTime, ride) {
-    console.log("22");
-    let driver = await GetDriver(ride);
-    if (!driver) {
-      await NoDriverFound(ride);
-      return;
-    }
-
-    console.log("25", Date.now());
-
-    while (RideAssignedTime >= Date.now()) {}
-    console.log("26", Date.now());
-    await Sockets.NotReactedRide(ride._id);
-    await Sockets.AssignRide(ride._id, driver._id);
-    console.log("27");
+  async function Wait(ride) {
+    while (ride.AssignTime >= Date.now()) {}
+    await AssignDriverToRide(ride);
   }
 
   async function GetDriver(ride) {
-    console.log("23");
     let drivers = await getAvailableDrivers(
       ride.type,
       ride.RideCity,
       ride.RejectedRide
     );
-    console.log("24");
     return drivers;
   }
 
   async function NoDriverFound(ride) {
-    console.log("31");
     let hasBusyDriver = await getBusyDrivers(
       ride.type,
       ride.RideCity,
       ride.RejectedRide
     );
-    console.log("32",hasBusyDriver);
-    if (hasBusyDriver > 0) {
-      console.log("33");
-      return;
-    } else {
-      console.log("34");
+    return hasBusyDriver;
+  }
+
+  async function AssignDriverToRide(ride) {
+    if (ride.AssigningType == "single") {
+      console.log("freeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
       await Sockets.freeRide(ride._id);
-      console.log("35");
+      return;
+    }
+    await Sockets.NotReactedRide(ride._id);
+    let newdriver = await GetDriver(ride);
+    if (!newdriver) {
+      let busydriver = await NoDriverFound(ride);
+      if (busydriver >= 1) {
+        console.log("hello",ride.RejectedRide, ride._id);
+        return;
+      } else {
+        console.log("ha aya",busydriver,ride._id,"ha moj ha");
+        await Sockets.freeRide(ride._id);
+      }
+    } else {
+      await Sockets.AssignRide(ride._id, newdriver._id);
     }
   }
 };

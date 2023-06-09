@@ -64,6 +64,11 @@ export class DriverComponent implements OnInit {
         this.getStatus(data.Driver.DriverID, data.Driver.Status);
       }
     });
+    this.socketService.socket.on('RejectRide', (data: any) => {
+      if (data.Driver) {
+        this.getStatus(data.Driver.id, data.Driver.Status);
+      }
+    });
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
       this.getStatus(data.DriverInfo._id, data.DriverInfo.status);

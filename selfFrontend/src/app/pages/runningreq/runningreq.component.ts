@@ -31,16 +31,11 @@ export class RunningreqComponent implements OnInit {
     config.keyboard = false;
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
-      console.log(data);
+      this.initChange(data);
+    });
 
-      const index = this.RideList.findIndex(
-        (ride: any) => ride._id === data._id
-      );
-      if (index !== -1) {
-        this.RideList[index] = data;
-      } else {
-        this.RideList.push(data);
-      }
+    this.socketService.socket.on('RejectRide', (data: any) => {
+      this.initChange(data?.ride);
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
@@ -49,26 +44,27 @@ export class RunningreqComponent implements OnInit {
         return ride._id !== data._id;
       });
     });
+
     this.socketService.socket.on('noDriverFound', (data: any) => {
       this.RideList = this.RideList.filter((ride: any) => {
         return ride._id !== data.ride._id;
       });
     });
-    this.socketService.socket.on('NotReactedRide', (data: any) => {
-      console.log(data);
 
-      this.initRideDataChange(
-        data.rides._id,
-        data.rides.Status,
-        data.rides.DriverId,
-        data.rides.Driver
-      );
-    });
+    // this.socketService.socket.on('NotReactedRide', (data: any) => {
+    //   this.initRideDataChange(
+    //     data.rides._id,
+    //     data.rides.Status,
+    //     data.rides.DriverId,
+    //     data.rides.Driver
+    //   );
+    // });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
       this.CancelRide(data.Ride);
     });
   }
+
   ngOnInit(): void {
     this.GetRides();
   }
@@ -91,13 +87,13 @@ export class RunningreqComponent implements OnInit {
   }
 
   CancelRide(Ride: any) {
-    this.socketService.socket.emit('DriverResponse', { Ride, Status: 0 });
     this.RideList = this.RideList.filter((ride: any) => {
       return ride._id !== Ride._id;
     });
-    if (this.Interval) {
-      clearTimeout(this.Interval);
-    }
+  }
+
+  RejectRide(Ride: any) {
+    this.socketService.socket.emit('DriverResponse', { Ride, Status: 0 });
   }
 
   GetRides(event?: any) {
@@ -134,6 +130,15 @@ export class RunningreqComponent implements OnInit {
     const dialogRef = this.dialog.open(RideDetailComponent, {
       data: Ride,
     });
+  }
+
+  initChange(data: any) {
+    const index = this.RideList.findIndex((ride: any) => ride._id === data._id);
+    if (index !== -1) {
+      this.RideList[index] = data;
+    } else {
+      this.RideList.push(data);
+    }
   }
 
   open(content?: any) {

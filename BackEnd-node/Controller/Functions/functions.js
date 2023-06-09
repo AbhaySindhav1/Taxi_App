@@ -43,7 +43,8 @@ async function getUnassignedRequests() {
   }
 }
 
-async function getAvailableDrivers(VehicleType, RideCity,excludedDriverIds) {
+async function getAvailableDrivers(VehicleType, RideCity, excludedDriverIds) {
+  console.log(VehicleType, RideCity,"excludedDriverIds",excludedDriverIds);
   try {
     const pipeline = [
       {
@@ -53,20 +54,22 @@ async function getAvailableDrivers(VehicleType, RideCity,excludedDriverIds) {
             { status: "online" },
             { ServiceType: VehicleType },
             { DriverCity: RideCity },
-            { _id: { $nin: excludedDriverIds } }
+            { _id: { $nin: excludedDriverIds } },
           ],
         },
       },
     ];
-console.log("sdjhdsih");
+
     let drivers = await Driver.aggregate(pipeline);
-console.log(drivers.length);
+
+   
     return drivers[0];
+
   } catch (error) {
     console.log(error);
   }
 }
-async function getBusyDrivers(VehicleType, RideCity,excludedDriverIds) {
+async function getBusyDrivers(VehicleType, RideCity, excludedDriverIds) {
   try {
     const pipeline = [
       {
@@ -76,15 +79,15 @@ async function getBusyDrivers(VehicleType, RideCity,excludedDriverIds) {
             { status: "onRequest" },
             { ServiceType: VehicleType },
             { DriverCity: RideCity },
-            { _id: { $nin: excludedDriverIds } }
+            { _id: { $nin: excludedDriverIds } },
           ],
         },
       },
     ];
     let drivers = await Driver.aggregate(pipeline);
 
-    console.log("busyDriverlength",drivers.length);
-    return drivers.length;
+    console.log("busyDriverlength", drivers.length);
+    return drivers;
   } catch (error) {
     console.log(error);
   }
@@ -93,5 +96,5 @@ async function getBusyDrivers(VehicleType, RideCity,excludedDriverIds) {
 module.exports = {
   getAvailableDrivers,
   getUnassignedRequests,
-  getBusyDrivers
+  getBusyDrivers,
 };

@@ -194,9 +194,10 @@
                 class="btn btn-danger"
                 style="width: 70px; padding: 5px"
                 [disabled]="Ride.Status == 0"
-                (click)="CancelRide(Ride)"
-              >
-                Cancel
+                (click)="RejectRide(Ride)"
+                >
+                <!-- (click)="CancelRide(Ride)" -->
+                Reject
               </button>
             </div>
             <div>
