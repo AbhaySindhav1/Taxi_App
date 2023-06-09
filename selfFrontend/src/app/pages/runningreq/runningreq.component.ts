@@ -51,14 +51,14 @@ export class RunningreqComponent implements OnInit {
       });
     });
 
-    // this.socketService.socket.on('NotReactedRide', (data: any) => {
-    //   this.initRideDataChange(
-    //     data.rides._id,
-    //     data.rides.Status,
-    //     data.rides.DriverId,
-    //     data.rides.Driver
-    //   );
-    // });
+    this.socketService.socket.on('NotReactedRide', (data: any) => {
+      this.initRideDataChange(
+        data.rides._id,
+        data.rides.Status,
+        data.rides.DriverId,
+        data.rides.Driver
+      );
+    });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
       this.CancelRide(data.Ride);

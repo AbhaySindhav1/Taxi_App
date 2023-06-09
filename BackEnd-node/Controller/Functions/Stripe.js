@@ -1,6 +1,10 @@
-const stripe = require("stripe")(
-  "sk_test_51N93JqGPole4IExICnz9ZdhWYJVFis60b1B1R83OibSPoWksuWHuRGlep1Sd3eAzWrqagpaJVRzDTWRgNOvzOauP00IK98cVhT"
-);
+const path = require("path");
+const envPath = path.join(__dirname, "../../key.env");
+require("dotenv").config({ path: envPath });
+
+console.log(process.env.StripePrivateKey);
+
+const stripe = require("stripe")(process.env.StripePrivateKey);
 
 async function createCustomer(email, name) {
   try {
@@ -58,8 +62,8 @@ async function updateDefaultCard(customerId, cardId) {
   try {
     const updatedCustomer = await stripe.customers.update(customerId, {
       invoice_settings: {
-        default_payment_method: cardId
-      }
+        default_payment_method: cardId,
+      },
     });
     return updatedCustomer;
   } catch (error) {
@@ -82,5 +86,5 @@ module.exports = {
   retrievePaymentMethods,
   deletePaymentMethod,
   updateDefaultCard,
-  getCustomer
+  getCustomer,
 };

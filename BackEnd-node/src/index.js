@@ -4,7 +4,6 @@ const app = express();
 require("../Model/mongoose");
 const path = require("path");
 app.use(cors());
-const socket = require("socket.io");
 const UserRoute = require("../router/userRouter");
 const vehicleRoute = require("../router/vehicleRouter");
 const countryRoute = require("../router/countryRouter");

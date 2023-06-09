@@ -56,7 +56,6 @@ module.exports = function (io) {
 
   async function AssignDriverToRide(ride) {
     if (ride.AssigningType == "single") {
-      console.log("freeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
       await Sockets.freeRide(ride._id);
       return;
     }
@@ -64,11 +63,9 @@ module.exports = function (io) {
     let newdriver = await GetDriver(ride);
     if (!newdriver) {
       let busydriver = await NoDriverFound(ride);
-      if (busydriver >= 1) {
-        console.log("hello",ride.RejectedRide, ride._id);
+      if (busydriver.length >= 1) {
         return;
       } else {
-        console.log("ha aya",busydriver,ride._id,"ha moj ha");
         await Sockets.freeRide(ride._id);
       }
     } else {

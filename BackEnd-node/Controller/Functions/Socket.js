@@ -1,13 +1,17 @@
+const { default: mongoose } = require("mongoose");
 const Driver = require("../../Model/driverModel");
 const Rides = require("../../Model/createRideModel");
-
 const { getAvailableDrivers } = require("./functions");
 
-const { default: mongoose } = require("mongoose");
+const path = require("path")
+const envPath = path.join(__dirname, "../key.env");
+require("dotenv").config({ path: envPath });
+
+let reqTimeOut = process.env.ReqCronTime * 1000
 
 const users = {};
 function getTime() {
-  return new Date().getTime() + 20000;
+  return new Date().getTime() + reqTimeOut;
 }
 
 module.exports = function (io) {
@@ -25,7 +29,7 @@ module.exports = function (io) {
         CancelRide(data.rideID, data.driverID);
       }
       if (data.Status == "Assign") {
-        AssignRide(data.rideID, data.driverID, "single");
+        AssignRide(data.rideID, data.driverID,"single");
       }
     });
 
@@ -59,7 +63,7 @@ module.exports = function (io) {
 
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
-  AssignRide = async (RideID, AsDriverID, AssigningType = "Cron") => {
+  AssignRide = async (RideID, AsDriverID,AssigningType="Cron") => {
     let rides = await Rides.findById(RideID);
 
     if (rides.Status != 1 && rides.Status != 100) return;
@@ -73,7 +77,6 @@ module.exports = function (io) {
     rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
     rides.Driver = AssignDriver.DriverName;
     rides.AssignTime = getTime();
-    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",AssigningType);
     rides.AssigningType = AssigningType;
     rides.RejectedRide.push(AssignDriver._id);
 
@@ -162,7 +165,7 @@ module.exports = function (io) {
     ride.Status = 100;
     ride.DriverId = null;
     ride.Driver = null;
-    ride.RejectedRide.push(AssignDriver._id);
+    ride.RejectedRide.push(AssignDriver._id)
     ride.AssignTime = new Date().getTime();
 
     await ride.save();
@@ -236,8 +239,6 @@ module.exports = function (io) {
         ride.RideStatus = "Assigned";
         ride.RejectedRide = [];
         ride.AssignTime = null;
-        ride.AssigningType = "Cron";
-        
         await ride.save();
 
         ride = await GetRideDetail(ride._id);
@@ -313,4 +314,5 @@ module.exports = function (io) {
     console.log("ride.length", ride.length);
     return ride[0];
   }
+
 };

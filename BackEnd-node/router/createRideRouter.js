@@ -5,8 +5,12 @@ const router = new express.Router();
 const multer = require("multer");
 const upload = multer();
 const auth = require("../Controller/middleware/auth");
+const path = require("path");
 const mongoose = require("mongoose");
 const moment = require("moment");
+
+const envPath = path.join(__dirname, "../key.env");
+require("dotenv").config({ path: envPath });
 
 ////                                              ///  ADD Ride ///                                                                   ///
 

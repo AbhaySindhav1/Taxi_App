@@ -1,5 +1,12 @@
 const CreateRide = require("../../Model/createRideModel");
 const Driver = require("../../Model/driverModel");
+const path = require("path")
+const envPath = path.join(__dirname, "../key.env");
+require("dotenv").config({ path: envPath });
+const accountSid = process.env.smsID;
+const authToken = process.env.smsToken;
+
+const client = require("twilio")(accountSid, authToken);
 
 async function getUnassignedRequests() {
   try {
@@ -44,7 +51,6 @@ async function getUnassignedRequests() {
 }
 
 async function getAvailableDrivers(VehicleType, RideCity, excludedDriverIds) {
-  console.log(VehicleType, RideCity,"excludedDriverIds",excludedDriverIds);
   try {
     const pipeline = [
       {
@@ -62,9 +68,7 @@ async function getAvailableDrivers(VehicleType, RideCity, excludedDriverIds) {
 
     let drivers = await Driver.aggregate(pipeline);
 
-   
     return drivers[0];
-
   } catch (error) {
     console.log(error);
   }
@@ -93,8 +97,24 @@ async function getBusyDrivers(VehicleType, RideCity, excludedDriverIds) {
   }
 }
 
+async function sendMessages(
+  message,
+  from = "+13613153908",
+  to = "+916355032160"
+) {
+  client.messages
+    .create({
+      body: message,
+      from: from,
+      to: to,
+    })
+    .then((message) => console.log(message.sid));
+}
+
+
 module.exports = {
   getAvailableDrivers,
   getUnassignedRequests,
   getBusyDrivers,
+  sendMessages
 };

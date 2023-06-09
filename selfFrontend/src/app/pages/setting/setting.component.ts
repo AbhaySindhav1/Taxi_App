@@ -54,6 +54,7 @@ export class SettingComponent implements OnInit {
     });
   }
   onSave(id: any) {
+    
     if (!this.SettingForm.valid) {
       return;
     }
@@ -61,6 +62,12 @@ export class SettingComponent implements OnInit {
     formData.append('id', id);
     formData.append('RideStops', this.SettingForm.get('RideStops').value);
     formData.append('ReqCronTime', this.SettingForm.get('ReqCronTime').value);
+    formData.append('smsID', this.SettingForm.get('smsID').value);
+    formData.append('smsToken', this.SettingForm.get('smsToken').value);
+    formData.append('StripePublicKey', this.SettingForm.get('StripePublicKey').value);
+    formData.append('EmailID', this.SettingForm.get('EmailID').value);
+    formData.append('EmailSecret', this.SettingForm.get('EmailSecret').value);
+    formData.append('EmailToken', this.SettingForm.get('EmailToken').value);
 
     this.settingService.initChangeSettings(formData).subscribe({
       next: (data) => {
@@ -82,6 +89,13 @@ export class SettingComponent implements OnInit {
           this.SettingForm.patchValue({
             RideStops: data[0]?.RideStops,
             ReqCronTime: data[0]?.ReqCronTime,
+            smsID: data[0]?.smsID,
+            smsToken: data[0]?.smsToken,
+            StripePublicKey: data[0]?.StripePublicKey,
+            StripePrivateKey: data[0]?.StripePrivateKey,
+            EmailID: data[0]?.EmailID,
+            EmailSecret: data[0]?.EmailSecret,
+            EmailToken: data[0]?.EmailToken,
           });
         }
       },

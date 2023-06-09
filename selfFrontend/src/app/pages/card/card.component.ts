@@ -32,10 +32,11 @@ export class CardComponent implements OnInit {
   ) {}
 
   cards: any;
+  StripePublicKey:any;
 
   async loadStripe() {
     this.stripe = await loadStripe(
-      'pk_test_51N93JqGPole4IExIKCJEeJeBeKyHTnvzng0TyDxVkWRypNfpHBpHOKVTmLJ2c7uRvdnRVTGvlbh2LsD95VEGWTdT00iQYhTiR0'
+      'pk_test_51N93JqGPole4IExIKCJEeJeBeKyHTnvzng0TyDxVkWRypNfpHBpHOKVTmLJ2c7uRvdnRVTGvlbh2LsD95VEGWTdT00iQYhTiR0'  /// StripePublicKey
     );
   }
 

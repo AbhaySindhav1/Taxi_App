@@ -49,11 +49,11 @@ export class ConfirmRideComponent implements OnInit {
       this.replaceRow(data);
     });
 
-    // this.socketService.socket.on('NotReactedRide', (data: any) => {
-    //   console.log(data);
-    //   this.replaceRow(data.rides);
-    // });
-    
+    this.socketService.socket.on('NotReactedRide', (data: any) => {
+      console.log(data);
+      this.replaceRow(data.rides);
+    });
+
     this.socketService.socket.on('RejectRide', (data: any) => {
       this.replaceRow(data.ride);
     });
@@ -106,6 +106,7 @@ export class ConfirmRideComponent implements OnInit {
         this.driverData = data;
       },
       error: (error) => {
+        console.log(error);
         this.toastr.error(error);
       },
     });
