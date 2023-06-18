@@ -118,28 +118,7 @@ export class UsersComponent implements OnInit {
     this.selectedFile = event.target.files[0];
   }
 
-  // onSearchUsers(sortColomnn?: any) {
-  //   let searchValue;
-  //   if (!(document.getElementById('searchBtn') as HTMLInputElement)) {
-  //     searchValue = '';
-  //   } else {
-  //     searchValue = (document.getElementById('searchBtn') as HTMLInputElement)
-  //       .value;
-  //   }
 
-  //   this.usersService.initGetUsers(searchValue, sortColomnn).subscribe({
-  //     next: (data) => {
-  //       this.UsersData = data;
-  //       this.initReset();
-  //     },
-  //     error: (error) => {
-  //       console.log(error);
-
-  //       this.error = error;
-  //       this.displayerror = true;
-  //     },
-  //   });
-  // }
 
   onSearchUsers(sortColomnn?: any) {
     this.sortColomn = sortColomnn;
@@ -177,7 +156,6 @@ export class UsersComponent implements OnInit {
   }
 
   initReset() {
-    // this.isSearchMode = false;
     this.selectedFile = null;
     this.isSubmitted = false;
     this.displayerror = false;

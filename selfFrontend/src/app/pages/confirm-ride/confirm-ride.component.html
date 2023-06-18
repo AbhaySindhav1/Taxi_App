@@ -5,10 +5,13 @@
       <select id="Status" name="Status" formControlName="Status">
         <option value="null" selected>Select Status</option>
 
+        <option value="0">Cancelled</option>
+        <option value="1">Pending</option>
         <option value="2">Accepted</option>
         <option value="3">Arrived</option>
         <option value="4">Started</option>
         <option value="5">Completed</option>
+        <option value="100">Assigning</option>
       </select>
     </div>
     <div class="Vehicle-select select d-column">
@@ -276,6 +279,14 @@
                 ? "Assigning"
                 : Ride.Status === 2
                 ? "Accepted"
+                : Ride.Status === 0
+                ? "Cancelled"
+                : Ride.Status === 3
+                ? "Arrived"
+                : Ride.Status === 4
+                ? "Started"
+                : Ride.Status === 5
+                ? "Completed"
                 : ""
             }}
           </td>
@@ -328,7 +339,7 @@
                   data-target="#staticBackdrop"
                   *ngIf="!Ride.Driver"
                 >
-                {{ Ride?.RideStatus == "Assigned"? "ReAssign":"Assign"}}
+                  {{ Ride?.RideStatus == "Assigned" ? "ReAssign" : "Assign" }}
                 </button>
                 <button
                   class="btn btn-danger"
@@ -339,12 +350,17 @@
                   Cancel
                 </button>
               </div>
-              <div *ngIf="Ride.Driver"  style="
-              min-width: 200px;
-              display: flex;
-              align-items: center;
-              justify-content: space-evenly;
-            ">{{ Ride.Driver }}</div>
+              <div
+                *ngIf="Ride.Driver"
+                style="
+                  min-width: 200px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-evenly;
+                "
+              >
+                {{ Ride.Driver }}
+              </div>
             </div>
           </td>
         </tr>
@@ -355,7 +371,7 @@
   <div style="float: right; margin-right: 50px; margin: 0px 40px 40px auto">
     <pagination-controls
       class="paginationlink"
-      (pageChange)="GetAllData($event)"
+      (pageChange)="Filter($event)"
     ></pagination-controls>
   </div>
 </div>

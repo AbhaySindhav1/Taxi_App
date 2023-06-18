@@ -246,6 +246,41 @@
       </div>
 
       <div class="controller" style="margin: 10px 0px">
+        <label for="DropPoint">Ride Time :</label>
+        <div >
+          <label style="margin: 5px 10px;">
+            <input
+              type="radio"
+              [value]="true"
+              [checked]="RideDetailsForm.get('bookingType').value === true"
+              (change)="handleBookingTypeChange(true)"
+            />
+            Book Now
+          </label>
+
+          <label style="margin: 5px 10px;">
+            <input
+              type="radio"
+              [value]="false"
+              [checked]="RideDetailsForm.get('bookingType').value === false"
+              (change)="handleBookingTypeChange(false)"
+            />
+            Schedule Time
+          </label>
+        </div>
+        <div>
+          <input
+            type="datetime-local"
+            name="Time"
+            id="Time"
+            class="form-control"
+            formControlName="Time"
+            *ngIf="!RideDetailsForm.get('bookingType').value"
+          />
+        </div>
+      </div>
+
+      <!-- <div class="controller" style="margin: 10px 0px">
         <label for="DropPoint">Ride Time</label>
         <br />
         <label>
@@ -277,7 +312,7 @@
           formControlName="Time"
           *ngIf="RideDetailsForm.get('scheduleTime').value === 'scheduleTime'"
         />
-      </div>
+      </div> -->
 
       <div
         class="trip-details"
@@ -286,12 +321,13 @@
       >
         <p id="Distance">Distance : {{ tripDetails.Distance }}</p>
         <p id="time">Time : {{ tripDetails.Time }}</p>
-        <p id="time">Services Fees : {{TripCharge }}</p>
+        <p id="time">Services Fees : {{ TripCharge }}</p>
       </div>
-      
 
       <div id="btn-container">
-        <button type="submit" class="btn bg-success" [disabled]="!TripCharge">Book Ride</button>
+        <button type="submit" class="btn bg-success" [disabled]="!TripCharge">
+          Book Ride
+        </button>
         <button type="button" class="btn bg-danger" (click)="OnReset()">
           Cancel
         </button>

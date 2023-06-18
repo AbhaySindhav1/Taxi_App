@@ -2,8 +2,6 @@ const path = require("path");
 const envPath = path.join(__dirname, "../../key.env");
 require("dotenv").config({ path: envPath });
 
-console.log(process.env.StripePrivateKey);
-
 const stripe = require("stripe")(process.env.StripePrivateKey);
 
 async function createCustomer(email, name) {

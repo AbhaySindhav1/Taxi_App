@@ -19,9 +19,11 @@ export class RideService {
     }
   }
 
-  initGetAllRides() {
-    return this.http.get<any>('http://localhost:3000/Ride');
+  initGetAllRides(data: any) {
+    console.log(data);
+    return this.http.post<any>('http://localhost:3000/GetRides', data);
   }
+
   GetAllRides() {
     return this.http.get<any>('http://localhost:3000/Ride/Assigned');
   }
@@ -63,7 +65,7 @@ export class RideService {
       return 'Completed';
     } else if (Status == 100) {
       return 'Assigning';
-    } 
-    return 'Unknown'
+    }
+    return 'Unknown';
   }
 }

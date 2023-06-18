@@ -161,38 +161,50 @@ export class ConfirmRideComponent implements OnInit {
 
   ////////////////////////////////////////////////////////////    Get  Filter  Rides      /////////////////////////////////////////////////////////////////////
 
-  Filter() {
-    let form = new FormData();
+  Filter(event?: any) {
+    // let form = new FormData();
 
-    form.append('Search', this.RideSearchForm.get('Search').value);
-    form.append('Type', this.RideSearchForm.get('Type').value);
-    form.append('FromDate', this.RideSearchForm.get('FromDate').value);
-    form.append('toDate', this.RideSearchForm.get('toDate').value);
-    form.append('Status', this.RideSearchForm.get('Status').value);
+    // form.append('Search', this.RideSearchForm.get('Search').value);
+    // form.append('Type', this.RideSearchForm.get('Type').value);
+    // form.append('FromDate', this.RideSearchForm.get('FromDate').value);
+    // form.append('toDate', this.RideSearchForm.get('toDate').value);
+    // form.append('Status', this.RideSearchForm.get('Status').value);
+    let form = {
+      Search: this.RideSearchForm.get('Search').value,
+      Type: this.RideSearchForm.get('Type').value,
+      FromDate: this.RideSearchForm.get('FromDate').value,
+      toDate: this.RideSearchForm.get('toDate').value,
+      Status: this.RideSearchForm.get('Status').value,
+    };
 
-    this.rideService.initFilterRide(form).subscribe({
-      next: (data) => {
-        this.RideList = data;
-      },
-      error: (error) => {
-        console.log(error);
-      },
-    });
+    this.GetAllData(event, form);
   }
 
   ////////////////////////////////////////////////////////////    Get   All  Rides      /////////////////////////////////////////////////////////////////////
 
-  GetAllData(event?: any) {
-    this.rideService.initGetAllRides().subscribe({
+  GetAllData(event?: any, formdata?: any) {
+    console.log(event, formdata);
+
+    if (this.totalRides < this.limit * this.page) {
+      this.page = 1;
+    }
+    let data = {
+      limit: +this.limit,
+      page: event ? event : this.page,
+      filter: formdata ? formdata : null,
+    };
+
+    this.page = event ? event : this.page;
+
+    this.rideService.initGetAllRides(data).subscribe({
       next: (data) => {
-        data.forEach((element: any) => {
+        console.log(data);
+
+        data.Rides.forEach((element: any) => {
           element.Stops = JSON.parse(element.Stops);
         });
-        this.RideList = data.filter((ride: any) => {
-          return ride.Status === 1 || ride.Status === 2 || ride.Status === 100;
-        });
-        this.totalRides = this.RideList.length;
-        this.RideList = data;
+        this.RideList = data.Rides;
+        this.totalRides = data.totalRide;
       },
     });
   }

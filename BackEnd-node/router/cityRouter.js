@@ -4,7 +4,6 @@ const auth = require("../Controller/middleware/auth");
 const { handleUpload } = require("../Controller/middleware/multer");
 const City = require("../Model/cityModel");
 const mongoose = require("mongoose");
-const { Types } = require("mongoose");
 
 /////////////////////////////////////////////////////////          Add City         ////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,8 +100,6 @@ router.get("/CityCountry", auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Get zONES         ////////////////////////////////////////////////////////////////////////////////////
 
 router.get("/CityCountryZone", auth, async (req, res) => {
-  // const searchQuery = req.query.Value || "";
-  // const regext = new RegExp(searchQuery, "i");
   try {
     const Zones = await City.find({}).select("-_id zone").distinct("zone");
     res.status(200).send(Zones);
@@ -130,11 +127,6 @@ router.get("/CityCordinates", auth, async (req, res) => {
           },
         },
       },
-      // {
-      //   $match: {
-      //     city: req.query.city,
-      //   },
-      // },
     ]);
     res.status(200).send(Cord[0]);
   } catch (error) {
@@ -179,20 +171,6 @@ router.patch("/city/:id", auth, handleUpload, async (req, res) => {
     } else {
       res.status(400).send(error.toString());
     }
-  }
-});
-
-//                                                        //   Delete   Country  //                                                                          //
-
-router.delete("/city/:id", auth, async (req, res) => {
-  try {
-    const city = await City.findByIdAndDelete(req.params.id);
-    if (!city) {
-      return new Error("city not Found");
-    }
-    res.status(200).send(city);
-  } catch (error) {
-    res.status(400).send(error);
   }
 });
 

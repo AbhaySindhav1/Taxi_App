@@ -97,12 +97,23 @@ export class RunningreqComponent implements OnInit {
   }
 
   GetRides(event?: any) {
-    this.rideService.GetAllRides().subscribe({
+    if (this.totalRides < this.limit * this.page) {
+      this.page = 1;
+    }
+    let data = {
+      limit: +this.limit,
+      page: event ? event : this.page,
+      status: [100],
+    };
+
+    this.page = event ? event : this.page;
+
+    this.rideService.initGetAllRides(data).subscribe({
       next: (data) => {
-        this.RideList = data.filter((ride: any) => {
-          return ride.Status === 100;
-        });
-        this.totalRides = this.RideList.length;
+        console.log(data);
+
+        this.RideList = data.Rides;
+        this.totalRides = data.totalRide;
       },
     });
   }

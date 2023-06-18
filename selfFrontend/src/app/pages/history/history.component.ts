@@ -23,14 +23,23 @@ export class HistoryComponent implements OnInit {
   }
 
   GetRideHistory(event?: any) {
+    if (this.totalRides < this.limit * this.page) {
+      this.page = 1;
+    }
+    let data = {
+      limit: +this.limit,
+      page: event ? event : this.page,
+      status: [0, 5],
+    };
+
     this.page = event ? event : this.page;
 
-    this.rideService.GetAllRides().subscribe({
+    this.rideService.initGetAllRides(data).subscribe({
       next: (data) => {
-        this.RideList = data.filter((ride: any) => {
-          return ride.Status === 0 || ride.Status === 5;
-        });
-        this.totalRides = this.RideList.length;
+        console.log(data);
+        
+        this.RideList = data.Rides;
+        this.totalRides = data.totalRide;
       },
     });
   }

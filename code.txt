@@ -724,3 +724,83 @@ async function GetRideDetail(ID) {
   ]);
   return ride[0];
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////                                              ///  Edit  Ride ///                                                                   ///
+
+// router.patch("/Ride/:id", auth, upload.none(), async (req, res) => {
+//   let fieldtoupdate = Object.keys(req.body);
+//   if ((req.body.DriverId === "undefined") | null | "null" | "") {
+//     req.body.DriverId = null;
+//   } else if (
+//     req.body.DriverId &&
+//     !mongoose.Types.ObjectId.isValid(req.body.DriverId)
+//   ) {
+//   }
+
+//   try {
+//     const Ride = await CreateRide.findById(req.params.id);
+//     // const driver = await Driver.findByIdAndUpdate(
+//     //   { _id: req.body.DriverId },
+//     //   { status: "online" },
+//     //   { new: true }
+//     // );
+//     fieldtoupdate.forEach((field) => {
+//       Ride[field] = req.body[field];
+//     });
+//     await Ride.save();
+//     res.status(200).json({ change: "updated", Ride });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).json(error);
+//   }
+// });
+
+////                                              ///  Ride History   ///                                                                   ///
+
+// router.get("/Ride/History", async (req, res) => {
+//   try {
+//     const Rides = await CreateRide.find({
+//       $or: [{ Status: 0 }, { Status: 6 }],
+//     });
+//     res.status(200).send(Rides);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).send(error);
+//   }
+// });
+
+
+
+
+
+
+
+
+//                                                        //   Delete   Country  //                                                                          //
+
+router.delete("/city/:id", auth, async (req, res) => {
+  try {
+    const city = await City.findByIdAndDelete(req.params.id);
+    if (!city) {
+      return new Error("city not Found");
+    }
+    res.status(200).send(city);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
