@@ -5,6 +5,8 @@ const fs = require("fs");
 const router = new express.Router();
 const auth = require("../Controller/middleware/auth");
 const { handleUserUpload } = require("../Controller/middleware/multer");
+const { sendMail } = require("../Controller/Functions/nodeMailer");
+
 const {
   createCustomer,
   SetUpIntant,
@@ -41,8 +43,10 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
 
     await myUser.save();
 
+    sendMail(myUser.UserEmail, "WelCome", "You Registred Successfully");
+
     res.status(201).send({
-      massage: "User Created",
+      massage: "You Registred Successfully",
       code: 1,
       UserEmail: myUser.UserEmail,
       id: myUser._id,
@@ -88,7 +92,7 @@ router.post("/MyUser/getUsers", auth, async (req, res) => {
     skip: (page - 1) * limit,
     limit: limit,
   };
-  
+
   let users;
   let totalCount;
   try {
@@ -99,7 +103,6 @@ router.post("/MyUser/getUsers", auth, async (req, res) => {
       regext = new RegExp(`${searchQuery}`, "i");
     }
     if (!mongoose.Types.ObjectId.isValid(req.query.Value)) {
-
       totalCount = await Users.countDocuments({
         $or: [
           { UserName: regext },
@@ -120,7 +123,6 @@ router.post("/MyUser/getUsers", auth, async (req, res) => {
         options // Use the options object for pagination
       );
     } else {
-
       totalCount = await Users.countDocuments({
         $or: [
           { UserName: regext },
@@ -142,7 +144,7 @@ router.post("/MyUser/getUsers", auth, async (req, res) => {
         options // Use the options object for pagination
       );
     }
-    res.status(200).send({users,totalCount});
+    res.status(200).send({ users, totalCount });
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
@@ -179,7 +181,13 @@ router.patch("/MyUser/:id", auth, handleUserUpload, async (req, res) => {
         }
       });
     }
-    res.status(200).json("updated");
+
+    res.status(200).json({
+      massage: "You updated Successfully",
+      code: 1,
+      UserEmail: myUser.UserEmail,
+      id: myUser._id,
+    });
   } catch (error) {
     if (req.file) {
       const image = `uploads/Users/${req.file.filename}`;

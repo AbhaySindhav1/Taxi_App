@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from 'src/app/Services/users.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CardComponent } from '../card/card.component';
+import { Toast, ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-users',
@@ -24,7 +25,11 @@ export class UsersComponent implements OnInit {
   totalUser: any;
   limit = 10;
 
-  constructor(private usersService: UsersService, public dialog: MatDialog) {
+  constructor(
+    private usersService: UsersService,
+    public dialog: MatDialog,
+    private toastr: ToastrService
+  ) {
     this.UsersForm = new FormGroup({
       UserFile: new FormControl(null),
       UserName: new FormControl(null, [Validators.required]),
@@ -67,39 +72,37 @@ export class UsersComponent implements OnInit {
     if (!this.isEditMode) {
       this.usersService.initUsers(formData).subscribe({
         next: (data) => {
+          console.log(data);
+
           this.getAllUserReq();
           this.initReset();
+          this.toastr.success(data.massage);
         },
         error: (error) => {
-          console.log(error);
-
           if (error.error && error.error.sizeError) {
-            this.error = error.error.sizeError;
+            this.toastr.error(error.error.sizeError);
           } else if (error.error && error.error.fileError) {
-            this.error = error.error.fileError;
+            this.toastr.error(error.error.fileError);
           } else {
-            this.error = error.error;
+            this.toastr.error(error.error);
           }
-          this.displayerror = true;
         },
       });
     } else {
       this.usersService.initEditUsers(this.userId, formData).subscribe({
-        next: (data) => {
+        next: (data: any) => {
           this.getAllUserReq();
           this.initReset();
+          this.toastr.success(data.massage);
         },
         error: (error) => {
-          console.log(error);
-
           if (error.error && error.error.sizeError) {
-            this.error = error.error.sizeError;
+            this.toastr.error(error.error.sizeError);
           } else if (error.error && error.error.fileError) {
-            this.error = error.error.fileError;
+            this.toastr.error(error.error.fileError);
           } else {
-            this.error = error.error;
+            this.toastr.error(error.error);
           }
-          this.displayerror = true;
         },
       });
     }
@@ -118,11 +121,9 @@ export class UsersComponent implements OnInit {
     this.selectedFile = event.target.files[0];
   }
 
-
-
   onSearchUsers(sortColomnn?: any) {
     this.sortColomn = sortColomnn;
-    this.getAllUserReq()
+    this.getAllUserReq();
   }
 
   oncencel() {
@@ -143,17 +144,16 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  onDeleteUser(id: any) {
-    this.usersService.initDeleteUsers(id).subscribe({
-      next: (data) => {
-        this.getAllUserReq();
-      },
-      error: (error) => {
-        this.error = error.error;
-        this.displayerror = true;
-      },
-    });
-  }
+  // onDeleteUser(id: any) {
+  //   this.usersService.initDeleteUsers(id).subscribe({
+  //     next: (data) => {
+  //       this.getAllUserReq();
+  //     },
+  //     error: (error) => {
+  //       this.toastr.error(error.error);
+  //     },
+  //   });
+  // }
 
   initReset() {
     this.selectedFile = null;
@@ -165,8 +165,8 @@ export class UsersComponent implements OnInit {
     this.UsersForm.reset();
   }
 
-  getAllUserReq(event?: any) {   
-    if(this.totalUser < this.limit*this.p){
+  getAllUserReq(event?: any) {
+    if (this.totalUser < this.limit * this.p) {
       this.p = 1;
     }
     let data = {
@@ -174,7 +174,7 @@ export class UsersComponent implements OnInit {
       searchValue: (document.getElementById('searchBtn') as HTMLInputElement)
         ?.value,
       page: event ? event : this.p,
-      sortColomn:this.sortColomn
+      sortColomn: this.sortColomn,
     };
 
     this.p = event ? event : this.p;
@@ -186,10 +186,7 @@ export class UsersComponent implements OnInit {
         this.initReset();
       },
       error: (error) => {
-        console.log(error);
-
-        this.error = error;
-        this.displayerror = true;
+        this.toastr.error(error);
       },
     });
   }

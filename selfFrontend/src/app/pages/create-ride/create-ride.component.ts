@@ -59,6 +59,8 @@ export class CreateRideComponent implements OnInit {
       DropPoint: new FormControl(null, [Validators.required]),
       VehicleSelector: new FormControl(null, [Validators.required]),
       Time: new FormControl(null),
+      PaymentType: new FormControl('Cash', [Validators.required]),
+      PaymentId: new FormControl(null),
       bookingType: new FormControl(true),
     });
   }
@@ -79,6 +81,15 @@ export class CreateRideComponent implements OnInit {
     });
   }
 
+  handlePaymentTypeChange(type: any) {
+    this.RideDetailsForm.patchValue({
+      PaymentType: type,
+    });
+    if (type == 'Card') {
+      console.log(this.user);
+    }
+  }
+
   onInput(e: any) {
     if (e.value.length === 10) {
       e.value = e.value.substring(0, 10);
@@ -90,6 +101,7 @@ export class CreateRideComponent implements OnInit {
       this.usersService.initGetUsers({ searchValue: number }).subscribe({
         next: (data) => {
           if (data.users.length === 0) {
+            this.user = null;
             this.toastr.error('no user found');
             return;
           } else {

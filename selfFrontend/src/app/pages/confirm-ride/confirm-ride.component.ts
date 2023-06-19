@@ -191,6 +191,7 @@ export class ConfirmRideComponent implements OnInit {
     let data = {
       limit: +this.limit,
       page: event ? event : this.page,
+      status:[1,2,3,4,5,100],
       filter: formdata ? formdata : null,
     };
 

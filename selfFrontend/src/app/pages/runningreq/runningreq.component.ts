@@ -125,12 +125,15 @@ export class RunningreqComponent implements OnInit {
     RideDriver: any
   ) {
     if (!rideID) return;
-    const ride = this.RideList.find((r: any) => r._id === rideID);
-    if (RideStatus) {
-      ride.Status = RideStatus;
+    if (this.RideList) {
+      const ride = this.RideList.find((r: any) => r._id === rideID);
+
+      if (RideStatus) {
+        ride.Status = RideStatus;
+      }
+      ride.DriverId = RideDriverId;
+      ride.Driver = RideDriver;
     }
-    ride.DriverId = RideDriverId;
-    ride.Driver = RideDriver;
   }
 
   initStatus(status: any) {

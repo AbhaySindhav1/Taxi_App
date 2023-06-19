@@ -15,6 +15,7 @@ const createRideRoute = require("../router/createRideRouter");
 const settingRoute = require("../router/settingRouter");
 const Sockets = require("../Controller/Functions/Socket");
 const Crone = require("../Controller/Functions/Crone");
+const NodeMailer = require("../Controller/Functions/nodeMailer");
 
 const bodyParser = require("body-parser");
 const envPath = path.join(__dirname, "../key.env");
