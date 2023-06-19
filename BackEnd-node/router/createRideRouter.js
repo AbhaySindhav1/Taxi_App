@@ -137,7 +137,10 @@ router.post("/GetRides", upload.none(), auth, async (req, res) => {
         });
       } else {
         filterConditions.push({
-          "userInfo.UserName": { $regex: Search, $options: "i" },
+          $or: [
+            { "userInfo.UserName": Search },
+            { "userInfo.UserPhone": { $regex: Search, $options: "i" } },
+          ],
         });
       }
     }
@@ -198,6 +201,5 @@ router.post("/GetRides", upload.none(), auth, async (req, res) => {
     res.status(400).send(error);
   }
 });
-
 
 module.exports = router;

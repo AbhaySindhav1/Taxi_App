@@ -19,22 +19,24 @@ module.exports = function (io) {
   async function AssignRideToDriver(rides) {
     if (!rides) return;
     for await (const ride of rides) {
-      console.log(ride.AssignTime, Date.now());
-      if (ride.AssignTime && ride.AssignTime <= Date.now()) {
-        console.log("ride aayyyyyvi", Date.now());
-        await AssignDriverToRide(ride);
-      } else {
-        console.log("51");
-        await Wait(ride);
-        console.log("wait pachi", Date.now());
-      }
+      await CheckTimeOut(ride);
     }
   }
 
-  async function Wait(ride) {
-    while (ride.AssignTime >= Date.now()) {}
-    await AssignDriverToRide(ride);
+  async function CheckTimeOut(ride) {
+    function CheckTime(ride) {
+      if (ride.AssignTime && ride.AssignTime <= Date.now()) {
+        AssignDriverToRide(ride);
+      } else {
+        setImmediate(() => CheckTime(ride));
+      }
+    }
+    CheckTime(ride);
   }
+  // async function Wait(ride) {
+  //   while (ride.AssignTime >= Date.now()) {}
+  //   await AssignDriverToRide(ride);
+  // }
 
   async function GetDriver(ride) {
     let drivers = await getAvailableDrivers(

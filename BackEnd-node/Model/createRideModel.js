@@ -57,7 +57,7 @@ const RideSchema = mongoose.Schema(
     },
     RideStatus: {
       type: String,
-      default: 'New',
+      default: "New",
     },
     RideCity: {
       type: mongoose.Types.ObjectId,
@@ -67,16 +67,20 @@ const RideSchema = mongoose.Schema(
       type: Array,
       default: null,
     },
-    AssignTime:{
-      type:Number,
-      default:null
+    AssignTime: {
+      type: Number,
+      default: null,
     },
-    AssigningType:{
-      type:String,
-      default:"Cron"
-    }
+    AssigningType: {
+      type: String,
+      default: "Cron",
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
+  {
+    versionKey: "version", // Add a version key field
+    optimisticConcurrency: true, // Enable optimistic concurrency control
+  }
 );
 const CreateRide = mongoose.model("Ride", RideSchema);
 
