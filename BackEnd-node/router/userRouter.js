@@ -9,19 +9,17 @@ router.post("/User", async (req, res) => {
   try {
     await user.save();
     const token = await user.GenerateToken();
-    res
-      .status(201)
-      .send({
-        massage: "Sing Up",
-        code: 1,
-        token: token.token,
-        expirationDate: token.exp,
-        email: user.email,
-        id: user._id,
-      });
+    res.status(201).send({
+      massage: "Sing Up",
+      code: 1,
+      token: token.token,
+      expirationDate: token.exp,
+      email: user.email,
+      id: user._id,
+    });
   } catch (error) {
     if (error.keyPattern.email) {
-      res.status(400).send({ email: "Email Already Exists", error });
+      res.status(400).send("Email Already Exists");
     }
   }
 });
@@ -37,16 +35,14 @@ router.post("/UserLogin", async (req, res) => {
       req.body.password
     );
     const usertoken = await user.GenerateToken();
-    res
-      .status(200)
-      .send({
-        massage: "log in",
-        code: 2,
-        expirationDate: usertoken.exp,
-        token: usertoken.token,
-        email: user.email,
-        id: user._id,
-      });
+    res.status(200).send({
+      massage: "log in",
+      code: 2,
+      expirationDate: usertoken.exp,
+      token: usertoken.token,
+      email: user.email,
+      id: user._id,
+    });
   } catch (error) {
     res.status(400).send("unable to login");
   }

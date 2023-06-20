@@ -5,6 +5,8 @@ import { RideService } from 'src/app/Services/ride.service';
 import { UsersService } from 'src/app/Services/users.service';
 import { PricingService } from 'src/app/Services/pricing.service';
 import { SettingService } from 'src/app/Services/setting.service';
+import { CardComponent } from '../card/card.component';
+import { MatDialog } from '@angular/material/dialog';
 
 declare var google: any;
 let directionsRenderer = new google.maps.DirectionsRenderer();
@@ -36,13 +38,15 @@ export class CreateRideComponent implements OnInit {
   TripCharge: any;
   ways: any;
   maxStops: any;
+  Cards: any;
 
   constructor(
     private usersService: UsersService,
     private rideService: RideService,
     private toastr: ToastrService,
     private pricingService: PricingService,
-    private SettingsService: SettingService
+    private SettingsService: SettingService,
+    public dialog: MatDialog
   ) {
     this.RideForm = new FormGroup({
       UserPhone: new FormControl(null, [
@@ -79,6 +83,11 @@ export class CreateRideComponent implements OnInit {
     this.RideDetailsForm.patchValue({
       bookingType: type,
     });
+    if ((type = 'Cash')) {
+      this.RideDetailsForm.patchValue({
+        PaymentId: type,
+      });
+    }
   }
 
   handlePaymentTypeChange(type: any) {
@@ -86,8 +95,37 @@ export class CreateRideComponent implements OnInit {
       PaymentType: type,
     });
     if (type == 'Card') {
-      console.log(this.user);
+      this.getCards();
     }
+  }
+
+  openDialog(user: any) {
+    const dialogRef = this.dialog.open(CardComponent, {
+      width: '600px',
+      data: user,
+    });
+  }
+
+  ChangePayment(id: any) {
+    console.log(id);
+
+    this.RideDetailsForm.patchValue({
+      PaymentId: id,
+    });
+    console.log(this.RideDetailsForm.get('PaymentId').value);
+  }
+
+  async getCards() {
+    const res = await fetch(
+      'http://localhost:3000/StripeInt/payments/' + this.user._id,
+      {
+        method: 'POST',
+      }
+    );
+    let PaymentsData = await res.json();
+
+    this.Cards = PaymentsData;
+    console.log(this.Cards);
   }
 
   onInput(e: any) {
@@ -331,6 +369,8 @@ export class CreateRideComponent implements OnInit {
   }
 
   OnRideDetailsFormSubmit() {
+    console.log(this.RideDetailsForm.get('PaymentId').value);
+
     this.isSubmitted = true;
     if (!this.RideDetailsForm.valid) {
       return;
@@ -343,6 +383,7 @@ export class CreateRideComponent implements OnInit {
     formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
     formData.append('Distance', this.tripDetails.Distance);
     formData.append('Time', this.tripDetails.Time);
+    formData.append('PaymentId',this.RideDetailsForm.get('PaymentId').value);
     formData.append('RideCity', this.isServiceZone._id);
     formData.append(
       'PickupPoint',
@@ -457,6 +498,7 @@ export class CreateRideComponent implements OnInit {
     this.RideDetailsForm.reset();
     this.RideDetailsForm.patchValue({
       bookingType: true,
+      PaymentType: 'Cash',
     });
   }
 }

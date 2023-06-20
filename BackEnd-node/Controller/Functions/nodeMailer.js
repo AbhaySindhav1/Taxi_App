@@ -6,13 +6,9 @@ console.log(envPath);
 require("dotenv").config({ path: envPath });
 
 const CLIENT_ID = process.env.EmailID;
-console.log("Client_ID", CLIENT_ID);
 const CLIENT_SECRET = process.env.EmailSecret;
-console.log("Client_Secret", CLIENT_SECRET);
 const REDIRECT_URI = process.env.Redirect_Url;
-console.log("Redirect_Url", REDIRECT_URI);
 const REFRESH_TOKEN = process.env.EmailToken;
-console.log("Refresh_Token", REFRESH_TOKEN);
 
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,

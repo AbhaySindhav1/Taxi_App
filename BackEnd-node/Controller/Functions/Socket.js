@@ -3,11 +3,11 @@ const Driver = require("../../Model/driverModel");
 const Rides = require("../../Model/createRideModel");
 const { getAvailableDrivers } = require("./functions");
 
-const path = require("path")
+const path = require("path");
 const envPath = path.join(__dirname, "../key.env");
 require("dotenv").config({ path: envPath });
 
-let reqTimeOut = process.env.ReqCronTime * 1000
+let reqTimeOut = process.env.ReqCronTime * 1000;
 
 const users = {};
 function getTime() {
@@ -29,7 +29,7 @@ module.exports = function (io) {
         CancelRide(data.rideID, data.driverID);
       }
       if (data.Status == "Assign") {
-        AssignRide(data.rideID, data.driverID,"single");
+        AssignRide(data.rideID, data.driverID, "single");
       }
     });
 
@@ -63,7 +63,7 @@ module.exports = function (io) {
 
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
-  AssignRide = async (RideID, AsDriverID,AssigningType="Cron") => {
+  AssignRide = async (RideID, AsDriverID, AssigningType = "Cron") => {
     let rides = await Rides.findById(RideID);
 
     if (rides.Status != 1 && rides.Status != 100) return;
@@ -146,6 +146,14 @@ module.exports = function (io) {
   };
 
   module.exports.CancelRide = CancelRide;
+  /////////////////////////////////////////////////////     Ride  status change And Completd           //////////////////////////////////////////////////////////////////////
+
+  StatusChange = async (RideID, RideStatus) => {
+    console.log(RideID, RideStatus);
+    return 1
+  };
+
+  module.exports.StatusChange = StatusChange;
 
   ///////////////////////////////////////////////////////////////     Driver Reject  Ride          //////////////////////////////////////////////////////////////////////
 
@@ -165,7 +173,7 @@ module.exports = function (io) {
     ride.Status = 100;
     ride.DriverId = null;
     ride.Driver = null;
-    ride.RejectedRide.push(AssignDriver._id)
+    ride.RejectedRide.push(AssignDriver._id);
     ride.AssignTime = new Date().getTime();
 
     await ride.save();
@@ -205,7 +213,11 @@ module.exports = function (io) {
         let rides = await GetRideDetail(RideID);
         io.emit("NotReactedRide", {
           rides,
-          Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
+          Driver: {
+            DriverID: FoundDriver._id,
+            Status: FoundDriver.status,
+            Driver: FoundDriver,
+          },
           from: "NotReactedRide function emit",
         });
       } else {
@@ -314,5 +326,4 @@ module.exports = function (io) {
     console.log("ride.length", ride.length);
     return ride[0];
   }
-
 };

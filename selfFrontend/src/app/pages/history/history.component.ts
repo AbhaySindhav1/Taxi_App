@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MapService } from 'src/app/Services/map.service';
 import { RideService } from 'src/app/Services/ride.service';
 import { RideDetailComponent } from 'src/app/popup/ride-detail/ride-detail.component';
 
@@ -9,11 +11,26 @@ import { RideDetailComponent } from 'src/app/popup/ride-detail/ride-detail.compo
   styleUrls: ['./history.component.css'],
 })
 export class HistoryComponent implements OnInit {
+  VehicleList: any;
+  RideSearchForm: any;
+
   RideList: any;
   limit: any = 10;
   page: any = 1;
   totalRides: any;
-  constructor(private rideService: RideService, public dialog: MatDialog) {}
+  constructor(
+    private rideService: RideService,
+    public dialog: MatDialog,
+    private mapService: MapService
+  ) {
+    this.RideSearchForm = new FormGroup({
+      Status: new FormControl(null),
+      Type: new FormControl(null),
+      FromDate: new FormControl(null),
+      toDate: new FormControl(null),
+      Search: new FormControl(null),
+    });
+  }
   ngOnInit(): void {
     this.GetRideHistory();
   }
@@ -22,13 +39,26 @@ export class HistoryComponent implements OnInit {
     console.log(Ride);
   }
 
-  GetRideHistory(event?: any) {
+  Filter(event?: any) {
+    let form = {
+      Search: this.RideSearchForm.get('Search').value,
+      Type: this.RideSearchForm.get('Type').value,
+      FromDate: this.RideSearchForm.get('FromDate').value,
+      toDate: this.RideSearchForm.get('toDate').value,
+      Status: this.RideSearchForm.get('Status').value,
+    };
+
+    this.GetRideHistory(event, form);
+  }
+
+  GetRideHistory(event?: any, Data?: any) {
     if (this.totalRides < this.limit * this.page) {
       this.page = 1;
     }
     let data = {
       limit: +this.limit,
       page: event ? event : this.page,
+      filter: Data ? Data : null,
       status: [0, 5],
     };
 
@@ -36,10 +66,25 @@ export class HistoryComponent implements OnInit {
 
     this.rideService.initGetAllRides(data).subscribe({
       next: (data) => {
-        console.log(data);
-        
         this.RideList = data.Rides;
         this.totalRides = data.totalRide;
+      },
+    });
+  }
+
+  DownloadHistory() {
+    let data = {
+      Search: this.RideSearchForm.get('Search').value,
+      Type: this.RideSearchForm.get('Type').value,
+      FromDate: this.RideSearchForm.get('FromDate').value,
+      toDate: this.RideSearchForm.get('toDate').value,
+      Status: this.RideSearchForm.get('Status').value,
+    };
+
+    this.rideService.initRideHistory(data).subscribe({
+      next: (data) => {
+        this.mapService.onDownload(data);
+        console.log(data);
       },
     });
   }

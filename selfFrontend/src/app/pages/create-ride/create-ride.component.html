@@ -304,6 +304,21 @@
           </label>
         </div>
       </div>
+      <div *ngIf="RideDetailsForm.get('PaymentType').value === 'Card'">
+        <ul>
+          <li *ngIf="Cards?.length == 0">No Cards</li>
+          <li *ngFor="let Card of Cards">
+            <input
+              type="radio"
+              style="margin: 0; font-size: 20px"
+              (change)="ChangePayment(Card.id)"
+            />
+            XXXX XXXX XXXX
+            {{ Card.card.last4 }}
+          </li>
+        </ul>
+        <!-- <button class="btn Button" (click)="openDialog(user)">Add Card</button> -->
+      </div>
 
       <div
         class="trip-details"

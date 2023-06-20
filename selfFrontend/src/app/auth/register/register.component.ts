@@ -8,7 +8,7 @@ import { AuthService } from 'src/app/Services/auth.service';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
-export class RegisterComponent implements OnInit{
+export class RegisterComponent implements OnInit {
   signUpForm: FormGroup | any;
 
   private sub: Subscription | any;
@@ -44,10 +44,13 @@ export class RegisterComponent implements OnInit{
     }
     this.sub = this.authService
       .InitCreateUSer(this.signUpForm.value)
-      .subscribe((data: any) => {
-        console.log(data.token);
-        // this.authService.InItToken(data.token)
+      .subscribe({
+        next: (data) => {
+          console.log(data);
+        },
+        error: (error) => {
+          console.log(error);
+        },
       });
   }
-
 }

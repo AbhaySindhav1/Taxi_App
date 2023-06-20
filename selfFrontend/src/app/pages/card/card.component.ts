@@ -27,6 +27,7 @@ export class CardComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<CardComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public url: any,
     private userService: UsersService,
     private toastr: ToastrService
   ) {}

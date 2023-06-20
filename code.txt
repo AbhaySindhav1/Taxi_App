@@ -990,3 +990,68 @@ router.delete("/city/:id", auth, async (req, res) => {
 //     console.log(error);
 //   }
 // });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ // let { Search, Status, Type, FromDate, toDate } = req.body.filter;
+    // let filterConditions = [];
+    // console.log(req.body.filter);
+
+    // if (Search && Search !== null && Search !== "null") {
+    //   if (mongoose.Types.ObjectId.isValid(Search)) {
+    //     filterConditions.push({
+    //       _id: new mongoose.Types.ObjectId(Search),
+    //     });
+    //   } else {
+    //     filterConditions.push({
+    //       $or: [
+    //         { "userInfo.UserName": { $regex: Search, $options: "i" } },
+    //         { "userInfo.UserPhone": { $regex: Search, $options: "i" } },
+    //         { PickupPoint: { $regex: Search, $options: "i" } },
+    //         { DropPoint: { $regex: Search, $options: "i" } },
+    //       ],
+    //     });
+    //   }
+    // }
+
+    // if (Status && Status !== null && Status !== "null") {
+    //   filterConditions.push({ Status: +Status });
+    // }
+
+    // if (FromDate !== null && FromDate !== "null" && FromDate) {
+    //   filterConditions.push({
+    //     ScheduleTime: {
+    //       $gte: new Date(FromDate),
+    //     },
+    //   });
+    // }
+    // if (toDate !== null && toDate !== "null" && toDate) {
+    //   filterConditions.push({
+    //     ScheduleTime: {
+    //       $lte: new Date(toDate),
+    //     },
+    //   });
+    // }
+
+    // if (Type && mongoose.Types.ObjectId.isValid(Type)) {
+    //   filterConditions.push({ type: new mongoose.Types.ObjectId(Type) });
+    // }
+
+    // if (filterConditions.length > 0) {
+    //   filterMatchQuery = {
+    //     $and: filterConditions,
+    //   };
+    // }

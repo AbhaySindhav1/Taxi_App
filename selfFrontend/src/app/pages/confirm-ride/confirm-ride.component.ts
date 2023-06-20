@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DriverService } from 'src/app/Services/driver.service';
+import { MapService } from 'src/app/Services/map.service';
 import { RideService } from 'src/app/Services/ride.service';
 import { SocketService } from 'src/app/Services/socket.service';
 import { VehicleService } from 'src/app/Services/vehicle.service';
@@ -33,7 +34,8 @@ export class ConfirmRideComponent implements OnInit {
     private toastr: ToastrService,
     private driverService: DriverService,
     private socketService: SocketService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public mapService: MapService
   ) {
     this.OnAssign = this.OnAssign.bind(this);
     this.RideSearchForm = new FormGroup({
@@ -52,6 +54,7 @@ export class ConfirmRideComponent implements OnInit {
     this.socketService.socket.on('NotReactedRide', (data: any) => {
       console.log(data);
       this.replaceRow(data.rides);
+      this.RideList.push(data.Driver.Driver);
     });
 
     this.socketService.socket.on('RejectRide', (data: any) => {
@@ -191,7 +194,7 @@ export class ConfirmRideComponent implements OnInit {
     let data = {
       limit: +this.limit,
       page: event ? event : this.page,
-      status:[1,2,3,4,5,100],
+      status: [1, 2, 3, 4, 5, 100],
       filter: formdata ? formdata : null,
     };
 
@@ -206,6 +209,26 @@ export class ConfirmRideComponent implements OnInit {
         });
         this.RideList = data.Rides;
         this.totalRides = data.totalRide;
+      },
+    });
+  }
+
+  ////////////////////////////////////////////////////////////    Get  Rides  Download     /////////////////////////////////////////////////////////////////////
+
+  DownloadHistory() {
+    let data = {
+      Search: this.RideSearchForm.get('Search').value,
+      Type: this.RideSearchForm.get('Type').value,
+      FromDate: this.RideSearchForm.get('FromDate').value,
+      toDate: this.RideSearchForm.get('toDate').value,
+      Status: this.RideSearchForm.get('Status').value,
+    };
+
+    this.rideService.initRideHistory(data).subscribe({
+      next: (data) => {
+        if (data && data.length < 0) return;
+        this.mapService.onDownload(data);
+        console.log(data);
       },
     });
   }

@@ -7,7 +7,7 @@ const auth = require("../Controller/middleware/auth");
 const path = require("path");
 const mongoose = require("mongoose");
 const moment = require("moment");
-
+const Sockets = require("../Controller/Functions/Socket");
 const envPath = path.join(__dirname, "../key.env");
 require("dotenv").config({ path: envPath });
 
@@ -62,7 +62,9 @@ router.post("/Ride", upload.none(), auth, async (req, res) => {
   }
 });
 
-////                                                      ////    Get Specific Rides  ////                                                                     ////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                       //     Get Specific Rides       //                                                                     //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/GetRides", upload.none(), auth, async (req, res) => {
   let matchQuery;
@@ -80,6 +82,159 @@ router.post("/GetRides", upload.none(), auth, async (req, res) => {
     };
   }
 
+  let lookup = await getlookup();
+
+  if (req.body.filter) {
+    let { Search, Status, Type, FromDate, toDate } = req.body.filter;
+    filterMatchQuery = await FilterQuery(
+      Search,
+      Status,
+      Type,
+      FromDate,
+      toDate
+    );
+  }
+
+  let count = { $group: { _id: null, total: { $sum: 1 } } };
+  let countPipeline = [
+    ...(matchQuery ? [matchQuery] : []),
+    ...lookup,
+    ...(filterMatchQuery ? [{ $match: filterMatchQuery }] : []),
+    count,
+  ];
+
+  let pipeline = [
+    ...(matchQuery ? [matchQuery] : []),
+    ...lookup,
+    ...(filterMatchQuery ? [{ $match: filterMatchQuery }] : []),
+    { $skip: skip },
+    { $limit: limit },
+  ];
+
+  try {
+    const Rides = await CreateRide.aggregate(pipeline);
+    let totalRide = await CreateRide.aggregate(countPipeline);
+
+    if (!totalRide[0]) {
+      totalRide = 0;
+    } else {
+      totalRide = totalRide[0].total;
+    }
+    res.status(200).send({ Rides, totalRide });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                               //     History       //                                                                       //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.post("/History", upload.none(), auth, async (req, res) => {
+  console.log("History");
+  let { Search, Status, Type, FromDate, toDate } = req.body;
+  // let matchQuery = {
+  //   $match: {
+  //     Status: { $in: [0, 5] },
+  //   },
+  // };
+  let filterMatchQuery = await FilterQuery(
+    Search,
+    Status,
+    Type,
+    FromDate,
+    toDate
+  );
+
+  let lookup = await getlookup();
+
+  let pipeline = [
+    // ...(matchQuery ? [matchQuery] : []),
+    ...lookup,
+    ...(filterMatchQuery ? [{ $match: filterMatchQuery }] : []),
+  ];
+
+  try {
+    const Rides = await CreateRide.aggregate(pipeline);
+    res.status(200).json(Rides);
+  } catch (error) {}
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                               //     Edit  Ride       //                                                                       //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
+  if (!req.body.Status) return;
+  try {
+    let ride = await CreateRide.findById(req.params.id);
+    if (!ride) return;
+    Sockets.StatusChange(req.params.id, req.body.Status);
+
+  } catch (error) {}
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                               //     Create Filter Query       //                                                                       //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+async function FilterQuery(Search, Status, Type, FromDate, toDate) {
+  let filterConditions = [];
+
+  if (Search && Search !== null && Search !== "null") {
+    if (mongoose.Types.ObjectId.isValid(Search)) {
+      filterConditions.push({
+        _id: new mongoose.Types.ObjectId(Search),
+      });
+    } else {
+      filterConditions.push({
+        $or: [
+          { "userInfo.UserName": { $regex: Search, $options: "i" } },
+          { "userInfo.UserPhone": { $regex: Search, $options: "i" } },
+          { PickupPoint: { $regex: Search, $options: "i" } },
+          { DropPoint: { $regex: Search, $options: "i" } },
+        ],
+      });
+    }
+  }
+
+  if (Status && Status !== null && Status !== "null") {
+    filterConditions.push({ Status: +Status });
+  }
+
+  if (FromDate !== null && FromDate !== "null" && FromDate) {
+    filterConditions.push({
+      ScheduleTime: {
+        $gte: new Date(FromDate),
+      },
+    });
+  }
+  if (toDate !== null && toDate !== "null" && toDate) {
+    filterConditions.push({
+      ScheduleTime: {
+        $lte: new Date(toDate),
+      },
+    });
+  }
+
+  if (Type && mongoose.Types.ObjectId.isValid(Type)) {
+    filterConditions.push({ type: new mongoose.Types.ObjectId(Type) });
+  }
+
+  if (filterConditions.length > 0) {
+    let filterMatchQuery = {
+      $and: filterConditions,
+    };
+    return filterMatchQuery;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                               //     Create Lookup Here       //                                                                       //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+async function getlookup() {
   let lookup = [
     {
       $lookup: {
@@ -124,82 +279,7 @@ router.post("/GetRides", upload.none(), auth, async (req, res) => {
       },
     },
   ];
-  console.log("req.body", req.body);
-
-  if (req.body.filter) {
-    let { Search, Status, Type, FromDate, toDate } = req.body.filter;
-    let filterConditions = [];
-
-    if (Search && Search !== "null") {
-      if (mongoose.Types.ObjectId.isValid(Search)) {
-        filterConditions.push({
-          _id: new mongoose.Types.ObjectId(Search),
-        });
-      } else {
-        filterConditions.push({
-          $or: [
-            { "userInfo.UserName": Search },
-            { "userInfo.UserPhone": { $regex: Search, $options: "i" } },
-          ],
-        });
-      }
-    }
-
-    if (Status && Status !== "null") {
-      filterConditions.push({ Status: +Status });
-    }
-
-    if (FromDate && toDate !== "null") {
-      filterConditions.push({
-        ScheduleTime: {
-          $gte: new Date(FromDate),
-          $lte: new Date(toDate),
-        },
-      });
-    }
-
-    if (Type && mongoose.Types.ObjectId.isValid(Type)) {
-      filterConditions.push({ type: new mongoose.Types.ObjectId(Type) });
-    }
-
-    if (filterConditions.length > 0) {
-      filterMatchQuery = {
-        $and: filterConditions,
-      };
-    }
-  }
-
-  console.log("filterMatchQuery", filterMatchQuery);
-  let count = { $group: { _id: null, total: { $sum: 1 } } };
-  let countPipeline = [
-    ...(matchQuery ? [matchQuery] : []),
-    ...lookup,
-    ...(filterMatchQuery ? [{ $match: filterMatchQuery }] : []),
-    count,
-  ];
-
-  let pipeline = [
-    ...(matchQuery ? [matchQuery] : []),
-    ...lookup,
-    ...(filterMatchQuery ? [{ $match: filterMatchQuery }] : []),
-    { $skip: skip },
-    { $limit: limit },
-  ];
-
-  try {
-    const Rides = await CreateRide.aggregate(pipeline);
-    let totalRide = await CreateRide.aggregate(countPipeline);
-    console.log(totalRide);
-    if (!totalRide[0]) {
-      totalRide = 0;
-    } else {
-      totalRide = totalRide[0].total;
-    }
-    res.status(200).send({ Rides, totalRide });
-  } catch (error) {
-    console.log(error);
-    res.status(400).send(error);
-  }
-});
+  return lookup;
+}
 
 module.exports = router;

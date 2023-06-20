@@ -67,6 +67,10 @@ const RideSchema = mongoose.Schema(
       type: Array,
       default: null,
     },
+    PaymentId:{
+      type:String,
+      default:"Cash"
+    },
     AssignTime: {
       type: Number,
       default: null,

@@ -1,6 +1,6 @@
 const CreateRide = require("../../Model/createRideModel");
 const Driver = require("../../Model/driverModel");
-const path = require("path")
+const path = require("path");
 const envPath = path.join(__dirname, "../key.env");
 require("dotenv").config({ path: envPath });
 const accountSid = process.env.smsID;
@@ -111,10 +111,9 @@ async function sendMessages(
     .then((message) => console.log(message.sid));
 }
 
-
 module.exports = {
   getAvailableDrivers,
   getUnassignedRequests,
   getBusyDrivers,
-  sendMessages
+  sendMessages,
 };

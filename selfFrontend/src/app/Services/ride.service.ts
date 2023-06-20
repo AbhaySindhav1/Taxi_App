@@ -46,8 +46,8 @@ export class RideService {
     return this.http.post<any>('http://localhost:3000/RideFilter', FormData);
   }
 
-  initRideHistory() {
-    return this.http.get<any>('http://localhost:3000/Ride/History');
+  initRideHistory(data: any) {
+    return this.http.post<any>('http://localhost:3000/History', data);
   }
 
   initGetStatus(Status: any) {
