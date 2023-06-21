@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { RideService } from 'src/app/Services/ride.service';
@@ -46,7 +46,8 @@ export class CreateRideComponent implements OnInit {
     private toastr: ToastrService,
     private pricingService: PricingService,
     private SettingsService: SettingService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private cd: ChangeDetectorRef
   ) {
     this.RideForm = new FormGroup({
       UserPhone: new FormControl(null, [
@@ -96,6 +97,7 @@ export class CreateRideComponent implements OnInit {
     });
     if (type == 'Card') {
       this.getCards();
+      this.cd.detectChanges();
     }
   }
 
@@ -125,7 +127,6 @@ export class CreateRideComponent implements OnInit {
     let PaymentsData = await res.json();
 
     this.Cards = PaymentsData;
-    console.log(this.Cards);
   }
 
   onInput(e: any) {
@@ -383,7 +384,8 @@ export class CreateRideComponent implements OnInit {
     formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
     formData.append('Distance', this.tripDetails.Distance);
     formData.append('Time', this.tripDetails.Time);
-    formData.append('PaymentId',this.RideDetailsForm.get('PaymentId').value);
+    formData.append('PaymentType', this.RideDetailsForm.get('PaymentType').value);
+    formData.append('PaymentId', this.RideDetailsForm.get('PaymentId').value);
     formData.append('RideCity', this.isServiceZone._id);
     formData.append(
       'PickupPoint',

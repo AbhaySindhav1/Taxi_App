@@ -305,7 +305,7 @@
         </div>
       </div>
       <div *ngIf="RideDetailsForm.get('PaymentType').value === 'Card'">
-        <ul>
+        <ul class="card">
           <li *ngIf="Cards?.length == 0">No Cards</li>
           <li *ngFor="let Card of Cards">
             <input
@@ -330,8 +330,13 @@
         <p id="time">Services Fees : {{ TripCharge }}</p>
       </div>
 
-      <div id="btn-container">
-        <button type="submit" class="btn bg-success" [disabled]="!TripCharge">
+      <div id="btn-container" >
+        <button
+          type="submit"
+          class="btn bg-success"
+          [disabled]="!TripCharge || (RideDetailsForm.get('PaymentType').value === 'Card' && (Cards?.length === 0))"
+
+        >
           Book Ride
         </button>
         <button type="button" class="btn bg-danger" (click)="OnReset()">

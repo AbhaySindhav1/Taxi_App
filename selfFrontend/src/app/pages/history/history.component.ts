@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MapService } from 'src/app/Services/map.service';
 import { RideService } from 'src/app/Services/ride.service';
+import { SocketService } from 'src/app/Services/socket.service';
 import { RideDetailComponent } from 'src/app/popup/ride-detail/ride-detail.component';
 
 @Component({
@@ -21,7 +22,8 @@ export class HistoryComponent implements OnInit {
   constructor(
     private rideService: RideService,
     public dialog: MatDialog,
-    private mapService: MapService
+    private mapService: MapService,
+    private socketService: SocketService
   ) {
     this.RideSearchForm = new FormGroup({
       Status: new FormControl(null),
@@ -29,6 +31,10 @@ export class HistoryComponent implements OnInit {
       FromDate: new FormControl(null),
       toDate: new FormControl(null),
       Search: new FormControl(null),
+    });
+
+    this.socketService.socket.on('RideCompleted', (data: any) => {
+      this.RideList = this.RideList.push(data.Ride);
     });
   }
   ngOnInit(): void {
@@ -73,12 +79,17 @@ export class HistoryComponent implements OnInit {
   }
 
   DownloadHistory() {
-    let data = {
+    let Find = {
       Search: this.RideSearchForm.get('Search').value,
       Type: this.RideSearchForm.get('Type').value,
       FromDate: this.RideSearchForm.get('FromDate').value,
       toDate: this.RideSearchForm.get('toDate').value,
       Status: this.RideSearchForm.get('Status').value,
+    };
+
+    let data = {
+      status: [0, 1, 2, 3, 4, 5, 100],
+      filter: Find ? Find : null,
     };
 
     this.rideService.initRideHistory(data).subscribe({

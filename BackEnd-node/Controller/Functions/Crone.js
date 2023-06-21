@@ -1,5 +1,6 @@
 let cron = require("node-cron");
 let CroneTime = 10;
+let ReqVar;
 
 const {
   getAvailableDrivers,
@@ -13,30 +14,30 @@ let schedule = `*/${CroneTime} * * * * *`;
 module.exports = function (io) {
   cron.schedule(schedule, async () => {
     let rides = await getUnassignedRequests();
-    AssignRideToDriver(rides);
+     AssignRideToDriver(rides);
   });
 
   async function AssignRideToDriver(rides) {
     if (!rides) return;
     for await (const ride of rides) {
+      // ReqVar = 1;
       await CheckTimeOut(ride);
     }
   }
 
   async function CheckTimeOut(ride) {
-    function CheckTime(ride) {
+    async function CheckTime(ride) {
       if (ride.AssignTime && ride.AssignTime <= Date.now()) {
-        AssignDriverToRide(ride);
+        // ReqVar++;
+        // if (ReqVar == 2) {
+          await AssignDriverToRide(ride);
+        // }
       } else {
         setImmediate(() => CheckTime(ride));
       }
     }
     CheckTime(ride);
   }
-  // async function Wait(ride) {
-  //   while (ride.AssignTime >= Date.now()) {}
-  //   await AssignDriverToRide(ride);
-  // }
 
   async function GetDriver(ride) {
     let drivers = await getAvailableDrivers(

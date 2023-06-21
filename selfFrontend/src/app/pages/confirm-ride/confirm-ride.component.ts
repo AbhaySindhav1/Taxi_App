@@ -54,7 +54,9 @@ export class ConfirmRideComponent implements OnInit {
     this.socketService.socket.on('NotReactedRide', (data: any) => {
       console.log(data);
       this.replaceRow(data.rides);
-      this.RideList.push(data.Driver.Driver);
+      if (data.Driver && this.driverData) {
+        this.driverData.push(data.Driver.Driver);
+      }
     });
 
     this.socketService.socket.on('RejectRide', (data: any) => {
@@ -65,10 +67,18 @@ export class ConfirmRideComponent implements OnInit {
       this.replaceRow(data.ride);
     });
 
-    this.socketService.socket.on('CancelledRide', (data: any) => {
+    this.socketService.socket.on('RideCompleted', (data: any) => {
       this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data.Ride.RideId;
+        return ride._id !== data.Ride._id;
       });
+    });
+
+    this.socketService.socket.on('CancelledRide', (data: any) => {
+      this.initRideDataChange(data.Ride.RideId, data.Ride.Status, null, null);
+    });
+
+    this.socketService.socket.on('RideStatus', (data: any) => {
+      this.initRideDataChange(data?.RideId, data?.Status);
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
@@ -129,6 +139,10 @@ export class ConfirmRideComponent implements OnInit {
         driverID: Ride.DriverId,
       });
     }
+  }
+
+  initStatus(status: any) {
+    return this.rideService.initGetStatus(status);
   }
 
   AssignDriver(ride: any, Status?: any) {
@@ -216,12 +230,17 @@ export class ConfirmRideComponent implements OnInit {
   ////////////////////////////////////////////////////////////    Get  Rides  Download     /////////////////////////////////////////////////////////////////////
 
   DownloadHistory() {
-    let data = {
+    let Find = {
       Search: this.RideSearchForm.get('Search').value,
       Type: this.RideSearchForm.get('Type').value,
       FromDate: this.RideSearchForm.get('FromDate').value,
       toDate: this.RideSearchForm.get('toDate').value,
       Status: this.RideSearchForm.get('Status').value,
+    };
+
+    let data = {
+      status: [1, 2, 3, 4, 5, 100],
+      filter: Find ? Find : null,
     };
 
     this.rideService.initRideHistory(data).subscribe({
@@ -242,6 +261,7 @@ export class ConfirmRideComponent implements OnInit {
 
   replaceRow(data: any) {
     const index = this.RideList.findIndex((ride: any) => ride._id === data._id);
+    data.Stops = JSON.parse(data.Stops);
     if (index !== -1) {
       this.RideList[index] = data;
     } else {

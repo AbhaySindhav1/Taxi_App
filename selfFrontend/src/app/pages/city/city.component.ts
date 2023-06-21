@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 import { CityService } from 'src/app/Services/city.service';
 import { CountryService } from 'src/app/Services/country.service';
 
@@ -20,7 +21,7 @@ export class CityComponent implements OnInit {
   polygons: any = [];
   drawingManager: any;
   title = 'City Task';
-  error: any;
+  // error: any;
   uniqueCities: any;
   map: google.maps.Map | any;
   changed = false;
@@ -36,11 +37,12 @@ export class CityComponent implements OnInit {
   totalZones: any;
   constructor(
     private cityService: CityService,
-    private countryService: CountryService
+    private countryService: CountryService,
+    private toaster: ToastrService
   ) {}
 
   ngOnInit(): void {
-    this.changed = true;
+    // this.changed = true;
     this.cityService
       .initGetDataFromUrl('https://restcountries.com/v3.1/all')
       .subscribe((data: any) => {
@@ -126,7 +128,7 @@ export class CityComponent implements OnInit {
       ].innerText;
 
     if (selectCountry == 'null' && selectedCountryName == 'null') {
-      this.error = 'Please Select Country';
+      this.Toaster('error', 'Please Select Country');
       this.changed = false;
       return;
     } else {
@@ -147,34 +149,41 @@ export class CityComponent implements OnInit {
       return;
     }
   }
+  ///
+
+  Toaster(type: any, massage: any) {
+    if (type == 'error') {
+      this.toaster.error(massage);
+    } else if ((type = 'success')) {
+      this.toaster.success(massage);
+    }
+  }
 
   ///////////////////////////////////////////////////////////////////   On Form Submit   ///////////////////////////////////////////////////////////////////////
 
   onSubmit() {
     this.changed = false;
     if (!this.country && !this.zone && !this.city) {
-      this.error = 'Country, zone, and city are required';
+      this.Toaster('error', 'Country, zone, and city are required');
       return;
     } else if (!this.country && !this.zone) {
-      this.error = 'Country and zone are required';
+      this.Toaster('error', 'Country and zone are required');
       return;
     } else if (!this.country && !this.city) {
-      this.error = 'Country and city are required';
+      this.Toaster('error', 'Country and city are required');
       return;
     } else if (!this.zone && !this.city) {
-      this.error = 'Zone and city are required';
+      this.Toaster('error', 'Zone and city are required');
       return;
     } else if (!this.country) {
-      this.error = 'Country is required';
+      this.Toaster('error', 'Country is required');
       return;
     } else if (!this.zone) {
-      this.error = 'Zone is required';
+      this.Toaster('error', 'Zone is required');
       return;
     } else if (!this.city) {
-      this.error = 'Correct City is required';
+      this.Toaster('error', 'Correct City is required');
       return;
-    } else {
-      this.error = '';
     }
 
     let formData = new FormData();
@@ -191,13 +200,12 @@ export class CityComponent implements OnInit {
       this.cityService.initAddCityData(formData).subscribe({
         next: (data) => {
           this.changed = true;
+          this.Toaster('success', 'Zone Is Created');
           this.onReset();
           this.getAllZones();
         },
         error: (error) => {
-          console.log(error);
-
-          this.error = error.error;
+          this.Toaster('error', error.error);
         },
       });
     } else {
@@ -207,12 +215,13 @@ export class CityComponent implements OnInit {
       );
       this.cityService.initEditCity(this.UserID, formData).subscribe({
         next: async (data) => {
+          this.Toaster('success', 'Zone Is Edited');
           await this.getAllZones();
           this.IsEditMode = false;
           this.drawingManager.setMap(this.map);
         },
         error: (error) => {
-          this.error = error.error;
+          this.Toaster('error', error.error);
         },
       });
     }
@@ -330,7 +339,7 @@ export class CityComponent implements OnInit {
   onReset() {
     this.selectElement.nativeElement.value = null;
     this.country = null;
-    this.error = null;
+    // this.error = null;
     if (this.polygon) {
       this.polygon.setMap(null);
     }
@@ -343,11 +352,14 @@ export class CityComponent implements OnInit {
     this.polygons.forEach((polygon: any) => {
       polygon.setMap(null);
     });
+    if (this.drawingManager) {
+      this.drawingManager.setMap(this.map);
+    }
   }
 
   getAllZones(event?: any) {
-    if(this.totalZones<this.page*this.limit){
-      this.page = 1
+    if (this.totalZones < this.page * this.limit) {
+      this.page = 1;
     }
     let data = {
       limit: +this.limit,
@@ -366,9 +378,7 @@ export class CityComponent implements OnInit {
       },
       error: (error) => {
         console.log(error);
-
-        this.error = error;
-        this.changed = false;
+        this.Toaster('error', error.error);
       },
     });
   }

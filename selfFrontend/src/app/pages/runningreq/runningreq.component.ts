@@ -34,15 +34,25 @@ export class RunningreqComponent implements OnInit {
       this.initChange(data);
     });
 
-    this.socketService.socket.on('RejectRide', (data: any) => {
+    this.socketService.socket.on('RejectRide', (data: any) => {      
       this.initChange(data?.ride);
+      this.RideList = this.RideList.filter((ride: any) => {
+        return ride._id !== data.ride._id;
+      });
+    });
+
+    this.socketService.socket.on('RideStatus', (data: any) => {
+      this.initRideDataChange(data?.RideId, data?.Status);
+    });
+
+    this.socketService.socket.on('RideCompleted', (data: any) => {
+      this.RideList = this.RideList.filter((ride: any) => {
+        return ride._id !== data.Ride._id;
+      });
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
-      console.log(data);
-      this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data._id;
-      });
+      this.initChange(data);
     });
 
     this.socketService.socket.on('noDriverFound', (data: any) => {
@@ -71,9 +81,7 @@ export class RunningreqComponent implements OnInit {
 
   OnAccept(Ride: any) {
     this.socketService.socket.emit('DriverResponse', { Ride, Status: 2 });
-    if (this.Interval) {
-      clearTimeout(this.Interval);
-    }
+
   }
 
   OnNotReactedByDriver(Ride: any) {
@@ -88,7 +96,7 @@ export class RunningreqComponent implements OnInit {
 
   CancelRide(Ride: any) {
     this.RideList = this.RideList.filter((ride: any) => {
-      return ride._id !== Ride._id;
+      return ride._id !== Ride.RideId;
     });
   }
 
@@ -103,7 +111,7 @@ export class RunningreqComponent implements OnInit {
     let data = {
       limit: +this.limit,
       page: event ? event : this.page,
-      status: [100],
+      status: [2, 3, 4, 100],
     };
 
     this.page = event ? event : this.page;
@@ -121,8 +129,8 @@ export class RunningreqComponent implements OnInit {
   initRideDataChange(
     rideID: any,
     RideStatus: any,
-    RideDriverId: any,
-    RideDriver: any
+    RideDriverId?: any,
+    RideDriver?: any
   ) {
     if (!rideID) return;
     if (this.RideList) {
@@ -131,8 +139,12 @@ export class RunningreqComponent implements OnInit {
       if (RideStatus) {
         ride.Status = RideStatus;
       }
-      ride.DriverId = RideDriverId;
-      ride.Driver = RideDriver;
+      if (RideDriverId) {
+        ride.DriverId = RideDriverId;
+      }
+      if (RideDriver) {
+        ride.Driver = RideDriver;
+      }
     }
   }
 

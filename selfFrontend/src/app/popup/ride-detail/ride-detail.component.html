@@ -69,10 +69,26 @@
           <div class="Value">{{ data?.Time }}</div>
         </li>
         <li>
+          <div class="title">Payments</div>
+          :
+          <div
+            class="Value"
+            *ngIf="data?.PaymentId == 'Cash' || !data?.PaymentId"
+          >
+            Cash
+          </div>
+          <div
+            class="Value"
+            *ngIf="data?.PaymentId && data?.PaymentId != 'Cash'"
+          >
+            Card: {{ data?.PaymentId }}
+          </div>
+        </li>
+        <li>
           <div class="title">Stops</div>
           :
           <div class="Value">
-            {{ data?.Stops.length === 0 ? "No Stops" : ""}}
+            {{ data?.Stops.length === 0 ? "No Stops" : "" }}
             <ng-container *ngIf="data?.Stops.length > 0">
               <span class="Stops" *ngFor="let item of data?.Stops">
                 {{ item.trim().length > 0 ? item.trim() : "No Stops" }}
@@ -88,7 +104,5 @@
       </ul>
     </div>
   </div>
- <div *ngIf="data.Map"  id="map">
-
- </div>
+  <div *ngIf="data.Map" id="map"></div>
 </div>

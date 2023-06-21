@@ -185,6 +185,7 @@
                 class="btn btn-primary"
                 style="width: 70px; padding: 5px; background-color: #6d7ae0"
                 (click)="OnAccept(Ride)"
+                [disabled]="Ride.Status != 100"
               >
                 Accept
               </button>

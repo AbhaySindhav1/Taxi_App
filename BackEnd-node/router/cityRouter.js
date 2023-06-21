@@ -39,6 +39,11 @@ router.post("/city", handleUpload, auth, async (req, res) => {
       res.status(400).json(error.keyValue.city + " " + "is Already Registered");
     } else if (error.errors && error.errors.zone.kind === "required") {
       res.status(400).json("Zone Is Required");
+    } else if (
+      error.toString().includes("MongoServerError") &&
+      error.toString().includes("Loop is not valid")
+    ) {
+      res.status(400).json("Please Draw Valid Zone");
     } else {
       res.status(400).send(error.toString());
     }
@@ -130,8 +135,18 @@ router.get("/CityCordinates", auth, async (req, res) => {
     ]);
     res.status(200).send(Cord[0]);
   } catch (error) {
-    console.log(error);
-    res.status(400).send(error);
+    console.log(error.error.includes("MongoServerError"));
+    console.log(error.error.includes("Loop is not valid"));
+    if (
+      error.error.includes("MongoServerError") &&
+      error.error.includes("Loop is not valid")
+    ) {
+      res.status(400).send("Emter Valid Zone");
+      // res.status(400).send(error);
+    } else {
+      // res.status(400).send(error);
+      res.status(400).send("Emter Valid Zone");
+    }
   }
 });
 
@@ -162,12 +177,31 @@ router.patch("/city/:id", auth, handleUpload, async (req, res) => {
       id: city._id,
     });
   } catch (error) {
+    // console.log(error);
+    console.log(error.toString().includes("MongoServerError"));
+    console.log(error.toString().includes("Loop is not valid"));
+    //   if (
+    //     error.error.includes("MongoServerError") &&
+    //     error.error.includes("Loop is not valid")
+    //   ) {
+    //     res.status(400).send("Emter Valid Zone");
+    //     // res.status(400).send(error);
+    //   } else {
+    //     // res.status(400).send(error);
+    //     res.status(400).send("Emter Valid Zone");
+    //   }
+    // }
     if (error.errors && error.errors.city.kind === "required") {
       res.status(400).json("City Is Required");
     } else if (error.errors && error.errors.country.kind === "required") {
       res.status(400).json("Country Is Required");
     } else if (error.errors && error.errors.zone.kind === "required") {
       res.status(400).json("Zone Is Required");
+    } else if (
+      error.toString().includes("MongoServerError") &&
+      error.toString().includes("Loop is not valid")
+    ) {
+      res.status(400).json("Please Draw Valid Zone");
     } else {
       res.status(400).send(error.toString());
     }

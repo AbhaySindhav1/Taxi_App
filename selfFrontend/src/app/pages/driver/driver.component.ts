@@ -85,6 +85,12 @@ export class DriverComponent implements OnInit {
         this.getStatus(data.Driver.DriverID, data.Driver.Status);
       }
     });
+
+    this.socketService.socket.on('RideCompleted', (data: any) => {
+      if (data.Driver) {
+        this.getStatus(data.Driver.DriverID, data.Driver.Status);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -350,6 +356,5 @@ export class DriverComponent implements OnInit {
   getStatus(driverId: any, Status: any) {
     const driver = this.DriverData.find((r: any) => r._id == driverId);
     driver.status = Status;
-    console.log(driver);
   }
 }

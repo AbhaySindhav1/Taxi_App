@@ -23,7 +23,6 @@ module.exports = function (io) {
     });
 
     socket.on("ride", async (data) => {
-      console.log(data);
       if (!data) return;
       if (data.Status == 0) {
         CancelRide(data.rideID, data.driverID);
@@ -36,7 +35,7 @@ module.exports = function (io) {
     socket.on("DriverResponse", async (data) => {
       if (!data) return;
       if (data.Status == 0) {
-        await CancelRide(data.Ride._id, data.Ride.DriverId);
+        await RejectRide(data.Ride._id, data.Ride.DriverId);
       } else if (data.Status == 1) {
         await NotReactedRide(data.Ride._id, data.Status);
       }
@@ -64,6 +63,7 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
   AssignRide = async (RideID, AsDriverID, AssigningType = "Cron") => {
+    
     let rides = await Rides.findById(RideID);
 
     if (rides.Status != 1 && rides.Status != 100) return;
@@ -149,8 +149,34 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////     Ride  status change And Completd           //////////////////////////////////////////////////////////////////////
 
   StatusChange = async (RideID, RideStatus) => {
-    console.log(RideID, RideStatus);
-    return 1
+    let ride = await Rides.findByIdAndUpdate(RideID, {
+      Status: RideStatus,
+    });
+
+    if (RideStatus == 5) {
+      if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
+        let FoundDriver = await Driver.findByIdAndUpdate(
+          ride.DriverId,
+          { status: "online" },
+          { new: true }
+        );
+        let Ride = await GetRideDetail(RideID);
+        io.emit("RideCompleted", {
+          Ride,
+          Driver: FoundDriver,
+        });
+      } else {
+        let Ride = await GetRideDetail(RideID);
+        io.emit("RideCompleted", {
+          Ride,
+        });
+      }
+    }
+
+    io.emit("RideStatus", {
+      RideId: ride._id,
+      Status: RideStatus,
+    });
   };
 
   module.exports.StatusChange = StatusChange;
@@ -169,8 +195,11 @@ module.exports = function (io) {
     AssignDriver.status = "online";
 
     await AssignDriver.save();
-
-    ride.Status = 100;
+    if (ride.AssigningType == "single") {
+      ride.Status = 1;
+    } else {
+      ride.Status = 100;
+    }
     ride.DriverId = null;
     ride.Driver = null;
     ride.RejectedRide.push(AssignDriver._id);
@@ -207,7 +236,6 @@ module.exports = function (io) {
         ride.DriverId = null;
         ride.Driver = null;
         ride.AssignTime = new Date().getTime();
-        console.log(ride.RejectedRide);
         await ride.save();
 
         let rides = await GetRideDetail(RideID);
@@ -322,8 +350,6 @@ module.exports = function (io) {
         $unwind: "$VehicleInfo",
       },
     ]);
-
-    console.log("ride.length", ride.length);
     return ride[0];
   }
 };

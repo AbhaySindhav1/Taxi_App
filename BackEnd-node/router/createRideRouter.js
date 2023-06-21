@@ -1,5 +1,6 @@
 const express = require("express");
 const CreateRide = require("../Model/createRideModel");
+const Users = require("../Model/usersModel");
 const router = new express.Router();
 const multer = require("multer");
 const upload = multer();
@@ -9,6 +10,11 @@ const mongoose = require("mongoose");
 const moment = require("moment");
 const Sockets = require("../Controller/Functions/Socket");
 const envPath = path.join(__dirname, "../key.env");
+const {
+  createCustomer,
+  GetPayment,
+} = require("../Controller/Functions/Stripe");
+const { escape } = require("querystring");
 require("dotenv").config({ path: envPath });
 
 ////                                                             ///  ADD Ride ///                                                                             ////
@@ -132,13 +138,12 @@ router.post("/GetRides", upload.none(), auth, async (req, res) => {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/History", upload.none(), auth, async (req, res) => {
-  console.log("History");
-  let { Search, Status, Type, FromDate, toDate } = req.body;
-  // let matchQuery = {
-  //   $match: {
-  //     Status: { $in: [0, 5] },
-  //   },
-  // };
+  let { Search, Status, Type, FromDate, toDate } = req.body.filter;
+  let matchQuery = {
+    $match: {
+      Status: { $in: req.body.status },
+    },
+  };
   let filterMatchQuery = await FilterQuery(
     Search,
     Status,
@@ -150,7 +155,7 @@ router.post("/History", upload.none(), auth, async (req, res) => {
   let lookup = await getlookup();
 
   let pipeline = [
-    // ...(matchQuery ? [matchQuery] : []),
+    ...(matchQuery ? [matchQuery] : []),
     ...lookup,
     ...(filterMatchQuery ? [{ $match: filterMatchQuery }] : []),
   ];
@@ -166,13 +171,60 @@ router.post("/History", upload.none(), auth, async (req, res) => {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
+  console.log(req.body);
   if (!req.body.Status) return;
   try {
     let ride = await CreateRide.findById(req.params.id);
-    if (!ride) return;
-    Sockets.StatusChange(req.params.id, req.body.Status);
-
-  } catch (error) {}
+    console.log("ride", ride);
+    if (req.body.Status != 5) {
+      await Sockets.StatusChange(req.params.id, req.body.Status);
+      res.status(200).json("Ride Status Updated");
+    } else {
+      console.log("1");
+      if (!ride) return;
+      console.log("2");
+      if (!ride.PaymentType) {
+        ride.PaymentType = "Cash";
+        await ride.save();
+      }
+      console.log("3");
+      if (ride && ride.PaymentType && ride.PaymentType === "Cash") {
+        await Sockets.StatusChange(req.params.id, req.body.Status);
+        res.status(200).json("Ride Completed");
+        return;
+      }
+      console.log("4");
+      if (ride && !ride.PaymentType && ride.PaymentType !== "Cash") {
+        console.log("5");
+        throw new Error("No Card Found Please Add Card");
+      }
+      console.log("6");
+      if (ride && ride.PaymentType && ride.PaymentType !== "Cash") {
+        console.log("7");
+        const user = await Users.findById(ride.user_id);
+        if (!user.StripeId) {
+          console.log("8");
+          let StripeID = await createCustomer(UserEmail, UserName);
+          user.StripeId = StripeID;
+          await user.save();
+        }
+        console.log("9");
+        if (ride && !ride.PaymentId) {
+          console.log("10");
+          throw new Error("No Card Found Please Add Card");
+        }
+        console.log("11");
+        await GetPayment(user.StripeId, ride.PaymentId, +ride.TripFee);
+        console.log("12");
+        await Sockets.StatusChange(req.params.id, req.body.Status);
+        console.log("13");
+        res.status(200).json("Ride Completed and Payment Done");
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(200).send(error);
+  }
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

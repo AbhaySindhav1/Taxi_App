@@ -281,23 +281,7 @@
             {{ Ride.TripFee }}
           </td>
           <td class="ellipsisRow" title="{{ Ride.Status }}">
-            {{
-              Ride.Status === 1
-                ? "Pending"
-                : Ride.Status === 100
-                ? "Assigning"
-                : Ride.Status === 2
-                ? "Accepted"
-                : Ride.Status === 0
-                ? "Cancelled"
-                : Ride.Status === 3
-                ? "Arrived"
-                : Ride.Status === 4
-                ? "Started"
-                : Ride.Status === 5
-                ? "Completed"
-                : ""
-            }}
+            {{ initStatus(Ride?.Status) }}
           </td>
           <td>
             <div
@@ -331,6 +315,7 @@
                 </svg>
               </button>
               <div
+              
                 *ngIf="!Ride.Driver"
                 style="
                   min-width: 200px;
@@ -353,7 +338,7 @@
                 <button
                   class="btn btn-danger"
                   style="width: 70px; padding: 5px"
-                  [disabled]="Ride.Status == 0"
+                  [disabled]="Ride.Status == 0 || Ride.Status == 5"
                   (click)="CancelRide(Ride, 0)"
                 >
                   Cancel
