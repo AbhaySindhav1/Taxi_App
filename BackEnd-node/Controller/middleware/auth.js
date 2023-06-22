@@ -18,8 +18,8 @@ const auth = async (req, res, next) => {
 
     next(); 
   } catch (error) {
-    console.log(error);
-    res.status(400).send("please auth");
+    console.log("error From Auth");
+    res.status(400).send("Authentication Failed");
   }
 };
 

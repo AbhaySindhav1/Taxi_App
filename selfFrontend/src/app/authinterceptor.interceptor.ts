@@ -8,10 +8,14 @@ import {
 } from '@angular/common/http';
 import { Observable, catchError, of } from 'rxjs';
 import { AuthService } from './Services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
 export class AuthinterceptorInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private toaster: ToastrService
+  ) {}
 
   intercept(
     request: HttpRequest<unknown>,
@@ -30,20 +34,19 @@ export class AuthinterceptorInterceptor implements HttpInterceptor {
           Authorization: `Bearer ${user._token}`,
         },
       });
-      return next.handle(modifiedReq);
-      // .pipe(
-      //   catchError((error) => {
-      //     console.error('Error occurred:', error);
-      //     if (
-      //       error.error == 'Authentication Failed' ||
-      //       error.error == 'please auth'
-      //     ) {
-      //       // You can also perform any additional error handling or actions here
-      //       this.authService.logout();
-      //     }
-      //     return of(error); // Returning a new observable with the error
-      //   })
-      // );
+      return next.handle(modifiedReq).pipe(
+        catchError((error) => {
+          if (
+            error.error === 'Authentication Failed' ||
+            error.error === 'please auth'
+          ) {
+            // Handle specific errors here
+            this.authService.logout();
+          }
+          // Let other errors be handled by their respective components
+          throw error;
+        })
+      );
     } else {
       return next.handle(request);
     }

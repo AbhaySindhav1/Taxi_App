@@ -73,13 +73,13 @@
           :
           <div
             class="Value"
-            *ngIf="data?.PaymentId == 'Cash' || !data?.PaymentId"
+            *ngIf="data?.PaymentType == 'Cash' || !data?.PaymentType"
           >
             Cash
           </div>
           <div
             class="Value"
-            *ngIf="data?.PaymentId && data?.PaymentId != 'Cash'"
+            *ngIf="data?.PaymentType && data?.PaymentType != 'Cash'"
           >
             Card: {{ data?.PaymentId }}
           </div>

@@ -144,16 +144,18 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  // onDeleteUser(id: any) {
-  //   this.usersService.initDeleteUsers(id).subscribe({
-  //     next: (data) => {
-  //       this.getAllUserReq();
-  //     },
-  //     error: (error) => {
-  //       this.toastr.error(error.error);
-  //     },
-  //   });
-  // }
+  onDeleteUser(id: any) {
+    let Confirm = confirm('Are You Want Delete User');
+    if (!Confirm) return;
+    this.usersService.initDeleteUsers(id).subscribe({
+      next: (data) => {
+        this.getAllUserReq();
+      },
+      error: (error) => {
+        this.toastr.error(error.error);
+      },
+    });
+  }
 
   initReset() {
     this.selectedFile = null;
@@ -186,6 +188,11 @@ export class UsersComponent implements OnInit {
         this.initReset();
       },
       error: (error) => {
+        console.log(error.error);
+        if (error.error) {
+          this.toastr.error(error.error);
+          return;
+        }
         this.toastr.error(error);
       },
     });

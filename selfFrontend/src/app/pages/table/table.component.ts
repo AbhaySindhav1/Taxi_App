@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 import { VehicleService } from 'src/app/Services/vehicle.service';
 
 @Component({
@@ -16,7 +17,10 @@ export class TableComponent implements OnInit {
   vehicleForm: FormGroup | any;
   submitted: boolean | any;
   error: any;
-  constructor(private vehicleService: VehicleService) {}
+  constructor(
+    private vehicleService: VehicleService,
+    private toaster: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.vehicleService.InITGetVehicles().subscribe((data) => {
@@ -27,10 +31,16 @@ export class TableComponent implements OnInit {
     if (!this.updateButton) {
       this.vehicleForm = new FormGroup({
         types: new FormControl(null, [Validators.required]),
-        name: new FormControl(null, [Validators.required]),
+        // name: new FormControl(null, [Validators.required]),
         profile: new FormControl(null, [Validators.required]),
       });
     }
+  }
+
+  onCencel() {
+    this.vehicleForm.reset();
+    this.error = null;
+    this.submitted = false;
   }
 
   OnSubmit(form: any) {
@@ -44,7 +54,7 @@ export class TableComponent implements OnInit {
     form.value.profile = this.file;
     let formData = new FormData();
     formData.append('types', form.value.types);
-    formData.append('name', form.value.name);
+    // formData.append('name', form.value.name);
     if (this.file) {
       formData.append('profile', this.file);
     }
@@ -64,21 +74,34 @@ export class TableComponent implements OnInit {
               this.vehicleForm.get('profile').updateValueAndValidity();
 
               this.vehicleForm.reset();
+              this.toaster.success('Taxi Edited Succesfully');
+              this.onCencel();
             },
             error: (error) => {
-              this.error = error.error.error;
+              if (error.error && error.error.error) {
+                this.toaster.error(error.error.error);
+              } else if (error.error) {
+                this.toaster.error(error.error);
+              } else {
+                this.toaster.error(error);
+              }
             },
             complete: () => {},
           });
         },
         error: (error): any => {
           if (error.error.keyPattern) {
-            this.error = 'types is Required';
+            this.toaster.error('types is Required');
             return;
           }
-          this.error = error.error.error;
+          if (error.error && error.error.error) {
+            this.toaster.error(error.error.error);
+          } else if (error.error) {
+            this.toaster.error(error.error);
+          } else {
+            this.toaster.error(error);
+          }
         },
-        complete: () => {},
       });
     }
 
@@ -89,20 +112,32 @@ export class TableComponent implements OnInit {
           this.vehicleService.InITGetVehicles().subscribe({
             next: (data) => {
               this.cards = data;
+              this.toaster.success('Taxi Added Succesfully');
+              this.onCencel();
             },
             error: (error) => {
-              this.error = error.error.error;
+              if (error.error && error.error.error) {
+                this.toaster.error(error.error.error);
+              } else if (error.error) {
+                this.toaster.error(error.error);
+              } else {
+                this.toaster.error(error);
+              }
             },
-            complete: () => {},
           });
         },
         error: (error): any => {
-          
           if (error.error.keyPattern) {
-            this.error = 'types is Already Added';
+            this.toaster.error('types is Already Added');
             return;
           }
-          this.error = error.error.error;
+          if (error.error && error.error.error) {
+            this.toaster.error(error.error.error);
+          } else if (error.error) {
+            this.toaster.error(error.error);
+          } else {
+            this.toaster.error(error);
+          }
         },
         complete: () => {},
       });
@@ -117,13 +152,25 @@ export class TableComponent implements OnInit {
             this.cards = data;
           },
           error: (error) => {
-            this.error = error.error.error;
+            if (error.error && error.error.error) {
+              this.toaster.error(error.error.error);
+            } else if (error.error) {
+              this.toaster.error(error.error);
+            } else {
+              this.toaster.error(error);
+            }
           },
           complete: () => {},
         });
       },
       error: (error) => {
-        this.error = error.error.error;
+        if (error.error && error.error.error) {
+          this.toaster.error(error.error.error);
+        } else if (error.error) {
+          this.toaster.error(error.error);
+        } else {
+          this.toaster.error(error);
+        }
       },
       complete: () => {},
     });
@@ -138,7 +185,7 @@ export class TableComponent implements OnInit {
 
     this.vehicleForm.setValue({
       types: card.types,
-      name: card.name,
+      // name: card.name,
       profile: null,
     });
   }

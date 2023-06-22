@@ -54,8 +54,8 @@ export class CardComponent implements OnInit {
     this.form = document.getElementById('payment-form') as HTMLFormElement;
     this.submitBtn = document.getElementById('submit') as HTMLButtonElement;
 
-    setTimeout(() => {
-      this.elements = this.stripe.elements(this.options);
+    setTimeout(async() => {
+       this.elements = this.stripe?.elements(this.options);
 
       this.paymentElement = this.elements.create('payment', {
         layout: {
@@ -69,7 +69,7 @@ export class CardComponent implements OnInit {
       this.paymentElement.mount('#payment-element');
       this.form = document.getElementById('payment-form');
       this.submitBtn = document.getElementById('submit');
-    }, 500);
+    }, 1000);
   }
 
   async AddCards() {

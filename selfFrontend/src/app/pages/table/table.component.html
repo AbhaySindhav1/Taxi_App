@@ -1,4 +1,4 @@
-<div style="margin: 40px auto 80px auto;" >
+<div style="margin: 40px auto 80px auto">
   <div style="width: 90%; text-align: center">
     <mat-icon
       style="font-size: 50px; height: 50px; width: 50px; margin: 10px auto"
@@ -12,25 +12,27 @@
     (ngSubmit)="OnSubmit(Form)"
     #Form="ngForm"
   >
-    <div class="row d-flex justify-content-center" >
+    <div class="row d-flex justify-content-center">
       <div class="col-3">
         <label for="Type" class="form-label">Type</label>
         <input
-        type="text"
-        name="types"
-        class="form-control"
-        formControlName="types"
-        id="types"
-        placeholder="Enter Your types"
-        required
-      />
-    
-        <span *ngIf="vehicleForm.get('types').invalid && submitted"
+          type="text"
+          name="types"
+          class="form-control"
+          formControlName="types"
+          id="types"
+          placeholder="Enter Your types"
+          required
+        />
+
+        <span
+          *ngIf="vehicleForm.get('types').invalid && submitted"
+          style="margin: 10px 0px; color: red; padding: 10px 0px"
           >Please Select Type</span
         >
       </div>
 
-      <div class="col-2">
+      <!-- <div class="col-2">
         <label for="Name" class="form-label">Name</label>
         <input
           type="text"
@@ -47,7 +49,7 @@
           "
           >Please Enter Name</span
         >
-      </div>
+      </div> -->
       <br />
 
       <div class="col-3">
@@ -63,8 +65,9 @@
         <span
           *ngIf="
             vehicleForm.get('profile').invalid &&
-            vehicleForm.get('profile').touched
+            (vehicleForm.get('profile').touched || submitted)
           "
+          style="color: red; padding: 10px 0px"
           >Please Upload Picture</span
         >
       </div>
@@ -104,37 +107,71 @@
         >
           Update
         </button>
+        <button
+          type="button"
+          class="btn bg-danger"
+          id="Cancel"
+          (click)="onCencel()"
+          style="
+            padding: 7px 20px;
+            font-size: 15px;
+            font-weight: 400;
+            margin-left: 30px;
+            margin-top: 35px;
+          "
+        >
+          Cancel
+        </button>
       </div>
     </div>
   </form>
-  <span *ngIf="error">{{ error }}</span>
+  <span *ngIf="error" style="color: red; padding: 10px 0px">{{ error }}</span>
 </div>
-<table  >
+<table>
   <tbody style="display: flex ml-2">
-    
-    <div class="container-fluid" >
-      <div class="row d-flex" style="gap: 40px; background-color: white;" >
+    <div class="container-fluid">
+      <div class="row d-flex" style="gap: 40px; background-color: white">
         <div
           class="card-container"
-          style="justify-content: center; text-align: center ;background-color: #E3E7EA; padding: 45px ;" 
-          *ngFor="let card of cards">
+          style="
+            justify-content: center;
+            text-align: center;
+            background-color: #e3e7ea;
+            padding: 45px;
+          "
+          *ngFor="let card of cards"
+        >
           <img
             src="http://localhost:3000/uploads/Vehicles/{{ card.profile }}"
             alt=""
-            style="width: 332px; height: 220px; border-radius: 15px ; margin: auto;" 
+            style="
+              width: 332px;
+              height: 220px;
+              border-radius: 15px;
+              margin: auto;
+            "
           />
-          <br>
+          <br />
 
-          <h1 style="font-weight: 800; font-size: 40px; font-family: cursive ; margin: 20px auto 40px auto;">{{ card.types }}</h1>
+          <h1
+            style="
+              font-weight: 800;
+              font-size: 40px;
+              font-family: cursive;
+              margin: 20px auto 40px auto;
+            "
+          >
+            {{ card.types }}
+          </h1>
           <!-- <h3>{{ card.name }}</h3> -->
-          
+
           <div class="d-flex" style="justify-content: space-around">
             <button
               class="btn btn-success bg-success"
               type="button"
               style="padding: 5px 20px; cursor: pointer"
               (click)="onEdit(card._id, card, Form)"
-              >
+            >
               Edit
             </button>
             <!-- <button

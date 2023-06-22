@@ -85,6 +85,7 @@
             placeholder="Driver Profit"
             id="DriverProfitInp"
             formControlName="DriverProfit"
+            onKeyPress="if(this.value.length==2) return false;"
           />
           <span
             *ngIf="issubmitted && !PricingForm.get('DriverProfit')?.valid"
@@ -108,6 +109,7 @@
             placeholder="Min Fare Value"
             id="MinFare"
             formControlName="MinFarePrice"
+            onKeyPress="if(this.value.length==2) return false;"
           />
           <span
             *ngIf="issubmitted && !PricingForm.get('MinFarePrice')?.valid"
@@ -157,6 +159,7 @@
             placeholder="Base Price"
             id="BasePrice"
             formControlName="BasePrice"
+            onKeyPress="if(this.value.length==2) return false;"
           />
           <span
             *ngIf="issubmitted && !PricingForm.get('BasePrice')?.valid"
@@ -180,6 +183,7 @@
             placeholder="Price Per Unit Distance"
             id="DistancePrice"
             formControlName="DistancePrice"
+            onKeyPress="if(this.value.length==2) return false;"
           />
           <span
             *ngIf="issubmitted && !PricingForm.get('DistancePrice')?.valid"
@@ -203,6 +207,7 @@
             placeholder="Price Per Unit Time (min)"
             id="TimePrice"
             formControlName="TimePrice"
+            onKeyPress="if(this.value.length==2) return false;"
           />
           <div
             *ngIf="issubmitted && !PricingForm.get('TimePrice')?.valid"
@@ -227,9 +232,10 @@
             placeholder="Max Space"
             id="MaxSpace"
             formControlName="MaxSpace"
+            onKeyPress="if(this.value.length==2) return false;"
           />
           <span
-            *ngIf="issubmitted && !PricingForm.get('MaxSpace')?.valid"
+            *ngIf="PricingForm.get('MaxSpace')?.errors?.['invalidMaxSpace']  && PricingForm.get('MaxSpace')?.touched"
             class="alert alert-danger"
             style="
               width: 190px;
@@ -239,7 +245,7 @@
               align-items: center;
             "
             role="alert"
-            >*MaxSpace Is Required</span
+            >MaxSpace must be a positive integer.</span
           >
         </div>
         <div
@@ -284,7 +290,7 @@
 </div>
 <select
   [(ngModel)]="limit"
-  style="width: 100px; float: right; margin: 20px 50px; border-radius: 10px;"
+  style="width: 100px; float: right; margin: 20px 50px; border-radius: 10px"
   (change)="page = 1; getData()"
 >
   <option value="2">2</option>
@@ -310,7 +316,17 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let price of PricingList  | paginate : { itemsPerPage: +limit, currentPage: +page, totalItems: totalPriceList };">
+      <tr
+        *ngFor="
+          let price of PricingList
+            | paginate
+              : {
+                  itemsPerPage: +limit,
+                  currentPage: +page,
+                  totalItems: totalPriceList
+                }
+        "
+      >
         <td>{{ price.countryInfo[0].countryname }}</td>
         <td>{{ price.cityInfo[0].city }}</td>
         <td>{{ price.VehicleInfo[0].types }}</td>
@@ -341,7 +357,7 @@
     </tbody>
   </table>
 </div>
-<div style="float: right;  margin: 30px 50px 40px auto">
+<div style="float: right; margin: 30px 50px 40px auto">
   <pagination-controls
     class="paginationlink"
     (pageChange)="getData($event)"

@@ -12,11 +12,11 @@ const VehicleSchema = mongoose.Schema({
     trim: true,
     unique: true,
   },
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
+  // name: {
+  //   type: String,
+  //   required: true,
+  //   trim: true,
+  // },
 });
 const Vehicle = mongoose.model("Taxi", VehicleSchema);
 

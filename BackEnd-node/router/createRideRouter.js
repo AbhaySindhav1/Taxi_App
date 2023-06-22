@@ -9,12 +9,12 @@ const path = require("path");
 const mongoose = require("mongoose");
 const moment = require("moment");
 const Sockets = require("../Controller/Functions/Socket");
+const { sendMessages } = require("../Controller/Functions/functions");
 const envPath = path.join(__dirname, "../key.env");
 const {
   createCustomer,
   GetPayment,
 } = require("../Controller/Functions/Stripe");
-const { escape } = require("querystring");
 require("dotenv").config({ path: envPath });
 
 ////                                                             ///  ADD Ride ///                                                                             ////
@@ -175,49 +175,44 @@ router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
   if (!req.body.Status) return;
   try {
     let ride = await CreateRide.findById(req.params.id);
-    console.log("ride", ride);
     if (req.body.Status != 5) {
       await Sockets.StatusChange(req.params.id, req.body.Status);
+      if (req.body.Status == 2) {
+        sendMessages("Ride Accepted By Driver");
+      }
+      if (req.body.Status == 4) {
+        sendMessages("Ride Started By Driver");
+      }
       res.status(200).json("Ride Status Updated");
     } else {
-      console.log("1");
       if (!ride) return;
-      console.log("2");
       if (!ride.PaymentType) {
         ride.PaymentType = "Cash";
         await ride.save();
       }
-      console.log("3");
       if (ride && ride.PaymentType && ride.PaymentType === "Cash") {
         await Sockets.StatusChange(req.params.id, req.body.Status);
+        if (req.body.Status == 5) {
+          sendMessages("Ride Completed By Driver And Paid by Cash");
+        }
         res.status(200).json("Ride Completed");
         return;
       }
-      console.log("4");
       if (ride && !ride.PaymentType && ride.PaymentType !== "Cash") {
-        console.log("5");
         throw new Error("No Card Found Please Add Card");
       }
-      console.log("6");
       if (ride && ride.PaymentType && ride.PaymentType !== "Cash") {
-        console.log("7");
         const user = await Users.findById(ride.user_id);
         if (!user.StripeId) {
-          console.log("8");
           let StripeID = await createCustomer(UserEmail, UserName);
           user.StripeId = StripeID;
           await user.save();
         }
-        console.log("9");
         if (ride && !ride.PaymentId) {
-          console.log("10");
           throw new Error("No Card Found Please Add Card");
         }
-        console.log("11");
         await GetPayment(user.StripeId, ride.PaymentId, +ride.TripFee);
-        console.log("12");
         await Sockets.StatusChange(req.params.id, req.body.Status);
-        console.log("13");
         res.status(200).json("Ride Completed and Payment Done");
       }
     }

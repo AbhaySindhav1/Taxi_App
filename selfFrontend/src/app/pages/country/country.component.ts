@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
 import { CountryService } from 'src/app/Services/country.service';
 
 @Component({
@@ -25,7 +26,10 @@ export class CountryComponent implements OnInit {
     flagimage: '',
   };
 
-  constructor(private countryService: CountryService) {}
+  constructor(
+    private countryService: CountryService,
+    private toaster: ToastrService
+  ) {}
   ngOnInit(): void {
     this.countryService
       .initgetRequest('https://restcountries.com/v3.1/all')
@@ -38,23 +42,22 @@ export class CountryComponent implements OnInit {
     this.countryService.initGetAllCountry().subscribe({
       next: (data) => {
         this.CountryList = data;
-        
       },
     });
 
     this.CountryForm = new FormGroup({
       selectedCountry: new FormControl(null, [Validators.required]),
-      timezone: new FormControl({value:null,disabled: true }, [
+      timezone: new FormControl({ value: null, disabled: true }, [
         Validators.required,
       ]),
-      currency: new FormControl({value:null, disabled: true }, [
+      currency: new FormControl({ value: '', disabled: true }, [
         Validators.required,
       ]),
-      countrycode: new FormControl({value:null, disabled: true }, [
+      countrycode: new FormControl({ value: '', disabled: true }, [
         Validators.required,
       ]),
       flag: new FormControl(
-        { value:null ,disabled: true },
+        { value: null, disabled: true },
         Validators.required
       ),
     });
@@ -117,11 +120,19 @@ export class CountryComponent implements OnInit {
   }
 
   onSubmit() {
-    
-    this.CountryForm.get('selectedCountry').touched= true
-      
+    console.log(this.CountryForm);
+
+    if (
+      !this.CountryForm.valid ||
+      this.selectedCountryData.countryname == 'Antarctica'
+    ) {
+      this.toaster.error('Please Add Valid Data');
+      return;
+    }
+    this.CountryForm.get('selectedCountry').touched = true;
+
     if (!this.selectedCountryData.countryname) {
-      this.error = "please select country "
+      this.error = 'please select country ';
       return;
     }
     let formData = new FormData();
@@ -139,12 +150,18 @@ export class CountryComponent implements OnInit {
             this.CountryList = data;
           },
         });
+        this.toaster.success('Country Added SuccessFully');
       },
       error: (error) => {
         if (error.error.code == 11000 && error.error.keyValue.countryname) {
-          this.error = error.error.keyValue.countryname + ' is  already added';
-          this.changed = false;
+          this.toaster.error(
+            error.error.keyValue.countryname + ' is  already added'
+          );
+          // this.error = error.error.keyValue.countryname + ' is  already added';
+          // this.changed = false;
         } else {
+          this.toaster.error(error.message);
+
           this.error = error.message;
           this.changed = false;
         }
@@ -161,7 +178,6 @@ export class CountryComponent implements OnInit {
   }
 
   onDelete(id: any) {
-
     this.countryService.initDeleteCountry(id).subscribe({
       next: (data) => {
         console.log(data);
@@ -184,7 +200,7 @@ export class CountryComponent implements OnInit {
 
   onSearch() {
     this.isSearchMode = !this.isSearchMode;
-    if(!this.isSearchMode){
+    if (!this.isSearchMode) {
       this.countryService.initGetAllCountry().subscribe({
         next: (data) => {
           this.CountryList = data;
@@ -200,8 +216,8 @@ export class CountryComponent implements OnInit {
   onSearchCountry() {
     let searchValue = (document.getElementById('searchBtn') as HTMLInputElement)
       .value;
-      console.log(searchValue);
-      const Value = { Value:searchValue };
+    console.log(searchValue);
+    const Value = { Value: searchValue };
     this.countryService.initGetAllCountry(Value).subscribe({
       next: (data) => {
         this.CountryList = data;

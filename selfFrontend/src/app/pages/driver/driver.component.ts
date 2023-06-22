@@ -273,6 +273,8 @@ export class DriverComponent implements OnInit {
   ////  Delete  Driver Info
 
   onDeleteDriver(id: any) {
+    let Confirm = confirm('Are You Want Delete Driver');
+    if (!Confirm) return;
     this.driverService.initDeleteDriver(id).subscribe({
       next: (data) => {
         this.getDriverReq();

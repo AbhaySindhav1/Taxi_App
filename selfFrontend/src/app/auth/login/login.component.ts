@@ -22,13 +22,17 @@ export class LoginComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toaster : ToastrService
+    private toaster: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.LoginForm = new FormGroup({
       email: new FormControl(null, [Validators.required, Validators.email]),
-      password: new FormControl(null, Validators.required),
+      password: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(20),
+      ]),
     });
   }
 
@@ -38,9 +42,15 @@ export class LoginComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.router.navigate(['dashboard']);
-          this.toaster.success("Login Successfully")
+          this.toaster.success('Login Successfully');
         },
-        error: (error) => (this.error = error.error),
+        error: (error) => {
+          if (error.error) {
+            this.toaster.error(error.error);
+          } else {
+            this.toaster.error(error.error);
+          }
+        },
         complete: () => {},
       });
     this.LoginForm.reset();

@@ -4,23 +4,28 @@ import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { User } from '../user.model';
 import { tap } from 'rxjs/internal/operators/tap';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService implements OnInit {
   ngOnInit(): void {}
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toaster: ToastrService
+  ) {}
 
   user = new BehaviorSubject<User | null>(null);
 
-  InitAutoLogin(){
-    return !!localStorage.getItem('userData')
+  InitAutoLogin() {
+    return !!localStorage.getItem('userData');
   }
 
   InItLogin(email: string, password: string) {
-    console.log(email ,password);
-    
+    console.log(email, password);
+
     return this.http
       .post<any>('http://localhost:3000/UserLogin', {
         email,
@@ -28,8 +33,8 @@ export class AuthService implements OnInit {
       })
       .pipe(
         tap((res) => {
-        console.log(res);
-        
+          console.log(res);
+
           this.handleAuthentication(
             res.email,
             res.id,
@@ -79,12 +84,11 @@ export class AuthService implements OnInit {
   //   }
   // }
 
-
   logout() {
     this.user.next(null);
     localStorage.removeItem('userData');
     this.router.navigate(['login']);
-   
+    this.toaster.warning('logout Successfully');
   }
 
   // autoLogout(expirationDuration: number) {

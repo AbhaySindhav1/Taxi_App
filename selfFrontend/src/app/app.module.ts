@@ -12,6 +12,8 @@ import {  MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { environment } from '../app/environments/environment';
+// import {  AngularFireAuthModule } from '@angular/';
 
 
 
@@ -28,6 +30,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     MatDialogModule,
     MatDialogModule,
     NgbModule,
+    // AngularFireModule.initializeApp(environment.firebase)
   ],
   providers: [
     {

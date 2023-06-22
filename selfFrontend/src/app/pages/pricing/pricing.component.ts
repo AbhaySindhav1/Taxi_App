@@ -1,9 +1,24 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { CityService } from 'src/app/Services/city.service';
 import { CountryService } from 'src/app/Services/country.service';
 import { PricingService } from 'src/app/Services/pricing.service';
 import { VehicleService } from 'src/app/Services/vehicle.service';
+
+function validateMaxSpace(
+  control: AbstractControl
+): { [key: string]: any } | null {
+  const value = control.value;
+  if (value < 0 || value % 1 !== 0) {
+    return { invalidMaxSpace: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-pricing',
@@ -21,9 +36,9 @@ export class PricingComponent implements OnInit {
   displayerror = false;
   isEditMode = false;
   userId: any;
-  limit:any = 10;
-  page:any = 1;
-  totalPriceList:any;
+  limit: any = 10;
+  page: any = 1;
+  totalPriceList: any;
   @ViewChild('PricingCountry') PricingCountry: any;
 
   constructor(
@@ -43,7 +58,7 @@ export class PricingComponent implements OnInit {
       BasePrice: new FormControl(null, [Validators.required]),
       DistancePrice: new FormControl(null, [Validators.required]),
       TimePrice: new FormControl(null, [Validators.required]),
-      MaxSpace: new FormControl(null, [Validators.required]),
+      MaxSpace: new FormControl(null, [Validators.required, validateMaxSpace]),
     });
   }
 

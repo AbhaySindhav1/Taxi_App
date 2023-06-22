@@ -18,7 +18,7 @@ const appRoutes: Routes =[
       }
     ]
   },
-  {path:"signup",component:RegisterComponent},
+  // {path:"signup",component:RegisterComponent},
   {path:"login",component:LoginComponent},
   {path:"dashboard",component:DashboradComponent , canActivate: [AuthGuardService]},
   { path: '**', redirectTo:""}

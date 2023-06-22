@@ -37,8 +37,6 @@ router.post("/vehicle", auth, handleUpload, async (req, res) => {
 
     if (error.errors && error.errors.types) {
       res.status(400).json("types is required");
-    } else if (error.errors && error.errors.name) {
-      res.status(400).json("name is required");
     } else if (error.errors && error.errors.profile) {
       res.status(400).json("profile is required");
     } else {
@@ -56,7 +54,9 @@ router.get("/Allvehicle", auth, async (req, res) => {
 
   try {
     const vehicles = await Vehicle.find({
-      $or: [{ name: regext }, { type: regext }],
+      $or: [
+        // { name: regext }, 
+        { type: regext }],
     });
 
     res.status(200).send(vehicles);
@@ -113,7 +113,7 @@ router.patch("/vehicle/:id", auth, handleUpload, async (req, res) => {
 
 router.get("/vehicle/types", auth, async (req, res) => {
   try {
-    const Types = await Vehicle.find({}).select("_id types")
+    const Types = await Vehicle.find({}).select("_id types");
     res.status(200).send(Types);
   } catch (error) {
     res.status(400).send(error);

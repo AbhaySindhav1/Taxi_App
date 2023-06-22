@@ -29,6 +29,7 @@ const upload = multer({
   limits: { fileSize: maxSize },
 }).single("profile");
 
+
 const handleUpload = (req, res, next) => {
   upload(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
