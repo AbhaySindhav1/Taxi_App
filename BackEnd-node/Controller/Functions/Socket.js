@@ -23,24 +23,32 @@ module.exports = function (io) {
     });
 
     socket.on("ride", async (data) => {
-      if (!data) return;
-      if (data.Status == 0) {
-        CancelRide(data.rideID, data.driverID);
-      }
-      if (data.Status == "Assign") {
-        AssignRide(data.rideID, data.driverID, "single");
+      try {
+        if (!data) return;
+        if (data.Status == 0) {
+          CancelRide(data.rideID, data.driverID);
+        }
+        if (data.Status == "Assign") {
+          AssignRide(data.rideID, data.driverID, "single");
+        }
+      } catch (error) {
+        console.log(error);
       }
     });
 
     socket.on("DriverResponse", async (data) => {
-      if (!data) return;
-      if (data.Status == 0) {
-        await RejectRide(data.Ride._id, data.Ride.DriverId);
-      } else if (data.Status == 1) {
-        await NotReactedRide(data.Ride._id, data.Status);
-      }
-      if (data.Status == 2) {
-        await AcceptRide(data.Ride._id, data.Ride.DriverId, data.Status);
+      try {
+        if (!data) return;
+        if (data.Status == 0) {
+          await RejectRide(data.Ride._id, data.Ride.DriverId);
+        } else if (data.Status == 1) {
+          await NotReactedRide(data.Ride._id, data.Status);
+        }
+        if (data.Status == 2) {
+          await AcceptRide(data.Ride._id, data.Ride.DriverId, data.Status);
+        }
+      } catch (error) {
+        console.log(error);
       }
     });
 
@@ -63,30 +71,32 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
   AssignRide = async (RideID, AsDriverID, AssigningType = "Cron") => {
-    
-    let rides = await Rides.findById(RideID);
+    try {
+      let rides = await Rides.findById(RideID);
 
-    if (rides.Status != 1 && rides.Status != 100) return;
+      if (rides.Status != 1 && rides.Status != 100) return;
 
-    let AssignDriver = await Driver.findById(AsDriverID);
-    if (!AssignDriver) return;
-    AssignDriver.status = "onRequest";
-    await AssignDriver.save();
+      let AssignDriver = await Driver.findById(AsDriverID);
+      if (!AssignDriver) return;
+      AssignDriver.status = "onRequest";
+      await AssignDriver.save();
 
-    rides.Status = 100;
-    rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
-    rides.Driver = AssignDriver.DriverName;
-    rides.AssignTime = getTime();
-    rides.AssigningType = AssigningType;
-    rides.RejectedRide.push(AssignDriver._id);
+      rides.Status = 100;
+      rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
+      rides.Driver = AssignDriver.DriverName;
+      rides.AssignTime = getTime();
+      rides.AssigningType = AssigningType;
+      rides.RejectedRide.push(AssignDriver._id);
 
-    await rides.save();
+      await rides.save();
 
-    if (!rides) return;
+      if (!rides) return;
 
-    rides = await GetRideDetail(rides._id);
-
-    io.emit("reqtoSendDriver", rides);
+      rides = await GetRideDetail(rides._id);
+      io.emit("reqtoSendDriver", rides);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   module.exports.AssignRide = AssignRide;
@@ -94,22 +104,26 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////////////        Driver Accepted  Ride    ////////////////////////////////////////////////////////////////////////
 
   AcceptRide = async (RideID, DriverID, Status) => {
-    if (!RideID) return;
-    if (!mongoose.Types.ObjectId.isValid(DriverID)) return;
-    let AssignDriver = await Driver.findByIdAndUpdate(
-      DriverID,
-      { status: "busy" },
-      { new: true }
-    );
-    let ride = await Rides.findByIdAndUpdate(RideID, {
-      Status: Status,
-      DriverId: new mongoose.Types.ObjectId(DriverID),
-      Driver: AssignDriver.DriverName,
-    });
+    try {
+      if (!RideID) return;
+      if (!mongoose.Types.ObjectId.isValid(DriverID)) return;
+      let AssignDriver = await Driver.findByIdAndUpdate(
+        DriverID,
+        { status: "busy" },
+        { new: true }
+      );
+      let ride = await Rides.findByIdAndUpdate(RideID, {
+        Status: Status,
+        DriverId: new mongoose.Types.ObjectId(DriverID),
+        Driver: AssignDriver.DriverName,
+      });
 
-    let FullRideDetail = await GetRideDetail(ride._id);
+      let FullRideDetail = await GetRideDetail(ride._id);
 
-    io.emit("ReqAcceptedByDriver", FullRideDetail);
+      io.emit("ReqAcceptedByDriver", FullRideDetail);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   module.exports.AcceptRide = AcceptRide;
@@ -149,34 +163,38 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////     Ride  status change And Completd           //////////////////////////////////////////////////////////////////////
 
   StatusChange = async (RideID, RideStatus) => {
-    let ride = await Rides.findByIdAndUpdate(RideID, {
-      Status: RideStatus,
-    });
+    try {
+      let ride = await Rides.findByIdAndUpdate(RideID, {
+        Status: RideStatus,
+      });
 
-    if (RideStatus == 5) {
-      if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
-        let FoundDriver = await Driver.findByIdAndUpdate(
-          ride.DriverId,
-          { status: "online" },
-          { new: true }
-        );
-        let Ride = await GetRideDetail(RideID);
-        io.emit("RideCompleted", {
-          Ride,
-          Driver: FoundDriver,
-        });
-      } else {
-        let Ride = await GetRideDetail(RideID);
-        io.emit("RideCompleted", {
-          Ride,
-        });
+      if (RideStatus == 5) {
+        if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
+          let FoundDriver = await Driver.findByIdAndUpdate(
+            ride.DriverId,
+            { status: "online" },
+            { new: true }
+          );
+          let Ride = await GetRideDetail(RideID);
+          io.emit("RideCompleted", {
+            Ride,
+            Driver: FoundDriver,
+          });
+        } else {
+          let Ride = await GetRideDetail(RideID);
+          io.emit("RideCompleted", {
+            Ride,
+          });
+        }
       }
-    }
 
-    io.emit("RideStatus", {
-      RideId: ride._id,
-      Status: RideStatus,
-    });
+      io.emit("RideStatus", {
+        RideId: ride._id,
+        Status: RideStatus,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   module.exports.StatusChange = StatusChange;
@@ -184,37 +202,41 @@ module.exports = function (io) {
   ///////////////////////////////////////////////////////////////     Driver Reject  Ride          //////////////////////////////////////////////////////////////////////
 
   RejectRide = async (RideID, AsDriverID) => {
-    let ride = await Rides.findById(RideID);
+    try {
+      let ride = await Rides.findById(RideID);
 
-    if (!ride) return;
+      if (!ride) return;
 
-    if (!AsDriverID) return;
-    let AssignDriver = await Driver.findById(AsDriverID);
-    if (!AssignDriver) return;
+      if (!AsDriverID) return;
+      let AssignDriver = await Driver.findById(AsDriverID);
+      if (!AssignDriver) return;
 
-    AssignDriver.status = "online";
+      AssignDriver.status = "online";
 
-    await AssignDriver.save();
-    if (ride.AssigningType == "single") {
-      ride.Status = 1;
-    } else {
-      ride.Status = 100;
+      await AssignDriver.save();
+      if (ride.AssigningType == "single") {
+        ride.Status = 1;
+      } else {
+        ride.Status = 100;
+      }
+      ride.DriverId = null;
+      ride.Driver = null;
+      ride.RejectedRide.push(AssignDriver._id);
+      ride.AssignTime = new Date().getTime();
+
+      await ride.save();
+
+      if (!ride) return;
+
+      ride = await GetRideDetail(ride._id);
+
+      io.emit("RejectRide", {
+        ride,
+        Driver: { id: AssignDriver._id, Status: AssignDriver.status },
+      });
+    } catch (error) {
+      console.log(error);
     }
-    ride.DriverId = null;
-    ride.Driver = null;
-    ride.RejectedRide.push(AssignDriver._id);
-    ride.AssignTime = new Date().getTime();
-
-    await ride.save();
-
-    if (!ride) return;
-
-    ride = await GetRideDetail(ride._id);
-
-    io.emit("RejectRide", {
-      ride,
-      Driver: { id: AssignDriver._id, Status: AssignDriver.status },
-    });
   };
 
   module.exports.RejectRide = RejectRide;
@@ -307,49 +329,59 @@ module.exports = function (io) {
   ///////////////////////////////////////////////////////////////       Get  FUll  Ride          //////////////////////////////////////////////////////////////////////
 
   async function GetRideDetail(ID) {
-    const ride = await Rides.aggregate([
-      {
-        $match: {
-          _id: ID,
+    try {
+      const ride = await Rides.aggregate([
+        {
+          $match: {
+            _id: ID,
+          },
         },
-      },
-      {
-        $lookup: {
-          from: "myusers",
-          localField: "user_id",
-          foreignField: "_id",
-          as: "userInfo",
+        {
+          $lookup: {
+            from: "myusers",
+            localField: "user_id",
+            foreignField: "_id",
+            as: "userInfo",
+          },
         },
-      },
-      {
-        $unwind: "$userInfo",
-      },
-      {
-        $lookup: {
-          from: "drivers",
-          localField: "DriverId",
-          foreignField: "_id",
-          as: "DriverInfo",
+        {
+          $unwind: {
+            path: "$userInfo",
+            preserveNullAndEmptyArrays: true,
+          },
         },
-      },
-      {
-        $unwind: {
-          path: "$DriverInfo",
-          preserveNullAndEmptyArrays: true,
+        {
+          $lookup: {
+            from: "drivers",
+            localField: "DriverId",
+            foreignField: "_id",
+            as: "DriverInfo",
+          },
         },
-      },
-      {
-        $lookup: {
-          from: "taxis",
-          localField: "type",
-          foreignField: "_id",
-          as: "VehicleInfo",
+        {
+          $unwind: {
+            path: "$DriverInfo",
+            preserveNullAndEmptyArrays: true,
+          },
         },
-      },
-      {
-        $unwind: "$VehicleInfo",
-      },
-    ]);
-    return ride[0];
+        {
+          $lookup: {
+            from: "taxis",
+            localField: "type",
+            foreignField: "_id",
+            as: "VehicleInfo",
+          },
+        },
+        {
+          $unwind: {
+            path: "$VehicleInfo",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
+      return ride[0];
+    } catch (error) {
+      console.log(error);
+    }
   }
 };

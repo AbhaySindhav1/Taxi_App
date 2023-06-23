@@ -24,8 +24,9 @@ input {
   margin: 20px;
   padding: 10px;
 }
-select {
-  width: 500px;
+
+input,select {
+  width: 250px;
   height: 40px;
 }
 .btn-container {

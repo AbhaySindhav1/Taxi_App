@@ -34,7 +34,9 @@ export class RunningreqComponent implements OnInit {
       this.initChange(data);
     });
 
-    this.socketService.socket.on('RejectRide', (data: any) => {      
+    this.socketService.socket.on('RejectRide', (data: any) => {
+      console.log(data);
+
       this.initChange(data?.ride);
       this.RideList = this.RideList.filter((ride: any) => {
         return ride._id !== data.ride._id;
@@ -81,7 +83,6 @@ export class RunningreqComponent implements OnInit {
 
   OnAccept(Ride: any) {
     this.socketService.socket.emit('DriverResponse', { Ride, Status: 2 });
-
   }
 
   OnNotReactedByDriver(Ride: any) {

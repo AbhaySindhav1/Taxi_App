@@ -20,7 +20,10 @@ async function getUnassignedRequests() {
         },
       },
       {
-        $unwind: "$userInfo",
+        $unwind: {
+          path: "$userInfo",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
@@ -31,7 +34,10 @@ async function getUnassignedRequests() {
         },
       },
       {
-        $unwind: "$VehicleInfo",
+        $unwind: {
+          path: "$VehicleInfo",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $match: {
@@ -90,7 +96,7 @@ async function getBusyDrivers(VehicleType, RideCity, excludedDriverIds) {
     ];
     let drivers = await Driver.aggregate(pipeline);
 
-    console.log("busyDriverlength", drivers.length);
+    // console.log("busyDriverlength", drivers.length);
     return drivers;
   } catch (error) {
     console.log(error);
@@ -110,9 +116,6 @@ async function sendMessages(
     })
     .then((message) => console.log(message.sid));
 }
-
-
-
 
 module.exports = {
   getAvailableDrivers,

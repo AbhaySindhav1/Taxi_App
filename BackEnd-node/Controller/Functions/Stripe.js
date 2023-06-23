@@ -79,19 +79,23 @@ async function getCustomer(customerId) {
 }
 
 async function GetPayment(customerId, paymentCardId, amountToDeduct) {
-  console.log(customerId, paymentCardId, amountToDeduct);
-  payment_intent = await stripe.paymentIntents.create({
-    amount: +amountToDeduct * 100,
-    currency: "usd",
-    customer: customerId,
-    payment_method: paymentCardId,
-    confirm: true,
-  });
+  try {
+    console.log(customerId, paymentCardId, amountToDeduct);
+    payment_intent = await stripe.paymentIntents.create({
+      amount: +amountToDeduct * 100,
+      currency: "usd",
+      customer: customerId,
+      payment_method: paymentCardId,
+      confirm: true,
+    });
 
-  if (payment_intent.status == "succeeded") {
-    console.log("Payment processed successfully.");
-  } else {
-    console.log("Payment failed.");
+    if (payment_intent.status == "succeeded") {
+      console.log("Payment processed successfully.");
+    } else {
+      console.log("Payment failed.");
+    }
+  } catch (error) {
+    return error;
   }
 }
 

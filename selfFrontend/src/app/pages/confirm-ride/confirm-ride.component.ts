@@ -47,12 +47,12 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
-      console.log(data);
+      console.log('reqtoSendDriver', data);
       this.replaceRow(data);
     });
 
     this.socketService.socket.on('NotReactedRide', (data: any) => {
-      console.log(data);
+      console.log('NotReactedRide', data);
       this.replaceRow(data.rides);
       if (data.Driver && this.driverData) {
         this.driverData.push(data.Driver.Driver);
@@ -60,28 +60,34 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('RejectRide', (data: any) => {
+      console.log('RejectRide', data);
       this.replaceRow(data.ride);
     });
 
     this.socketService.socket.on('noDriverFound', (data: any) => {
+      console.log('noDriverFound', data);
       this.replaceRow(data.ride);
     });
 
     this.socketService.socket.on('RideCompleted', (data: any) => {
+      console.log('RideCompleted', data);
       this.RideList = this.RideList.filter((ride: any) => {
         return ride._id !== data.Ride._id;
       });
     });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
+      console.log('CancelledRide', data);
       this.initRideDataChange(data.Ride.RideId, data.Ride.Status, null, null);
     });
 
     this.socketService.socket.on('RideStatus', (data: any) => {
+      console.log('RideStatus', data);
       this.initRideDataChange(data?.RideId, data?.Status);
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
+      console.log('ReqAcceptedByDriver', data);
       if (data.DriverInfo._id && data.DriverInfo.DriverName) {
         this.initRideDataChange(
           data._id,

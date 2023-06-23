@@ -52,11 +52,56 @@ router.post("/city", handleUpload, auth, async (req, res) => {
 
 /////////////////////////////////////////////////////////          Get City         ////////////////////////////////////////////////////////////////////////////////////
 
-router.post("/Cities/GetAll", auth, async (req, res) => {
-  let skip = (req.body.page - 1) * req.body.limit;
-  let limit = req.body.limit;
+// router.post("/Cities/GetAll", auth, async (req, res) => {
+//   let skip = (req.body.page - 1) * req.body.limit;
+//   let limit = req.body.limit;
+//   try {
+//     const ZoneCount = await City.countDocuments([
+//       {
+//         $lookup: {
+//           from: "countries",
+//           localField: "country",
+//           foreignField: "_id",
+//           as: "countryInfo",
+//         },
+//       },
+//     ]);
+//     const cities = await City.aggregate([
+//       {
+//         $lookup: {
+//           from: "countries",
+//           localField: "country",
+//           foreignField: "_id",
+//           as: "countryInfo",
+//         },
+//       },
+//       { $skip: skip },
+//       { $limit: limit },
+//     ]);
+
+//     res.status(200).send({ cities, ZoneCount });
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
+
+router.post("/Cities/GetAll", handleUpload, auth, async (req, res) => {
+  let pipeline = [];
   try {
-    const ZoneCount = await City.countDocuments([
+    const { page, limit, Country } = req.body;
+    console.log(Country);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const parsedLimit = parseInt(limit);
+
+    if (Country && Country != null && Country != "null") {
+        pipeline.push({
+        $match: {
+          country: new mongoose.Types.ObjectId(Country),
+        },
+      });
+    }
+
+    pipeline.push(
       {
         $lookup: {
           from: "countries",
@@ -65,23 +110,29 @@ router.post("/Cities/GetAll", auth, async (req, res) => {
           as: "countryInfo",
         },
       },
-    ]);
-    const cities = await City.aggregate([
       {
-        $lookup: {
-          from: "countries",
-          localField: "country",
-          foreignField: "_id",
-          as: "countryInfo",
+        $unwind: {
+          path: "$countryInfo",
+          preserveNullAndEmptyArrays: true,
         },
       },
       { $skip: skip },
-      { $limit: limit },
-    ]);
+      { $limit: parsedLimit }
+    );
 
-    res.status(200).send({ cities, ZoneCount });
+    let count = {
+      $group: { _id: null, Zone: { $push: "$zone" }, total: { $sum: 1 } },
+    };
+    const countPipeline = [...pipeline];
+    countPipeline.pop();
+    countPipeline.pop();
+    countPipeline.push(count);
+    const cities = await City.aggregate(pipeline);
+    const zoneCount = await City.aggregate(countPipeline);
+
+    res.status(200).json({ cities, ZoneCount: zoneCount });
   } catch (error) {
-    res.status(400).send(error);
+    console.log(error);
   }
 });
 
@@ -142,9 +193,7 @@ router.get("/CityCordinates", auth, async (req, res) => {
       error.error.includes("Loop is not valid")
     ) {
       res.status(400).send("Emter Valid Zone");
-      // res.status(400).send(error);
     } else {
-      // res.status(400).send(error);
       res.status(400).send("Emter Valid Zone");
     }
   }
@@ -177,20 +226,6 @@ router.patch("/city/:id", auth, handleUpload, async (req, res) => {
       id: city._id,
     });
   } catch (error) {
-    // console.log(error);
-    console.log(error.toString().includes("MongoServerError"));
-    console.log(error.toString().includes("Loop is not valid"));
-    //   if (
-    //     error.error.includes("MongoServerError") &&
-    //     error.error.includes("Loop is not valid")
-    //   ) {
-    //     res.status(400).send("Emter Valid Zone");
-    //     // res.status(400).send(error);
-    //   } else {
-    //     // res.status(400).send(error);
-    //     res.status(400).send("Emter Valid Zone");
-    //   }
-    // }
     if (error.errors && error.errors.city.kind === "required") {
       res.status(400).json("City Is Required");
     } else if (error.errors && error.errors.country.kind === "required") {

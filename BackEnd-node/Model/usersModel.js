@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 
 const validatePhoneNumber = function (phoneNumber) {
-  const regex =/^((\+[0-9]{2}-?)|0)?[0-9]{10}$/
+  const regex = /^((\+[0-9]{0,5}-?)|0)?[0-9]{10}$/;
   return regex.test(phoneNumber);
 };
 
@@ -35,12 +35,16 @@ const UsersSchema = mongoose.Schema({
     unique: true,
     validate: [validatePhoneNumber, "Please enter a valid phone number"],
   },
-  StripeId:{
-    type:String,
+  UserCountry: {
+    type: String,
+    required: true,
   },
-  defaultPayment:{
-    type:String
-  }
+  StripeId: {
+    type: String,
+  },
+  defaultPayment: {
+    type: String,
+  },
 });
 
 const Users = mongoose.model("MyUser", UsersSchema);

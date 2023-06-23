@@ -3,7 +3,7 @@ const Country = require("../Model/countryModel");
 const router = new express.Router();
 const { handleUpload } = require("../Controller/middleware/multer");
 const auth = require("../Controller/middleware/auth");
-
+const mongoose = require("mongoose");
 //                                                        //   Add   Country  //                                                                          //
 
 router.post("/country", handleUpload, auth, async (req, res) => {
@@ -29,13 +29,17 @@ router.post("/country", handleUpload, auth, async (req, res) => {
 //                                                         //  Get All  Country  //                                                                          //
 
 router.get("/Countries", auth, async (req, res) => {
+  let query;
   const searchQuery = req.query.Value || "";
-  const regext = new RegExp(searchQuery, "i");
+  if (mongoose.Types.ObjectId.isValid(searchQuery)) {
+    query = { _id: searchQuery.trim() };
+  } else {
+    const regext = new RegExp(searchQuery.trim(), "i");
+    query = { countryname: regext };
+  }
 
   try {
-    const countries = await Country.find({
-      $or: [{ countryname: regext }],
-    });
+    const countries = await Country.find(query);
     res.status(200).send(countries);
   } catch (error) {
     res.status(400).send(error);
@@ -48,7 +52,7 @@ router.get("/country", auth, async (req, res) => {
   const searchQuery = req.query.Value || "";
   const regext = new RegExp(searchQuery, "i");
   try {
-    const conties = await Country.find({}).select("_id countryname")
+    const conties = await Country.find({}).select("_id countryname");
     res.status(200).send(conties);
   } catch (error) {
     res.status(400).send(error);

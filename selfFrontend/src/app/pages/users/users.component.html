@@ -78,12 +78,40 @@
         </span>
       </div>
 
+      <!-- /////////////////// -->
+      <div class="form-outline">
+        <label class="form-label" for="UserCountry">Country </label>
+        <br />
+        <select
+          name="UserCountry"
+          id="UserCountry"
+          formControlName="UserCountry"
+          (change)="onCountrySelect()"
+        >
+          <option value="null" selected hidden>Select Country</option>
+          <option value="{{ Country._id }}" *ngFor="let Country of CountryList">
+            {{ Country.countryname }}
+          </option>
+        </select>
+        <br />
+        <br />
+        <span
+          *ngIf="
+            (f.UserCountry.touched || isSubmitted) && f.UserCountry.invalid
+          "
+          style="color: #ff372e"
+        >
+          Please Select Country
+        </span>
+      </div>
+
       <div class="form-outline">
         <label class="form-label" for="countrycode">Country Code</label>
         <input
           type="number"
           id="CountryCode"
           class="form-control"
+          style="width: 150px"
           formControlName="CountryCode"
           onKeyPress="if(this.value.length==2) return false;"
           placeholder="+91"
@@ -196,7 +224,13 @@
 
   <select
     [(ngModel)]="limit"
-    style="width: 100px; float: right; margin: 50px 50px -55px auto ;background-color: #6d7ae075; border-radius: 10px;"
+    style="
+      width: 100px;
+      float: right;
+      margin: 50px 50px -55px auto;
+      background-color: #6d7ae075;
+      border-radius: 10px;
+    "
     (change)="p = 1; getAllUserReq()"
   >
     <option value="2">2</option>
@@ -311,7 +345,7 @@
             </button>
             <button
               class="btn btn-danger button"
-              style="color: white;"
+              style="color: white"
               (click)="onDeleteUser(user._id)"
             >
               Delete

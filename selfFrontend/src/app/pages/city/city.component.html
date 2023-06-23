@@ -128,7 +128,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let city of Citylist | paginate : { itemsPerPage: +limit, currentPage: +page, totalItems: totalZones }">
-          <td>{{ city.countryInfo[0].countryname }}</td>
+          <td>{{ city.countryInfo.countryname }}</td>
           <td>{{ city.city }}</td>
           <td>
             <button class="btn btn-success" (click)="onEdit(city)">Edit</button>

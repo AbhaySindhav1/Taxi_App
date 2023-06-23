@@ -13,8 +13,10 @@ let schedule = `*/${CroneTime} * * * * *`;
 
 module.exports = function (io) {
   cron.schedule(schedule, async () => {
-    let rides = await getUnassignedRequests();
-     AssignRideToDriver(rides);
+    try {
+      let rides = await getUnassignedRequests();
+      AssignRideToDriver(rides);
+    } catch (error) {}
   });
 
   async function AssignRideToDriver(rides) {
@@ -30,7 +32,7 @@ module.exports = function (io) {
       if (ride.AssignTime && ride.AssignTime <= Date.now()) {
         // ReqVar++;
         // if (ReqVar == 2) {
-          await AssignDriverToRide(ride);
+        await AssignDriverToRide(ride);
         // }
       } else {
         setImmediate(() => CheckTime(ride));

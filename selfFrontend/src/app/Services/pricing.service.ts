@@ -12,14 +12,18 @@ export class PricingService {
   }
 
   initGetAllZonePricing(data?: any) {
-    return this.http.post<any>(
-      'http://localhost:3000/price/GetAllPrice',
-      data
-    );
+    return this.http.post<any>('http://localhost:3000/price/GetAllPrice', data);
   }
 
   initGetPricingForZone(formData: any) {
     return this.http.post<any>('http://localhost:3000/price/pricing', formData);
+  }
+
+  initGetPricingVehicle(formData: any) {
+    return this.http.post<any>(
+      'http://localhost:3000/price/GetVehicleOfCity',
+      formData
+    );
   }
 
   initGetAllVehicle(data?: any) {

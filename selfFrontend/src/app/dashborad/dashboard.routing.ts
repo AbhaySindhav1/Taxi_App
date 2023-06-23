@@ -10,7 +10,6 @@ import { ConfirmRideComponent } from '../pages/confirm-ride/confirm-ride.compone
 import { RunningreqComponent } from '../pages/runningreq/runningreq.component';
 import { HistoryComponent } from '../pages/history/history.component';
 import { SettingComponent } from '../pages/setting/setting.component';
-import { CardComponent } from '../pages/card/card.component';
 
 export const DashBoardRoutes: Routes = [
   { path: 'table', component: TableComponent },

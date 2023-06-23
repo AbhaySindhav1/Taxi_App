@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 
 const validatePhoneNumber = function (phoneNumber) {
-  const regex = /^((\+[0-9]{2}-?)|0)?[0-9]{10}$/;
+  const regex = /^((\+[0-9]{0,5}-?)|0)?[0-9]{10}$/;
   return regex.test(phoneNumber);
 };
 

@@ -4,6 +4,8 @@ import { UsersService } from 'src/app/Services/users.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CardComponent } from '../card/card.component';
 import { Toast, ToastrService } from 'ngx-toastr';
+import { CountryService } from 'src/app/Services/country.service';
+import { SocketService } from 'src/app/Services/socket.service';
 
 @Component({
   selector: 'app-users',
@@ -24,17 +26,21 @@ export class UsersComponent implements OnInit {
   sortColomn: any;
   totalUser: any;
   limit = 10;
+  CountryList: any;
 
   constructor(
     private usersService: UsersService,
     public dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private countryService: CountryService,
+    private socketService: SocketService
   ) {
     this.UsersForm = new FormGroup({
       UserFile: new FormControl(null),
       UserName: new FormControl(null, [Validators.required]),
       UserEmail: new FormControl(null, [Validators.required, Validators.email]),
       CountryCode: new FormControl(null, [Validators.required]),
+      UserCountry: new FormControl(null, [Validators.required]),
       UserPhone: new FormControl(null, [
         Validators.required,
         Validators.pattern('^((\\+91-?)|0)?[0-9\\s-]{10}$'),
@@ -43,12 +49,20 @@ export class UsersComponent implements OnInit {
   }
   openDialog(user: any) {
     const dialogRef = this.dialog.open(CardComponent, {
-      width: '600px',
+      width: '800px',
       data: user,
     });
   }
   ngOnInit(): void {
     this.getAllUserReq();
+    this.countryService.initonlyCountry().subscribe({
+      next: (data) => {
+        this.CountryList = data.sort();
+      },
+      error: (error) => {
+        this.socketService.ToasterService('error', error);
+      },
+    });
   }
 
   onSubmit() {
@@ -68,6 +82,7 @@ export class UsersComponent implements OnInit {
     formData.append('UserEmail', this.UsersForm.get('UserEmail').value);
     formData.append('CountryCode', this.UsersForm.get('CountryCode').value);
     formData.append('UserPhone', this.UsersForm.get('UserPhone').value);
+    formData.append('UserCountry', this.UsersForm.get('UserCountry').value);
 
     if (!this.isEditMode) {
       this.usersService.initUsers(formData).subscribe({
@@ -135,11 +150,13 @@ export class UsersComponent implements OnInit {
     this.isSearchMode = false;
     this.userId = user._id;
     const a = user.UserPhone.split('-');
+    console.log(user);
 
     this.UsersForm.patchValue({
       UserName: user.UserName,
       UserEmail: user.UserEmail,
       CountryCode: +a[0],
+      UserCountry: user.UserCountry,
       UserPhone: +a[1],
     });
   }
@@ -194,6 +211,26 @@ export class UsersComponent implements OnInit {
           return;
         }
         this.toastr.error(error);
+      },
+    });
+  }
+
+  onCountrySelect() {
+    this.error = null;
+    this.UsersForm.get('city')?.setValue('');
+
+    let value = (document.getElementById('UserCountry') as HTMLSelectElement)
+      .value;
+
+    const Value = { Value: value };
+    this.countryService.initGetAllCountry(Value).subscribe({
+      next: (data) => {
+        this.UsersForm.patchValue({
+          CountryCode: +data[0]?.countrycode,
+        });
+      },
+      error: (error) => {
+        this.socketService.ToasterService('error', error);
       },
     });
   }

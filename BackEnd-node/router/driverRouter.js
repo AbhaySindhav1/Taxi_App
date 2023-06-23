@@ -9,6 +9,7 @@ const { handleDriversUpload } = require("../Controller/middleware/multer");
 //////                                                        ////         Add   Driver       ////                                                           ///////
 
 router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
+  console.log(req.body);
   if (req.file) {
     req.body.profile = req.file.filename;
   } else {

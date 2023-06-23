@@ -6,6 +6,7 @@ import { DriverService } from 'src/app/Services/driver.service';
 import { CountryService } from 'src/app/Services/country.service';
 import { VehicleService } from 'src/app/Services/vehicle.service';
 import { SocketService } from 'src/app/Services/socket.service';
+import { PricingService } from 'src/app/Services/pricing.service';
 
 @Component({
   selector: 'app-driver',
@@ -36,9 +37,9 @@ export class DriverComponent implements OnInit {
 
   constructor(
     private driverService: DriverService,
+    private pricingService: PricingService,
     private cityService: CityService,
     private countryService: CountryService,
-    private vehicleService: VehicleService,
     private socketService: SocketService,
     private cd: ChangeDetectorRef
   ) {
@@ -95,18 +96,12 @@ export class DriverComponent implements OnInit {
 
   ngOnInit(): void {
     this.getDriverReq();
-    this.vehicleService.initGetTypesOfVehicles().subscribe({
-      next: (data) => {
-        this.VehicleList = data;
-      },
-      error: (error) => {
-        this.error = error;
-        this.displayerror = true;
-      },
-    });
     this.countryService.initonlyCountry().subscribe({
       next: (data) => {
         this.CountryList = data.sort();
+      },
+      error: (error) => {
+        this.socketService.ToasterService('error', error);
       },
     });
   }
@@ -120,18 +115,29 @@ export class DriverComponent implements OnInit {
     let value = (document.getElementById('DriverCountry') as HTMLSelectElement)
       .value;
 
+    const Value = { Value: value };
+    this.countryService.initGetAllCountry(Value).subscribe({
+      next: (data) => {
+        this.DriverForm.patchValue({
+          CountryCode: +data[0]?.countrycode,
+        });
+      },
+      error: (error) => {
+        this.socketService.ToasterService('error', error);
+      },
+    });
+
     this.cityService.initGetAllCountry(value).subscribe({
       next: (data) => {
         this.CityList = data;
-
-        // Update the value of the city form control to the first item in the list
         if (this.CityList.length > 0) {
           this.DriverForm.get('DriverCity')?.setValue(this.CityList[0]._id);
+        } else {
+          this.DriverForm.get('DriverCity')?.setValue(null);
         }
       },
       error: (error) => {
-        this.error = error;
-        this.displayerror = true;
+        this.socketService.ToasterService('error', error);
       },
     });
   }
@@ -163,18 +169,13 @@ export class DriverComponent implements OnInit {
         next: (data) => {
           this.getDriverReq();
           this.initReset();
+          this.socketService.ToasterService(
+            'success',
+            'Driver Created Successfully'
+          );
         },
         error: (error) => {
-          console.log(error);
-
-          if (error.error && error.error.sizeError) {
-            this.error = error.error.sizeError;
-          } else if (error.error && error.error.fileError) {
-            this.error = error.error.fileError;
-          } else {
-            this.error = error.error;
-          }
-          this.displayerror = true;
+          this.socketService.ToasterService('error', error);
         },
       });
     } else {
@@ -215,6 +216,7 @@ export class DriverComponent implements OnInit {
     this.isSearchMode = false;
     this.DriverId = Driver._id;
     const a = Driver.DriverPhone.split('-');
+    console.log(a);
 
     this.DriverForm.patchValue({
       DriverName: Driver.DriverName,
@@ -238,27 +240,36 @@ export class DriverComponent implements OnInit {
       next: (data) => {
         this.getDriverReq();
         this.initReset();
+        this.socketService.ToasterService(
+          'success',
+          'Driver Edited Successfully'
+        );
       },
       error: (error) => {
-        console.log(error);
-
-        if (error.error && error.error.sizeError) {
-          this.error = error.error.sizeError;
-        } else if (error.error && error.error.fileError) {
-          this.error = error.error.fileError;
-        } else {
-          this.error = error.error;
-        }
-        this.displayerror = true;
+        this.socketService.ToasterService('error', error);
       },
     });
   }
 
   onupdateDriver(Driver: any) {
+    this.initReset();
+    let formData = new FormData();
+    formData.append('country', Driver?.DriverCountry);
+    formData.append('city', Driver?.DriverCity);
     this.DriverId = Driver._id;
 
-    (document.getElementById('ServiceType') as HTMLSelectElement).value =
-      Driver.ServiceType;
+    this.pricingService.initGetPricingVehicle(formData).subscribe({
+      next: (data) => {
+        this.VehicleList = data;
+        setTimeout(() => {
+          (document.getElementById('ServiceType') as HTMLSelectElement).value =
+            Driver.ServiceType;
+        }, 100);
+      },
+      error: (error) => {
+        this.socketService.ToasterService('error', error);
+      },
+    });
   }
 
   onAssignService() {
@@ -279,10 +290,10 @@ export class DriverComponent implements OnInit {
       next: (data) => {
         this.getDriverReq();
         this.initReset();
+        this.socketService.ToasterService('Delete');
       },
       error: (error) => {
-        this.error = error.error;
-        this.displayerror = true;
+        this.socketService.ToasterService('error', error);
       },
     });
   }

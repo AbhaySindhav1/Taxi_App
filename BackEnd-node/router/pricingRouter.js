@@ -114,9 +114,9 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
         },
       },
       {
-        $unwind:{
-          path: "$cityInfo"      //preserveNullAndEmptyArrays is false by default.
-      }
+        $unwind: {
+          path: "$cityInfo", //preserveNullAndEmptyArrays is false by default.
+        },
       },
       {
         $match: {
@@ -132,14 +132,14 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
         },
       },
       {
-        $unwind:{
-          path: "$VehicleInfo"      //preserveNullAndEmptyArrays is false by default.
-      }
+        $unwind: {
+          path: "$VehicleInfo", //preserveNullAndEmptyArrays is false by default.
+        },
       },
       {
         $group: {
           _id: "$VehicleInfo._id",
-          types:  { $first: "$VehicleInfo.types" },
+          types: { $first: "$VehicleInfo.types" },
         },
       },
       {
@@ -150,7 +150,7 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
         },
       },
     ]);
-    
+
     res.status(200).send(prices);
   } catch (error) {
     res.status(400).send(error);
@@ -160,7 +160,7 @@ router.get("/price/Vehicle", handleUpload, auth, async (req, res) => {
 /////////////////////////////////////////////////////////          Get Zone Pricing        ////////////////////////////////////////////////////////////////////////////////////
 
 router.post("/price/pricing", handleUpload, auth, async (req, res) => {
-  if(!(req.body.city && req.body.type)) return
+  if (!(req.body.city && req.body.type)) return;
   try {
     const prices = await Price.aggregate([
       {
@@ -259,7 +259,7 @@ router.post("/price/GetAllPrice", auth, async (req, res) => {
       { $skip: skip },
       { $limit: limit },
     ]);
-    res.status(200).send({prices,priceCount});
+    res.status(200).send({ prices, priceCount });
   } catch (error) {
     res.status(400).send(error);
   }
@@ -275,6 +275,57 @@ router.delete("/price/:id", auth, async (req, res) => {
     }
     res.status(200).send(price);
   } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+/////////////////////////////////////////////////////////          Delete Pricing        ////////////////////////////////////////////////////////////////////////////////////
+
+router.post("/price/GetVehicleOfCity", handleUpload, auth, async (req, res) => {
+  let matchQuery;
+  try {
+    if (req.body.country && req.body.city) {
+      matchQuery = {
+        $match: {
+          $and: [
+            { country: new mongoose.Types.ObjectId(req.body.country) },
+            { city: new mongoose.Types.ObjectId(req.body.city) },
+          ],
+        },
+      };
+    }
+    let lookup = [
+      {
+        $lookup: {
+          from: "taxis",
+          localField: "type",
+          foreignField: "_id",
+          as: "VehicleInfo",
+        },
+      },
+      {
+        $unwind: {
+          path: "$VehicleInfo",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+    let pipeline = [];
+
+    if (matchQuery) {
+      pipeline.push(matchQuery);
+    }
+    if (lookup) {
+      pipeline.push(...lookup);
+    }
+
+    let query = [{ $project: { VehicleInfo: 1, _id: 0 } }];
+    pipeline.push(...query);
+
+    let vehicle = await Price.aggregate(pipeline);
+    res.status(200).json(vehicle);
+  } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 });

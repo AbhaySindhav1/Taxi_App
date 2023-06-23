@@ -19,6 +19,7 @@ export class CityComponent implements OnInit {
   isPolygonDrawn: any;
   polygon: any;
   polygons: any = [];
+  Allpolygone: any;
   drawingManager: any;
   title = 'City Task';
   // error: any;
@@ -106,7 +107,7 @@ export class CityComponent implements OnInit {
 
         this.zone = ArrayOfZoneCordinates;
 
-        this.polygon.setEditable(true);
+        this.polygon.setEditable(false);
         this.drawingManager.setDrawingMode(null);
       }
     );
@@ -122,6 +123,7 @@ export class CityComponent implements OnInit {
       this.selectElement.nativeElement.options[
         this.selectElement.nativeElement.selectedIndex
       ].value;
+
     const selectedCountryName =
       this.selectElement.nativeElement.options[
         this.selectElement.nativeElement.selectedIndex
@@ -142,6 +144,8 @@ export class CityComponent implements OnInit {
     );
 
     this.updateAutoComplete(contryobject[0].cca2);
+
+    this.getAllZones();
 
     (document.getElementById('city') as HTMLInputElement).value = '';
 
@@ -216,7 +220,8 @@ export class CityComponent implements OnInit {
       this.cityService.initEditCity(this.UserID, formData).subscribe({
         next: async (data) => {
           this.Toaster('success', 'Zone Is Edited');
-          await this.getAllZones();
+          this.getAllZones();
+          this.onReset();
           this.IsEditMode = false;
           this.drawingManager.setMap(this.map);
         },
@@ -237,8 +242,6 @@ export class CityComponent implements OnInit {
     if (this.polygon) {
       this.polygon.setMap(null);
     }
-
-    // const Value = { Value: city.country };
 
     this.polygons.forEach((polygon: any) => {
       polygon.setMap(null);
@@ -339,47 +342,73 @@ export class CityComponent implements OnInit {
   onReset() {
     this.selectElement.nativeElement.value = null;
     this.country = null;
-    // this.error = null;
     if (this.polygon) {
       this.polygon.setMap(null);
+      this.polygon = [];
     }
-
+    this.polygons.forEach((polygon: any) => {
+      polygon.setMap(null);
+    });
     this.IsEditMode = false;
     this.zone = null;
     this.changed = false;
     this.UserID = null;
     (document.getElementById('city') as HTMLInputElement).value = '';
-    this.polygons.forEach((polygon: any) => {
-      polygon.setMap(null);
-    });
     if (this.drawingManager) {
       this.drawingManager.setMap(this.map);
     }
   }
 
   getAllZones(event?: any) {
+    let selectCountry;
+    if (this.selectElement) {
+      selectCountry =
+        this.selectElement.nativeElement.options[
+          this.selectElement.nativeElement.selectedIndex
+        ].value;
+    }
+
     if (this.totalZones < this.page * this.limit) {
       this.page = 1;
     }
-    let data = {
+    let data: any = {
       limit: +this.limit,
-      // searchValue: (document.getElementById('searchBtn') as HTMLInputElement)
-      //   ?.value,
       page: event ? event : this.page,
     };
+
+    if (selectCountry) {
+      data.Country = selectCountry;
+    }
+
     this.page = event ? event : this.page;
 
     this.cityService.initGetAllCities(data).subscribe({
       next: (data) => {
-        console.log(data);
-        this.Citylist = data.cities;
-        this.totalZones = data.ZoneCount;
         this.onReset();
+        this.Citylist = data.cities;
+        this.totalZones = data.ZoneCount[0]?.total;
+        this.Allpolygone = data.ZoneCount[0]?.Zone;
+        this.DrawPolygon(this.Allpolygone);
       },
       error: (error) => {
-        console.log(error);
         this.Toaster('error', error.error);
       },
     });
+  }
+
+  DrawPolygon(Array: any) {
+    if (this.Allpolygone) {
+      this.Allpolygone.setMap(null);
+    }
+    this.Allpolygone = [];
+
+    this.Allpolygone = new google.maps.Polygon({
+      paths: Array,
+      editable: false,
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillOpacity: 0.35,
+    });
+    this.Allpolygone.setMap(this.map);
   }
 }
