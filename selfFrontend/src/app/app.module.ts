@@ -8,16 +8,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DashboradModule } from './dashborad/dashborad.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
-import {  MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { environment } from '../app/environments/environment';
+import { BnNgIdleService } from 'bn-ng-idle';
 // import {  AngularFireAuthModule } from '@angular/';
-
-
-
-
 
 @NgModule({
   declarations: [AppComponent],
@@ -33,6 +30,7 @@ import { environment } from '../app/environments/environment';
     // AngularFireModule.initializeApp(environment.firebase)
   ],
   providers: [
+    BnNgIdleService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthinterceptorInterceptor,

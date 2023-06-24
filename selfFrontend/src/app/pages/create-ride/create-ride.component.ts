@@ -109,12 +109,9 @@ export class CreateRideComponent implements OnInit {
   }
 
   ChangePayment(id: any) {
-    console.log(id);
-
     this.RideDetailsForm.patchValue({
       PaymentId: id,
     });
-    console.log(this.RideDetailsForm.get('PaymentId').value);
   }
 
   async getCards() {
@@ -232,6 +229,9 @@ export class CreateRideComponent implements OnInit {
     );
 
     autocomplete.addListener('place_changed', () => {
+      if (directionsRenderer) {
+        directionsRenderer.setDirections({ routes: [] });
+      }
       const place: google.maps.places.PlaceResult = autocomplete.getPlace();
       if (place.geometry === undefined || place.geometry === null) {
         return;
@@ -259,7 +259,6 @@ export class CreateRideComponent implements OnInit {
                 return;
               } else {
                 this.isServiceZone = data;
-
                 this.GetCityVehicle(this.isServiceZone.city);
               }
             },
@@ -374,6 +373,7 @@ export class CreateRideComponent implements OnInit {
 
     this.isSubmitted = true;
     if (!this.RideDetailsForm.valid) {
+      this.toastr.error("Please Enter Valid Datails in Form")
       return;
     }
     let confimed = confirm('Are You Want To Book Ride');
@@ -384,7 +384,10 @@ export class CreateRideComponent implements OnInit {
     formData.append('type', this.RideDetailsForm.get('VehicleSelector').value);
     formData.append('Distance', this.tripDetails.Distance);
     formData.append('Time', this.tripDetails.Time);
-    formData.append('PaymentType', this.RideDetailsForm.get('PaymentType').value);
+    formData.append(
+      'PaymentType',
+      this.RideDetailsForm.get('PaymentType').value
+    );
     formData.append('PaymentId', this.RideDetailsForm.get('PaymentId').value);
     formData.append('RideCity', this.isServiceZone._id);
     formData.append(

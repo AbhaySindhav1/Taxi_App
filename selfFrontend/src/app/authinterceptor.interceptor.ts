@@ -6,7 +6,7 @@ import {
   HttpInterceptor,
   HttpParams,
 } from '@angular/common/http';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, of, throwError } from 'rxjs';
 import { AuthService } from './Services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -34,6 +34,14 @@ export class AuthinterceptorInterceptor implements HttpInterceptor {
           Authorization: `Bearer ${user._token}`,
         },
       });
+      // const storedTimeOut = localStorage.getItem('TimeOut');
+      // if (storedTimeOut && Date.now() > parseInt(storedTimeOut)) {
+      //   console.log(storedTimeOut && Date.now());
+      //   console.log(storedTimeOut, Date.now());
+      //   this.authService.logout();
+      // }
+
+      // localStorage.setItem('TimeOut', (Date.now() + 5 * 1000).toString());
       return next.handle(modifiedReq).pipe(
         catchError((error) => {
           if (

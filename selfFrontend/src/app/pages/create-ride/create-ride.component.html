@@ -311,6 +311,9 @@
             <input
               type="radio"
               style="margin: 0; font-size: 20px"
+              [value]="Card.id"
+              formControlName="PaymentId"
+              [checked]="RideDetailsForm.get('PaymentId').value === 'Card'"
               (change)="ChangePayment(Card.id)"
             />
             XXXX XXXX XXXX
@@ -330,12 +333,16 @@
         <p id="time">Services Fees : {{ TripCharge }}</p>
       </div>
 
-      <div id="btn-container" >
+      <div id="btn-container">
         <button
           type="submit"
           class="btn bg-success"
-          [disabled]="!TripCharge || (RideDetailsForm.get('PaymentType').value === 'Card' && (Cards?.length === 0))"
-
+          [disabled]="
+            !RideDetailsForm.Valid &&
+            (!TripCharge ||
+              (RideDetailsForm.get('PaymentType').value === 'Card' &&
+                Cards?.length === 0))
+          "
         >
           Book Ride
         </button>

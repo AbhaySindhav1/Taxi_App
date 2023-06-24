@@ -17,7 +17,7 @@ export class AuthService implements OnInit {
     private toaster: ToastrService
   ) {}
 
-  user = new BehaviorSubject<User | null>(null);
+  user = new BehaviorSubject<any>(true);
 
   InitAutoLogin() {
     return !!localStorage.getItem('userData');
@@ -88,7 +88,7 @@ export class AuthService implements OnInit {
     this.user.next(null);
     localStorage.removeItem('userData');
     this.router.navigate(['login']);
-    this.toaster.warning('logout Successfully');
+    this.toaster.warning('You logoutted out');
   }
 
   // autoLogout(expirationDuration: number) {
@@ -107,5 +107,6 @@ export class AuthService implements OnInit {
     const user = new User(email, userId, token, expirationDate);
     this.user.next(user);
     localStorage.setItem('userData', JSON.stringify(user));
+    // localStorage.setItem('TimeOut', (Date.now() + 5 * 1000).toString());
   }
 }

@@ -21,13 +21,12 @@ export class CityComponent implements OnInit {
   polygons: any = [];
   Allpolygone: any;
   drawingManager: any;
-  title = 'City Task';
-  // error: any;
   uniqueCities: any;
   map: google.maps.Map | any;
   changed = false;
   country: any;
   zone: any;
+  EditingZone: any;
   IsEditMode = false;
   UserID: any;
   coordinates: any = [];
@@ -83,9 +82,9 @@ export class CityComponent implements OnInit {
       this.drawingManager,
       'overlaycomplete',
       (event: any) => {
-        if (this.isPolygonDrawn) {
-          this.polygon.setMap(null);
-        }
+        // if (this.isPolygonDrawn) {
+        //   this.polygon.setMap(null);
+        // }
         this.isPolygonDrawn = true;
         this.polygon = event.overlay;
         var ArrayOfZoneCordinates: any = [];
@@ -224,6 +223,7 @@ export class CityComponent implements OnInit {
           this.onReset();
           this.IsEditMode = false;
           this.drawingManager.setMap(this.map);
+        
         },
         error: (error) => {
           this.Toaster('error', error.error);
@@ -239,9 +239,9 @@ export class CityComponent implements OnInit {
 
     this.UserID = city._id;
     this.city = city.city;
-    if (this.polygon) {
-      this.polygon.setMap(null);
-    }
+    // if (this.polygon) {
+    //   this.polygon.setMap(null);
+    // }
 
     this.polygons.forEach((polygon: any) => {
       polygon.setMap(null);
@@ -281,8 +281,9 @@ export class CityComponent implements OnInit {
     }
 
     // Add the polygon to the map
+    this.EditingZone = polygon;
 
-    polygon.setMap(this.map);
+    this.EditingZone.setMap(this.map);
     this.polygons.push(polygon);
     const bounds = new google.maps.LatLngBounds();
     for (let i = 0; i < city.zone.length; i++) {
@@ -342,13 +343,13 @@ export class CityComponent implements OnInit {
   onReset() {
     this.selectElement.nativeElement.value = null;
     this.country = null;
-    if (this.polygon) {
-      this.polygon.setMap(null);
-      this.polygon = [];
-    }
-    this.polygons.forEach((polygon: any) => {
-      polygon.setMap(null);
-    });
+    // if (this.polygon) {
+    //   this.polygon.setMap(null);
+    //   this.polygon = [];
+    // }
+    // this.polygons.forEach((polygon: any) => {
+    //   polygon.setMap(null);
+    // });
     this.IsEditMode = false;
     this.zone = null;
     this.changed = false;
@@ -384,7 +385,14 @@ export class CityComponent implements OnInit {
 
     this.cityService.initGetAllCities(data).subscribe({
       next: (data) => {
-        this.onReset();
+        // this.onReset();
+        if (this.Allpolygone) {
+          this.Allpolygone.setMap(null);
+          this.Allpolygone = [];
+        }
+        if (this.EditingZone) {
+          this.EditingZone.setMap(null);
+        }
         this.Citylist = data.cities;
         this.totalZones = data.ZoneCount[0]?.total;
         this.Allpolygone = data.ZoneCount[0]?.Zone;
@@ -397,11 +405,6 @@ export class CityComponent implements OnInit {
   }
 
   DrawPolygon(Array: any) {
-    if (this.Allpolygone) {
-      this.Allpolygone.setMap(null);
-    }
-    this.Allpolygone = [];
-
     this.Allpolygone = new google.maps.Polygon({
       paths: Array,
       editable: false,
