@@ -48,6 +48,15 @@ export class ConfirmRideComponent implements OnInit {
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
       console.log('reqtoSendDriver', data);
+      if (data.DriverId) {
+        const index = this.driverData.findIndex(
+          (driver: any) => driver._id === data.DriverId
+        );
+        if (index !== -1) {
+          this.driverData[index] = data.Driver.Driver;
+          this.driverData.splice(index, 1);
+        } 
+      }
       this.replaceRow(data);
     });
 
@@ -55,7 +64,14 @@ export class ConfirmRideComponent implements OnInit {
       console.log('NotReactedRide', data);
       this.replaceRow(data.rides);
       if (data.Driver && this.driverData) {
-        this.driverData.push(data.Driver.Driver);
+        const index = this.driverData.findIndex(
+          (driver: any) => driver._id === data.Driver.Driver._id
+        );
+        if (index !== -1) {
+          this.driverData[index] = data.Driver.Driver;
+        } else {
+          this.driverData.push(data.Driver.Driver);
+        }
       }
     });
 
