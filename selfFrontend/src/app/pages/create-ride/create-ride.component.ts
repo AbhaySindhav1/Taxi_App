@@ -72,7 +72,10 @@ export class CreateRideComponent implements OnInit {
 
   ngOnInit(): void {
     this.initMap();
+    this.updateSettings();
+  }
 
+  updateSettings() {
     this.SettingsService.initGetSettings().subscribe({
       next: (data: any) => {
         this.maxStops = data[0]?.RideStops;
@@ -181,6 +184,12 @@ export class CreateRideComponent implements OnInit {
   }
 
   onAddStop() {
+    this.updateSettings();
+
+    if (this.stops.length >= this.maxStops) {
+      return;
+    }
+
     const newStopIndex = this.stops.length + 1;
 
     this.RideDetailsForm.addControl(
@@ -190,10 +199,6 @@ export class CreateRideComponent implements OnInit {
     this.RideDetailsForm.controls[
       `Drop${newStopIndex}`
     ].updateValueAndValidity();
-
-    if (this.stops.length >= this.maxStops) {
-      return;
-    }
 
     this.stops.push(`Drop${newStopIndex}`);
 
@@ -308,58 +313,35 @@ export class CreateRideComponent implements OnInit {
     directionsService.route(request, (response: any, status: string) => {
       if (status == 'OK') {
         directionsRenderer.setDirections(response);
-        this.initDistanceMatrix();
+        this.SetDistance(response.routes);
       } else if (status === 'ZERO_RESULTS') {
         this.toastr.error('No Direct Routes Are Available');
       }
     });
   }
 
-  initDistanceMatrix() {
-    this.ways = [];
-    for (let index = 1; index <= this.stops.length; index++) {
-      this.ways.push(
-        (document.getElementById(`Drop${index}`) as HTMLInputElement).value
-      );
+  SetDistance(Routes: any) {
+    let total_distance = 0.0;
+    let total_time = 0.0;
+    for (let i = 0; i < Routes[0]?.legs?.length; i++) {
+      total_distance += Routes[0]?.legs[i].distance.value;
+      total_time += Routes[0]?.legs[i].duration.value;
     }
-    this.ways.push(
-      (document.getElementById('DropPoint') as HTMLInputElement).value
-    );
+    console.log(total_distance, total_time);
+    ///  Distance
 
-    var service = new google.maps.DistanceMatrixService();
-    service.getDistanceMatrix(
-      {
-        origins: [
-          (document.getElementById('PickupPoint') as HTMLInputElement).value,
-        ],
-        destinations: this.ways,
-        travelMode: 'DRIVING',
-      },
+    this.Distance = total_distance / 1000;
+    this.tripDetails.Distance = this.Distance + 'Km';
 
-      (response: any, status: any) => {
-        if (status === 'OK') {
-          var total_distance = 0.0;
-          var total_time = 0.0;
-
-          for (var i = 0; i < response.rows[0].elements.length; i++) {
-            total_distance += response.rows[0].elements[i].distance.value;
-            total_time += response.rows[0].elements[i].duration.value;
-          }
-          this.Distance = total_distance / 1000;
-          this.Time =
-            Math.floor(total_time / 3600) +
-            '.' +
-            Math.floor((total_time % 3600) / 60);
-          this.tripDetails.Distance = total_distance / 1000 + 'Km';
-          const hours = Math.floor(total_time / 3600);
-          const minutes = Math.floor((total_time % 3600) / 60);
-          this.tripDetails.Time = `${hours} hr ${minutes} min`;
-          this.calculateFee();
-        } else if (status === 'ZERO_RESULTS') {
-          this.toastr.error('No Route Are Available');
-        }
-      }
-    );
+    ///  time
+    this.Time =
+      Math.floor(total_time / 3600) +
+      '.' +
+      Math.floor((total_time % 3600) / 60);
+    const hours = Math.floor(total_time / 3600);
+    const minutes = Math.floor((total_time % 3600) / 60);
+    this.tripDetails.Time = `${hours} hr ${minutes} min`;
+    this.calculateFee();
   }
 
   CheckPricing() {
@@ -373,7 +355,7 @@ export class CreateRideComponent implements OnInit {
 
     this.isSubmitted = true;
     if (!this.RideDetailsForm.valid) {
-      this.toastr.error("Please Enter Valid Datails in Form")
+      this.toastr.error('Please Enter Valid Datails in Form');
       return;
     }
     let confimed = confirm('Are You Want To Book Ride');

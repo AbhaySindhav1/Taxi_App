@@ -14,7 +14,7 @@ function validateMaxSpace(
   control: AbstractControl
 ): { [key: string]: any } | null {
   const value = control.value;
-  if (value < 0 || value % 1 !== 0) {
+  if (!value || value < 0 || value % 1 !== 0) {
     return { invalidMaxSpace: true };
   }
   return null;

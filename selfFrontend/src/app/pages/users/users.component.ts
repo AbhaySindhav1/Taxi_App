@@ -94,6 +94,7 @@ export class UsersComponent implements OnInit {
           this.toastr.success(data.massage);
         },
         error: (error) => {
+          console.log(error);
           if (error.error && error.error.sizeError) {
             this.toastr.error(error.error.sizeError);
           } else if (error.error && error.error.fileError) {
@@ -111,6 +112,7 @@ export class UsersComponent implements OnInit {
           this.toastr.success(data.massage);
         },
         error: (error) => {
+          console.log(error);
           if (error.error && error.error.sizeError) {
             this.toastr.error(error.error.sizeError);
           } else if (error.error && error.error.fileError) {
@@ -190,7 +192,7 @@ export class UsersComponent implements OnInit {
     }
     let data = {
       limit: +this.limit,
-      searchValue: (document.getElementById('searchBtn') as HTMLInputElement)
+      filter: (document.getElementById('searchBtn') as HTMLInputElement)
         ?.value,
       page: event ? event : this.p,
       sortColomn: this.sortColomn,

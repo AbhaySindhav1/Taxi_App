@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { SocketService } from './Services/socket.service';
 import { BnNgIdleService } from 'bn-ng-idle';
 import { AuthService } from './Services/auth.service';
 

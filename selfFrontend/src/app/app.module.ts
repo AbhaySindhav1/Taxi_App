@@ -14,7 +14,26 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { environment } from '../app/environments/environment';
 import { BnNgIdleService } from 'bn-ng-idle';
-// import {  AngularFireAuthModule } from '@angular/';
+import {
+  NgxUiLoaderModule,
+  NgxUiLoaderRouterModule,
+  NgxUiLoaderHttpModule,
+  NgxUiLoaderConfig,SPINNER,
+  POSITION,
+  PB_DIRECTION 
+} from 'ngx-ui-loader';
+
+
+const ngxUiLoaderConfig: NgxUiLoaderConfig = {
+  fgsColor: 'white',
+  fgsPosition: POSITION.centerCenter,
+  fgsSize: 40,
+  fgsType: SPINNER.fadingCircle, 
+  pbDirection: PB_DIRECTION.leftToRight, 
+  pbThickness: 5 ,
+  text:"Loading ..."
+}
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -27,6 +46,11 @@ import { BnNgIdleService } from 'bn-ng-idle';
     MatDialogModule,
     MatDialogModule,
     NgbModule,
+    NgxUiLoaderModule,
+    NgxUiLoaderRouterModule,
+    NgxUiLoaderHttpModule,
+    NgxUiLoaderModule.forRoot(ngxUiLoaderConfig),
+    NgxUiLoaderHttpModule.forRoot({ showForeground: true }),
     // AngularFireModule.initializeApp(environment.firebase)
   ],
   providers: [

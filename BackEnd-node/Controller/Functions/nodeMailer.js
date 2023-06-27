@@ -1,36 +1,70 @@
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
-const path = require("path");
-const envPath = path.join(__dirname, "../../key.env");
-console.log(envPath);
-require("dotenv").config({ path: envPath });
+const Settings = require("../../Model/settingModel");
 
-const CLIENT_ID = process.env.EmailID;
-const CLIENT_SECRET = process.env.EmailSecret;
-const REDIRECT_URI = process.env.Redirect_Url;
-const REFRESH_TOKEN = process.env.EmailToken;
+let Crediantials = null;
+let oAuth2Client;
 
-const oAuth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
+async function initializeNodemailer() {
+  try {
+    if (Crediantials === null) {
+      const Setting = await Settings.find({});
+      Crediantials = {
+        CLIENT_ID: Setting[0].EmailID,
+        CLIENT_SECRET: Setting[0].EmailSecret,
+        REDIRECT_URI: Setting[0].Redirect_Url,
+        REFRESH_TOKEN: Setting[0].EmailToken,
+      };
+    }
 
-oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+    oAuth2Client = new google.auth.OAuth2(
+      Crediantials.CLIENT_ID,
+      Crediantials.CLIENT_SECRET,
+      Crediantials.REDIRECT_URI
+    );
+
+    oAuth2Client.setCredentials({ refresh_token: Crediantials.REFRESH_TOKEN });
+  } catch (error) {
+    console.log("initializeNodeMailer", error);
+  }
+}
+
+async function updateNodemailer() {
+  try {
+    const Setting = await Settings.find({});
+    Crediantials = {
+      CLIENT_ID: Setting[0].EmailID,
+      CLIENT_SECRET: Setting[0].EmailSecret,
+      REDIRECT_URI: Setting[0].Redirect_Url,
+      REFRESH_TOKEN: Setting[0].EmailToken,
+    };
+
+    oAuth2Client = new google.auth.OAuth2(
+      Crediantials.CLIENT_ID,
+      Crediantials.CLIENT_SECRET,
+      Crediantials.REDIRECT_URI
+    );
+
+    oAuth2Client.setCredentials({ refresh_token: Crediantials.REFRESH_TOKEN });
+    // sendMail("abhayabhay202.ar@gmail.com", "update chal raha hai na", "update");
+  } catch (error) {
+    console.log("updateStripePrivateKey", error);
+  }
+}
 
 async function sendMail(to, Subject, Text) {
-  console.log(to, Subject, Text);
   try {
+    await initializeNodemailer();
     const Access_token = await oAuth2Client.getAccessToken();
     const transpost = nodemailer.createTransport({
       service: "gmail",
       auth: {
         type: "OAUTH2",
         user: "abhaysindhavellu@gmail.com",
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken: Access_token,
+        clientId: Crediantials.CLIENT_ID,
+        clientSecret: Crediantials.CLIENT_SECRET,
+        refreshToken: Crediantials.REFRESH_TOKEN,
+        accessToken: Crediantials.Access_token,
       },
     });
 
@@ -43,6 +77,7 @@ async function sendMail(to, Subject, Text) {
     };
 
     const result = await transpost.sendMail(mailOption);
+    console.log(result);
     return result;
   } catch (error) {
     console.log(error);
@@ -50,4 +85,6 @@ async function sendMail(to, Subject, Text) {
   }
 }
 
-module.exports = { sendMail };
+// sendMail("abhayabhay202.ar@gmail.com", "kuch nahi", "kya hal chal");
+
+module.exports = { sendMail, updateNodemailer };

@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { loadStripe } from '@stripe/stripe-js';
 import { ToastrService } from 'ngx-toastr';
 import { UsersService } from 'src/app/Services/users.service';
+import { SettingService } from 'src/app/Services/setting.service';
 
 @Component({
   selector: 'app-card',
@@ -29,19 +30,24 @@ export class CardComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     @Inject(MAT_DIALOG_DATA) public url: any,
     private userService: UsersService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private settingsService: SettingService
   ) {}
 
   cards: any;
-  StripePublicKey:any;
+  StripePublicKey: any;
 
   async loadStripe() {
-    this.stripe = await loadStripe(
-      'pk_test_51N93JqGPole4IExIKCJEeJeBeKyHTnvzng0TyDxVkWRypNfpHBpHOKVTmLJ2c7uRvdnRVTGvlbh2LsD95VEGWTdT00iQYhTiR0'  /// StripePublicKey
-    );
+    this.settingsService.initGetSettings().subscribe({
+      next: async (data: any) => {
+        this.stripe = await loadStripe(
+          data[0]?.StripePublicKey
+        );
+      },
+    });
   }
 
-// public key
+  // public key
 
   async ngOnInit() {
     this.getCards();
@@ -54,8 +60,8 @@ export class CardComponent implements OnInit {
     this.form = document.getElementById('payment-form') as HTMLFormElement;
     this.submitBtn = document.getElementById('submit') as HTMLButtonElement;
 
-    setTimeout(async() => {
-       this.elements = this.stripe?.elements(this.options);
+    setTimeout(async () => {
+      this.elements = this.stripe?.elements(this.options);
 
       this.paymentElement = this.elements.create('payment', {
         layout: {
@@ -124,7 +130,7 @@ export class CardComponent implements OnInit {
 
     this.selectedCard = card;
     console.log(this.selectedCard);
-    
+
     console.log('Selected Card Number:', cardID);
   }
 
@@ -179,13 +185,14 @@ export class CardComponent implements OnInit {
   }
 
   async addDefaultCard(selectedCard: any) {
-
     let btn = document.getElementById('SetCard') as HTMLButtonElement;
-  
-
+    btn.disabled = true;
     this.userService.initDefaultCard(this.data._id, selectedCard).subscribe({
       next: (data) => {
+        console.log(data);
+        
         this.data.defaultPayment = data.defaultPayment;
+        btn.disabled = false;
       },
     });
   }

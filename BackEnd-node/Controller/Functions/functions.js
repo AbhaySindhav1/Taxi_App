@@ -6,7 +6,21 @@ require("dotenv").config({ path: envPath });
 const accountSid = process.env.smsID;
 const authToken = process.env.smsToken;
 
-const client = require("twilio")(accountSid, authToken);
+// let client = require("twilio")(accountSid, authToken);
+
+let client = null;
+
+async function initializeStripe() {
+  try {
+    if (client === null) {
+      const Setting = await Settings.find({});
+      let client = require("twilio")(Setting[0].smsID, Setting[0].smsToken);
+    }
+    return client;
+  } catch (error) {
+    console.log("initializeStripe", error);
+  }
+}
 
 async function getUnassignedRequests() {
   try {
@@ -103,11 +117,21 @@ async function getBusyDrivers(VehicleType, RideCity, excludedDriverIds) {
   }
 }
 
+async function UpdateValueTwilio(accountSid, authToken) {
+  try {
+    client = require("twilio")(accountSid, authToken);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function sendMessages(
   message,
   from = "+13613153908",
   to = "+916355032160"
 ) {
+  client = await initializeStripe();
+
   client.messages
     .create({
       body: message,
@@ -122,4 +146,5 @@ module.exports = {
   getUnassignedRequests,
   getBusyDrivers,
   sendMessages,
+  UpdateValueTwilio,
 };

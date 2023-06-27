@@ -14,6 +14,7 @@ const {
   deletePaymentMethod,
   updateDefaultCard,
   getCustomer,
+  deleteCustomer,
 } = require("../Controller/Functions/Stripe");
 
 //////                                                        ////         Add   User       ////                                                           ///////
@@ -34,14 +35,14 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
     const myUser = new Users(req.body);
     await myUser.save();
 
-    const StripeCustomer = await createCustomer(
-      myUser.UserEmail,
-      myUser.UserName
-    );
+    // const StripeCustomer = await createCustomer(
+    //   myUser.UserEmail,
+    //   myUser.UserName
+    // );
 
-    myUser.StripeId = StripeCustomer.id;
+    // myUser.StripeId = StripeCustomer.id;
 
-    await myUser.save();
+    // await myUser.save();
 
     sendMail(myUser.UserEmail, "WelCome", "You Registred Successfully");
 
@@ -52,6 +53,7 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
       id: myUser._id,
     });
   } catch (error) {
+    console.log(error);
     if (req.file) {
       const image = `uploads/Users/${req.file.filename}`;
       fs.unlink(image, (err) => {
@@ -185,10 +187,11 @@ router.patch("/MyUser/:id", auth, handleUserUpload, async (req, res) => {
     res.status(200).json({
       massage: "You updated Successfully",
       code: 1,
-      UserEmail: myUser.UserEmail,
-      id: myUser._id,
+      UserEmail: users.UserEmail,
+      id: users._id,
     });
   } catch (error) {
+    console.log(error);
     if (req.file) {
       const image = `uploads/Users/${req.file.filename}`;
       fs.unlink(image, (err) => {
@@ -305,6 +308,11 @@ router.delete("/MyUser/:id", auth, async (req, res) => {
         return new Error("image not deleted form local", err);
       }
     });
+
+    if (users.StripeId) {
+      await deleteCustomer(users.StripeId);
+      console.log("delete done");
+    }
     res.status(200).send();
   } catch (error) {
     res.status(400).send(error);

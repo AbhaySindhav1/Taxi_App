@@ -488,6 +488,64 @@ export class CardComponent implements OnInit {
 
 
 
+    // initDistanceMatrix() {
+  //   this.ways = [];
+  //   for (let index = 1; index <= this.stops.length; index++) {
+  //     this.ways.push(
+  //       (document.getElementById(`Drop${index}`) as HTMLInputElement).value
+  //     );
+  //   }
+  //   this.ways.push(
+  //     (document.getElementById('DropPoint') as HTMLInputElement).value
+  //   );
+
+  //   let service = new google.maps.DistanceMatrixService();
+  //   service.getDistanceMatrix(
+  //     {
+  //       origins: [
+  //         (document.getElementById('PickupPoint') as HTMLInputElement).value,
+  //       ],
+  //       destinations: this.ways,
+  //       travelMode: 'DRIVING',
+  //     },
+
+  //     (response: any, status: any) => {
+  //       if (status === 'OK') {
+  //         let total_distance = 0.0;
+  //         let total_time = 0.0;
+
+  //         for (let i = 0; i < response.rows[0].elements.length; i++) {
+  //           total_distance += response.rows[0].elements[i].distance.value;
+  //           total_time += response.rows[0].elements[i].duration.value;
+  //         }
+  //         // this.Distance = total_distance / 1000;
+  //         // this.Time =
+  //         //   Math.floor(total_time / 3600) +
+  //         //   '.' +
+  //         //   Math.floor((total_time % 3600) / 60);
+  //         // this.tripDetails.Distance = total_distance / 1000 + 'Km';
+  //         // const hours = Math.floor(total_time / 3600);
+  //         // const minutes = Math.floor((total_time % 3600) / 60);
+  //         // this.tripDetails.Time = `${hours} hr ${minutes} min`;
+  //         // this.calculateFee();
+  //       } else if (status === 'ZERO_RESULTS') {
+  //         this.toastr.error('No Route Are Available');
+  //       }
+  //     }
+  //   );
+  // }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

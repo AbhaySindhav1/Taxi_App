@@ -1,14 +1,44 @@
 const path = require("path");
 const envPath = path.join(__dirname, "../../key.env");
 require("dotenv").config({ path: envPath });
+const Settings = require("../../Model/settingModel");
 
-const stripe = require("stripe")(process.env.StripePrivateKey);
+let stripeInstance = null;
+
+async function initializeStripe() {
+  try {
+    if (stripeInstance === null) {
+      const Setting = await Settings.find({});
+      const StripePrivateKey = Setting[0].StripePrivateKey; // Assuming the fetched value is stored in the 'privateKey' field
+      stripeInstance = require("stripe")(StripePrivateKey);
+    }
+    return stripeInstance;
+  } catch (error) {
+    console.log("initializeStripe", error);
+  }
+}
+
+async function updateStripePrivateKey() {
+  try {
+    const Setting = await Settings.find({});
+    const StripePrivateKey = Setting[0].StripePrivateKey; // Assuming the fetched value is stored in the 'privateKey' field
+
+    stripeInstance = require("stripe")(StripePrivateKey);
+  } catch (error) {
+    console.log("updateStripePrivateKey", error);
+  }
+}
+
+// const stripe = require("stripe")(process.env.StripePrivateKey);
 
 async function createCustomer(email, name) {
   try {
     if (!email || !name) {
       throw new Error("Enter Valid Datails");
     }
+
+    const stripe = await initializeStripe();
+
     const customer = await stripe.customers.create({
       email: email,
       name: name,
@@ -21,6 +51,8 @@ async function createCustomer(email, name) {
 
 async function SetUpIntant(customer) {
   try {
+    const stripe = await initializeStripe();
+
     const setupIntent = await stripe.setupIntents.create({
       customer: customer,
       automatic_payment_methods: { enabled: true },
@@ -34,6 +66,8 @@ async function SetUpIntant(customer) {
 
 async function retrievePaymentMethods(CUSTOMER_ID) {
   try {
+    const stripe = await initializeStripe();
+
     const paymentMethods = await stripe.paymentMethods.list({
       customer: CUSTOMER_ID,
       type: "card",
@@ -47,6 +81,8 @@ async function retrievePaymentMethods(CUSTOMER_ID) {
 
 async function deletePaymentMethod(paymentMethodId) {
   try {
+    const stripe = await initializeStripe();
+
     const deletedPaymentMethod = await stripe.paymentMethods.detach(
       paymentMethodId
     );
@@ -58,6 +94,8 @@ async function deletePaymentMethod(paymentMethodId) {
 
 async function updateDefaultCard(customerId, cardId) {
   try {
+    const stripe = await initializeStripe();
+
     const updatedCustomer = await stripe.customers.update(customerId, {
       invoice_settings: {
         default_payment_method: cardId,
@@ -71,6 +109,7 @@ async function updateDefaultCard(customerId, cardId) {
 
 async function getCustomer(customerId) {
   try {
+    const stripe = await initializeStripe();
     const customer = await stripe.customers.retrieve(customerId);
     return customer;
   } catch (error) {
@@ -81,6 +120,7 @@ async function getCustomer(customerId) {
 async function GetPayment(customerId, paymentCardId, amountToDeduct) {
   try {
     console.log(customerId, paymentCardId, amountToDeduct);
+    const stripe = await initializeStripe();
     payment_intent = await stripe.paymentIntents.create({
       amount: +amountToDeduct * 100,
       currency: "usd",
@@ -99,6 +139,16 @@ async function GetPayment(customerId, paymentCardId, amountToDeduct) {
   }
 }
 
+async function deleteCustomer(customerId) {
+  try {
+    const stripe = await initializeStripe();
+    const deletedCustomer = await stripe.customers.del(customerId);
+    return deletedCustomer;
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+  }
+}
+
 module.exports = {
   createCustomer,
   SetUpIntant,
@@ -107,4 +157,6 @@ module.exports = {
   updateDefaultCard,
   getCustomer,
   GetPayment,
+  deleteCustomer,
+  updateStripePrivateKey,
 };

@@ -18,6 +18,7 @@ router.post("/User", async (req, res) => {
       id: user._id,
     });
   } catch (error) {
+    console.log(error);
     if (error.keyPattern.email) {
       res.status(400).send("Email Already Exists");
     }

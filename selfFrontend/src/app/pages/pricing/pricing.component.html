@@ -98,7 +98,7 @@
               align-items: center;
             "
             role="alert"
-            >*DriverProfit Is Required</span
+            >*DriverProfit Is Required and must be positive</span
           >
         </div>
         <div class="input-group mb-3">
@@ -148,7 +148,7 @@
               align-items: center;
             "
             role="alert"
-            >*BasePriceDistance Is Required</span
+            >*BasePriceDistance Is Required and must be positive</span
           >
         </div>
         <div class="input-group mb-3">
@@ -172,7 +172,7 @@
               justify-content: center;
               align-items: center;
             "
-            >*BasePrice Is Required
+            >*BasePrice Is Required and must be positive
           </span>
         </div>
         <div class="input-group mb-3">
@@ -196,7 +196,7 @@
               align-items: center;
             "
             role="alert"
-            >*DistancePrice Is Required</span
+            >*DistancePrice Is Required and must be positive</span
           >
         </div>
         <div class="input-group mb-3">
@@ -221,7 +221,7 @@
             "
             role="alert"
           >
-            *TimePrice Is Required
+            *TimePrice Is Required and must be positive
           </div>
         </div>
         <div class="input-group mb-3">
@@ -245,7 +245,20 @@
               align-items: center;
             "
             role="alert"
-            >MaxSpace must be a positive integer.</span
+            >MaxSpace must be a positive integer .</span
+          >
+          <span
+            *ngIf="PricingForm.get('MaxSpace')?.errors?.['required'] && issubmitted"
+            class="alert alert-danger"
+            style="
+              width: 190px;
+              height: 30px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            "
+            role="alert"
+            >*MaxSpace Is Required.</span
           >
         </div>
         <div

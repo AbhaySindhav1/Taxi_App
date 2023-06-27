@@ -59,7 +59,7 @@ export class RunningreqComponent implements OnInit {
 
     this.socketService.socket.on('noDriverFound', (data: any) => {
       this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data.ride._id;
+        return ride._id !== data.Ride._id;
       });
     });
 
