@@ -1,20 +1,21 @@
 const CreateRide = require("../../Model/createRideModel");
 const Driver = require("../../Model/driverModel");
-const path = require("path");
-const envPath = path.join(__dirname, "../key.env");
-require("dotenv").config({ path: envPath });
-const accountSid = process.env.smsID;
-const authToken = process.env.smsToken;
+const Settings = require("../../Model/settingModel");
+// const path = require("path");
+// const envPath = path.join(__dirname, "../key.env");
+// require("dotenv").config({ path: envPath });
+// // const accountSid = process.env.smsID;
+// const authToken = process.env.smsToken;
 
 // let client = require("twilio")(accountSid, authToken);
 
 let client = null;
 
-async function initializeStripe() {
+async function initializeMessage() {
   try {
     if (client === null) {
       const Setting = await Settings.find({});
-      let client = require("twilio")(Setting[0].smsID, Setting[0].smsToken);
+       client = require("twilio")(Setting[0].smsID, Setting[0].smsToken);
     }
     return client;
   } catch (error) {
@@ -130,7 +131,7 @@ async function sendMessages(
   from = "+13613153908",
   to = "+916355032160"
 ) {
-  client = await initializeStripe();
+  client = await initializeMessage();
 
   client.messages
     .create({
@@ -138,8 +139,11 @@ async function sendMessages(
       from: from,
       to: to,
     })
-    .then((message) => console.log(message.sid));
+    .then((message) => console.log(message.sid)).catch((e)=>{
+      console.log("message",e);
+    });
 }
+
 
 module.exports = {
   getAvailableDrivers,

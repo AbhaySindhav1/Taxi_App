@@ -1,6 +1,6 @@
-const path = require("path");
-const envPath = path.join(__dirname, "../../key.env");
-require("dotenv").config({ path: envPath });
+// const path = require("path");
+// const envPath = path.join(__dirname, "../../key.env");
+// require("dotenv").config({ path: envPath });
 const Settings = require("../../Model/settingModel");
 
 let stripeInstance = null;
@@ -24,6 +24,7 @@ async function updateStripePrivateKey() {
     const StripePrivateKey = Setting[0].StripePrivateKey; // Assuming the fetched value is stored in the 'privateKey' field
 
     stripeInstance = require("stripe")(StripePrivateKey);
+    console.log("StripePrivateKey",StripePrivateKey);
   } catch (error) {
     console.log("updateStripePrivateKey", error);
   }
@@ -131,6 +132,7 @@ async function GetPayment(customerId, paymentCardId, amountToDeduct) {
 
     if (payment_intent.status == "succeeded") {
       console.log("Payment processed successfully.");
+      
     } else {
       console.log("Payment failed.");
     }

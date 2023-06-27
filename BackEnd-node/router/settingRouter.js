@@ -11,6 +11,9 @@ const { UpdateValueTwilio } = require("../Controller/Functions/functions");
 
 router.patch("/Setting", auth, upload.none(), async (req, res) => {
   const fieldtoupdate = Object.keys(req.body);
+  console.log("fieldtoupdate",fieldtoupdate)
+  console.log("req.body",req.body);
+
   let newSetting;
   try {
     let setting = await Setting.findById(req.body.id);

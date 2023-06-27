@@ -10,11 +10,13 @@ const mongoose = require("mongoose");
 const moment = require("moment");
 const Sockets = require("../Controller/Functions/Socket");
 const { sendMessages } = require("../Controller/Functions/functions");
+const { sendMail, GetHtml } = require("../Controller/Functions/nodeMailer");
 const envPath = path.join(__dirname, "../key.env");
 const {
   createCustomer,
   GetPayment,
 } = require("../Controller/Functions/Stripe");
+const { log } = require("console");
 require("dotenv").config({ path: envPath });
 
 ////                                                             ///  ADD Ride ///                                                                             ////
@@ -193,7 +195,10 @@ router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
       if (ride && ride.PaymentType && ride.PaymentType === "Cash") {
         await Sockets.StatusChange(req.params.id, req.body.Status);
         if (req.body.Status == 5) {
-          sendMessages("Ride Completed By Driver And Paid by Cash");
+          let html = await GetHtml(ride);
+          await sendMail("abhayabhay202.ar@gmail.com", "invoice", null, html);
+          console.log("ha aayya j che");
+          // sendMessages("Ride Completed By Driver And Paid by Cash");
         }
         res.status(200).json("Ride Completed");
         return;
@@ -213,6 +218,7 @@ router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
         }
         await GetPayment(user.StripeId, ride.PaymentId, +ride.TripFee);
         await Sockets.StatusChange(req.params.id, req.body.Status);
+        // await sendMail()
         res.status(200).json("Ride Completed and Payment Done");
       }
     }

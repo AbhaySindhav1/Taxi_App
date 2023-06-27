@@ -443,4 +443,6 @@ module.exports = function (io) {
       console.log(error);
     }
   }
+
+  module.exports.GetRideDetail = GetRideDetail;
 };

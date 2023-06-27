@@ -65,6 +65,7 @@ export class SettingComponent implements OnInit {
     formData.append('smsID', this.SettingForm.get('smsID').value);
     formData.append('smsToken', this.SettingForm.get('smsToken').value);
     formData.append('StripePublicKey', this.SettingForm.get('StripePublicKey').value);
+    formData.append('StripePrivateKey', this.SettingForm.get('StripePrivateKey').value);
     formData.append('EmailID', this.SettingForm.get('EmailID').value);
     formData.append('EmailSecret', this.SettingForm.get('EmailSecret').value);
     formData.append('EmailToken', this.SettingForm.get('EmailToken').value);
