@@ -40,9 +40,11 @@ export class CardComponent implements OnInit {
   async loadStripe() {
     this.settingsService.initGetSettings().subscribe({
       next: async (data: any) => {
-        this.stripe = await loadStripe(
-          data[0]?.StripePublicKey
-        );
+        try {
+          this.stripe = await loadStripe(data[0]?.StripePublicKey);
+        } catch (error) {
+          console.log(error);
+        }
       },
     });
   }
@@ -71,7 +73,10 @@ export class CardComponent implements OnInit {
           spacedAccordionItems: false,
         },
       });
-
+      this.paymentElement.on('loaderror', (event: any) => {
+        this.toastr.error(event.error.message);
+        return;
+      });
       this.paymentElement.mount('#payment-element');
       this.form = document.getElementById('payment-form');
       this.submitBtn = document.getElementById('submit');
@@ -190,7 +195,7 @@ export class CardComponent implements OnInit {
     this.userService.initDefaultCard(this.data._id, selectedCard).subscribe({
       next: (data) => {
         console.log(data);
-        
+
         this.data.defaultPayment = data.defaultPayment;
         btn.disabled = false;
       },

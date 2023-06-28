@@ -12,7 +12,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { environment } from '../app/environments/environment';
+import { environment } from '../environments/environment';
 import { BnNgIdleService } from 'bn-ng-idle';
 import {
   NgxUiLoaderModule,
@@ -27,6 +27,7 @@ import {
 const ngxUiLoaderConfig: NgxUiLoaderConfig = {
   fgsColor: 'white',
   fgsPosition: POSITION.centerCenter,
+  bgsPosition: POSITION.centerCenter,
   fgsSize: 40,
   fgsType: SPINNER.fadingCircle, 
   pbDirection: PB_DIRECTION.leftToRight, 

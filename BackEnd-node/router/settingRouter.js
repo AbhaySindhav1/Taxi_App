@@ -11,8 +11,6 @@ const { UpdateValueTwilio } = require("../Controller/Functions/functions");
 
 router.patch("/Setting", auth, upload.none(), async (req, res) => {
   const fieldtoupdate = Object.keys(req.body);
-  console.log("fieldtoupdate",fieldtoupdate)
-  console.log("req.body",req.body);
 
   let newSetting;
   try {
@@ -30,11 +28,9 @@ router.patch("/Setting", auth, upload.none(), async (req, res) => {
       newSetting.EmailToken !== setting.EmailToken ||
       newSetting.EmailID !== setting.EmailID
     ) {
-      console.log("ayaya");
       await updateNodemailer(); // to update CronCycle
     }
     if (newSetting.StripePrivateKey !== setting.StripePrivateKey) {
-      console.log("ha yaya");
       await updateStripePrivateKey(); // to update Stripe
     }
     if (newSetting.ReqCronTime != setting.ReqCronTime) {

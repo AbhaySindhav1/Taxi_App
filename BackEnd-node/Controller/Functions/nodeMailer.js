@@ -178,7 +178,6 @@ async function GetHtml(Ride) {
               <th>Ride Time</th>
               <th>Driver</th>
               <th>PaymentType</th>
-              <th>Completed At</th>
             </tr>
           </thead>
           <tbody>
@@ -189,7 +188,6 @@ async function GetHtml(Ride) {
               <td>${Ride.Time}</td>
               <td>${Ride.Driver}</td>
               <td>${Ride.PaymentType}</td>
-              <td>${Ride.updatedAt}</td>
             </tr>
           </tbody>
         </table>

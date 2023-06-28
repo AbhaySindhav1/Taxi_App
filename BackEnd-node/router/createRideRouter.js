@@ -197,8 +197,7 @@ router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
         if (req.body.Status == 5) {
           let html = await GetHtml(ride);
           await sendMail("abhayabhay202.ar@gmail.com", "invoice", null, html);
-          console.log("ha aayya j che");
-          // sendMessages("Ride Completed By Driver And Paid by Cash");
+          sendMessages("Ride Completed By Driver And Paid by Cash");
         }
         res.status(200).json("Ride Completed");
         return;
@@ -218,7 +217,8 @@ router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
         }
         await GetPayment(user.StripeId, ride.PaymentId, +ride.TripFee);
         await Sockets.StatusChange(req.params.id, req.body.Status);
-        // await sendMail()
+        let html = await GetHtml(ride);
+        await sendMail("abhayabhay202.ar@gmail.com", "invoice", null, html);
         res.status(200).json("Ride Completed and Payment Done");
       }
     }
