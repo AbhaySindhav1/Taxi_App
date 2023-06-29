@@ -1,5 +1,5 @@
-importScripts("https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/8.0.0/firebase-messaging.js");
+importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js");
+importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js");
 
 firebase.initializeApp({
   apiKey: "AIzaSyCmO-b2bgoyRO1NEfJsVtTiKE3GJ2kQFzE",
@@ -8,7 +8,7 @@ firebase.initializeApp({
   storageBucket: "push-notification-5172c.appspot.com",
   messagingSenderId: "1091006732378",
   appId: "1:1091006732378:web:8818695e9b6fb9fb392063",
-  measurementId: "G-9HY887RPFG",
+  measurementId: "G-9HY887RPFG"
 });
 
 const messaging = firebase.messaging();

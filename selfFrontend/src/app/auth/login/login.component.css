@@ -34,6 +34,7 @@
   background-color: #FFFFFF;
   width: 100px;
   height: 100px;
+  min-width: 800px;
 }
 label{
   font-size: 20px;

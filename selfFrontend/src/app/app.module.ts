@@ -11,30 +11,34 @@ import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { environment } from '../environments/environment';
 import { BnNgIdleService } from 'bn-ng-idle';
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFireAuthModule } from '@angular/fire/compat/auth';
+import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
+import { AngularFireMessagingModule } from '@angular/fire/compat/messaging';
+
 import {
   NgxUiLoaderModule,
   NgxUiLoaderRouterModule,
   NgxUiLoaderHttpModule,
-  NgxUiLoaderConfig,SPINNER,
+  NgxUiLoaderConfig,
+  SPINNER,
   POSITION,
-  PB_DIRECTION 
+  PB_DIRECTION,
 } from 'ngx-ui-loader';
-
+import { AsyncPipe } from '@angular/common';
 
 const ngxUiLoaderConfig: NgxUiLoaderConfig = {
   fgsColor: 'white',
   fgsPosition: POSITION.centerCenter,
   bgsPosition: POSITION.centerCenter,
   fgsSize: 40,
-  fgsType: SPINNER.fadingCircle, 
-  pbDirection: PB_DIRECTION.leftToRight, 
-  pbThickness: 5 ,
-  text:"Loading ..."
-}
-
+  fgsType: SPINNER.fadingCircle,
+  pbDirection: PB_DIRECTION.leftToRight,
+  pbThickness: 5,
+  text: 'Loading ...',
+};
 
 @NgModule({
   declarations: [AppComponent],
@@ -52,7 +56,11 @@ const ngxUiLoaderConfig: NgxUiLoaderConfig = {
     NgxUiLoaderHttpModule,
     NgxUiLoaderModule.forRoot(ngxUiLoaderConfig),
     NgxUiLoaderHttpModule.forRoot({ showForeground: true }),
-    // AngularFireModule.initializeApp(environment.firebase)
+    AngularFireAuthModule,
+    AngularFireMessagingModule,
+    AngularFireDatabaseModule,
+    AngularFireModule,
+    AngularFireModule.initializeApp(environment.firebase),
   ],
   providers: [
     BnNgIdleService,
@@ -61,6 +69,7 @@ const ngxUiLoaderConfig: NgxUiLoaderConfig = {
       useClass: AuthinterceptorInterceptor,
       multi: true,
     },
+    AsyncPipe
   ],
   bootstrap: [AppComponent],
 })
