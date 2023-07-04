@@ -152,17 +152,19 @@
       </button>
     </div>
   </div>
+  <div class="card" *ngIf="CountryList?.length == 0"> No Countries</div>
   <div
     class="table card"
     style="padding: 10px 15px; width: 100%; background-color: #e3e7ea"
+    *ngIf="CountryList?.length > 0"
   >
-    <table>
+  <table>
       <tbody
         class="tbody"
         id="tbody"
         style="min-width: 100%; background-color: #e3e7ea"
       >
-        <div class="d-flex flex-row flex-wrap justify-content-evenly py-5">
+        <div class="d-flex flex-row flex-wrap justify-content-evenly py-5" style="background-color: #e3e7ea">
           <div class="card m-2" *ngFor="let country of CountryList">
             <!-- ng for -->
 

@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DriverService } from 'src/app/Services/driver.service';
 import { MapService } from 'src/app/Services/map.service';
+import { MessagingService } from 'src/app/Services/messaging.service';
 import { RideService } from 'src/app/Services/ride.service';
 import { SocketService } from 'src/app/Services/socket.service';
 import { VehicleService } from 'src/app/Services/vehicle.service';
@@ -35,7 +36,8 @@ export class ConfirmRideComponent implements OnInit {
     private driverService: DriverService,
     private socketService: SocketService,
     public dialog: MatDialog,
-    public mapService: MapService
+    public mapService: MapService,
+    private msgService: MessagingService
   ) {
     this.OnAssign = this.OnAssign.bind(this);
     this.RideSearchForm = new FormGroup({
@@ -54,7 +56,7 @@ export class ConfirmRideComponent implements OnInit {
           (driver: any) => driver._id === data.DriverId
         );
         if (index !== -1) {
-          this.driverData.splice(index, 1);
+          this.driverData?.splice(index, 1);
         }
       }
     });
@@ -93,12 +95,17 @@ export class ConfirmRideComponent implements OnInit {
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
       console.log('CancelledRide', data);
-      this.initRideDataChange(data.Ride.RideId, data.Ride.Status, null, null);
+      this.RideList = this.RideList.filter((ride: any) => {
+        return ride._id !== data.Ride.RideId;
+      });
     });
 
     this.socketService.socket.on('RideStatus', (data: any) => {
       console.log('RideStatus', data);
       this.initRideDataChange(data?.RideId, data?.Status);
+    });
+    this.socketService.socket.on('NoDriverIsThere', (data: any) => {
+      this.msgService.getToken({ msg: data });
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
@@ -115,6 +122,7 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.msgService.PrepareMessaging();
     this.vehicleService.initGetTypesOfVehicles().subscribe({
       next: (data) => {
         this.VehicleList = data;
@@ -200,13 +208,6 @@ export class ConfirmRideComponent implements OnInit {
   ////////////////////////////////////////////////////////////    Get  Filter  Rides      /////////////////////////////////////////////////////////////////////
 
   Filter(event?: any) {
-    // let form = new FormData();
-
-    // form.append('Search', this.RideSearchForm.get('Search').value);
-    // form.append('Type', this.RideSearchForm.get('Type').value);
-    // form.append('FromDate', this.RideSearchForm.get('FromDate').value);
-    // form.append('toDate', this.RideSearchForm.get('toDate').value);
-    // form.append('Status', this.RideSearchForm.get('Status').value);
     let form = {
       Search: this.RideSearchForm.get('Search').value,
       Type: this.RideSearchForm.get('Type').value,
@@ -221,8 +222,6 @@ export class ConfirmRideComponent implements OnInit {
   ////////////////////////////////////////////////////////////    Get   All  Rides      /////////////////////////////////////////////////////////////////////
 
   GetAllData(event?: any, formdata?: any) {
-    console.log(event, formdata);
-
     if (this.totalRides < this.limit * this.page) {
       this.page = 1;
     }
@@ -237,10 +236,10 @@ export class ConfirmRideComponent implements OnInit {
 
     this.rideService.initGetAllRides(data).subscribe({
       next: (data) => {
-        console.log(data);
-
         data.Rides.forEach((element: any) => {
-          element.Stops = JSON.parse(element.Stops);
+          if (element.Stops) {
+            element.Stops = JSON.parse(element.Stops);
+          }
         });
         this.RideList = data.Rides;
         this.totalRides = data.totalRide;
@@ -275,18 +274,31 @@ export class ConfirmRideComponent implements OnInit {
 
   ////////////////////////////////////////////////////////////    Get  Rides  Details     /////////////////////////////////////////////////////////////////////
   openDialog(Ride: any) {
+    console.log('ahugdhu');
     const dialogRef = this.dialog.open(RideDetailComponent, {
       data: Ride,
     });
   }
 
   replaceRow(data: any) {
+    console.log(data);
     const index = this.RideList.findIndex((ride: any) => ride._id === data._id);
-    data.Stops = JSON.parse(data.Stops);
+    if (this.isJSON(data.Stops)) {
+      data.Stops = JSON.parse(data.Stops);
+    }
     if (index !== -1) {
       this.RideList[index] = data;
     } else {
       this.RideList.push(data);
+    }
+  }
+
+  isJSON(data: any) {
+    try {
+      JSON.parse(data);
+      return true;
+    } catch (error) {
+      return false;
     }
   }
 }

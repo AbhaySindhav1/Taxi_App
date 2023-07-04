@@ -16,21 +16,17 @@ export class AppComponent implements OnInit {
   constructor(
     private bnIdle: BnNgIdleService,
     private authService: AuthService,
-    private messagingService: MessagingService,
-    private messaging: AngularFireMessaging
+    private msg: AngularFireMessaging
   ) {}
   ngOnInit(): void {
-    // this.messagingService.receiveMessaging();
-    // this.message = this.messagingService.currentMessage;
-    this.messaging.requestPermission.subscribe({
-      next:(data:any)=>{
-        console.log('permission granted!',data);
-        // this.messagingService.reqForPermission();
-      },error:(error)=>{
+    this.msg.requestPermission.subscribe({
+      next: (data: any) => {
+        console.log('permission granted!', data);
+      },
+      error: (error) => {
         console.log('permission denied');
-      }
-    })
-
+      },
+    });
 
     this.bnIdle.startWatching(60 * 20).subscribe((isTimedOut: boolean) => {
       console.log(isTimedOut, this.authService.user.getValue());

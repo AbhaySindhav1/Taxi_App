@@ -65,6 +65,7 @@ export class CountryComponent implements OnInit {
 
   onCountrySelect() {
     const selectedCountry = this.CountryForm.get('selectedCountry')?.value;
+    console.log('selectedCountry', selectedCountry);
 
     if (!selectedCountry) {
       this.error = 'Please Select Country';

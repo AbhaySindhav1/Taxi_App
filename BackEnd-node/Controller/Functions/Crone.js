@@ -38,7 +38,7 @@ module.exports = function (io) {
         setImmediate(() => CheckTime(ride));
       }
     }
-    CheckTime(ride);
+   await CheckTime(ride);
   }
 
   async function GetDriver(ride) {
@@ -67,6 +67,7 @@ module.exports = function (io) {
     await Sockets.NotReactedRide(ride._id);
     let newdriver = await GetDriver(ride);
     if (!newdriver) {
+      // await Sockets.socketEmit("NoDriverIsThere",1)
       let busydriver = await NoDriverFound(ride);
       if (busydriver.length >= 1) {
         return;

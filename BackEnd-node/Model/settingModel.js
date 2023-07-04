@@ -40,7 +40,7 @@ const SettingSchema = mongoose.Schema({
         type:String,
         required:true
       },
-});
+}, { timestamps: true });
 
 const Setting = mongoose.model("Setting", SettingSchema);
 

@@ -85,6 +85,7 @@ export class AuthService implements OnInit {
   // }
 
   logout() {
+    // this.http.post<any>('http://localhost:3000/User',id)
     this.user.next(null);
     localStorage.removeItem('userData');
     this.router.navigate(['login']);

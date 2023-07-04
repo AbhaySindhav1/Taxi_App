@@ -27,7 +27,6 @@ export class AuthGuardService implements CanActivate {
 
 
     if (this.authService.InitAutoLogin()) {
-      console.log("authentication successful");
       return true
     }
     else{

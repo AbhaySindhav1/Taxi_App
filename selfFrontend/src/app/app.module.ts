@@ -11,7 +11,7 @@ import { AuthinterceptorInterceptor } from './authinterceptor.interceptor';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ToastrModule } from 'ngx-toastr';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { BnNgIdleService } from 'bn-ng-idle';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
@@ -52,15 +52,14 @@ const ngxUiLoaderConfig: NgxUiLoaderConfig = {
     MatDialogModule,
     NgbModule,
     NgxUiLoaderModule,
-    NgxUiLoaderRouterModule,
-    NgxUiLoaderHttpModule,
+    // NgxUiLoaderRouterModule,
+    // NgxUiLoaderHttpModule,
     NgxUiLoaderModule.forRoot(ngxUiLoaderConfig),
-    NgxUiLoaderHttpModule.forRoot({ showForeground: true }),
+    // NgxUiLoaderHttpModule.forRoot({ showForeground: true }),
+    AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     AngularFireMessagingModule,
     AngularFireDatabaseModule,
-    AngularFireModule,
-    AngularFireModule.initializeApp(environment.firebase),
   ],
   providers: [
     BnNgIdleService,

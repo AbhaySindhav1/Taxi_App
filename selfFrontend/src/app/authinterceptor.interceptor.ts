@@ -26,9 +26,9 @@ export class AuthinterceptorInterceptor implements HttpInterceptor {
 
     if (userdata !== null) {
       user = JSON.parse(userdata);
-    }
+    }   
 
-    if (user && user._token) {
+    if (user && user._token && request.url != 'https://fcm.googleapis.com/fcm/send') {
       const modifiedReq = request.clone({
         setHeaders: {
           Authorization: `Bearer ${user._token}`,

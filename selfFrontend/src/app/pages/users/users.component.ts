@@ -136,6 +136,7 @@ export class UsersComponent implements OnInit {
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+    console.log(this.selectedFile);
   }
 
   onSearchUsers(sortColomnn?: any) {
@@ -192,8 +193,7 @@ export class UsersComponent implements OnInit {
     }
     let data = {
       limit: +this.limit,
-      filter: (document.getElementById('searchBtn') as HTMLInputElement)
-        ?.value,
+      filter: (document.getElementById('searchBtn') as HTMLInputElement)?.value,
       page: event ? event : this.p,
       sortColomn: this.sortColomn,
     };

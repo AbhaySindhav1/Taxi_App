@@ -25,10 +25,6 @@ router.post("/User", async (req, res) => {
   }
 });
 
-router.get("/usersss", auth, async (req, res) => {
-  res.send("req.user");
-});
-
 router.post("/UserLogin", async (req, res) => {
   try {
     const user = await User.findByCredentials(

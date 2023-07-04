@@ -24,7 +24,7 @@ const countrySchema = mongoose.Schema({
     type:String,
     trim:true
   }
-});
+}, { timestamps: true });
 const Country = mongoose.model("Country", countrySchema);
 
 

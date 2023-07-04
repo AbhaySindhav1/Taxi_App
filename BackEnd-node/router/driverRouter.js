@@ -83,16 +83,8 @@ router.post("/Driver", auth, handleDriversUpload, async (req, res) => {
 
 router.post("/Driver/GetAllDriver", auth, async (req, res) => {
   const searchQuery = req.body.searchValue || "";
-  if (searchQuery.charAt(0) === "+") {
-    {
-      $regex: `\\${searchQuery}.*`;
-    }
-  }
   const sortColumn = req.body.sortColumn || "DriverName";
-
-  let drivers;
   try {
-
     let matchQuery = {
       $or: [
         { DriverName: { $regex: `.*${searchQuery}.*`, $options: "i" } },

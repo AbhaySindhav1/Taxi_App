@@ -20,7 +20,6 @@ export class RideService {
   }
 
   initGetAllRides(data: any) {
-    console.log(data);
     return this.http.post<any>('http://localhost:3000/GetRides', data);
   }
 

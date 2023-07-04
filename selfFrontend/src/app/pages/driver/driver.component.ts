@@ -232,7 +232,7 @@ export class DriverComponent implements OnInit {
       this.DriverForm.patchValue({ DriverCity: Driver.DriverCity });
 
       this.cd.detectChanges();
-    }, 10);
+    }, 100);
   }
 
   initDriverEditReq(formData: any) {

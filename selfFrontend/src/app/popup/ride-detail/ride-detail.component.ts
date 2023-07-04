@@ -27,33 +27,33 @@ export class RideDetailComponent implements OnInit {
 
   initMap(lat = 23, lng = 73, zoom = 7) {
     let loc = { lat: +lat, lng: +lng };
-  
+
     this.map = new google.maps.Map(document.getElementById('map'), {
       center: loc,
       zoom,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
     });
-  
+
     var locationNames = [
       this.Ride.PickupPoint,
       ...this.Ride.Stops,
       this.Ride.DropPoint,
     ];
-  
+
     // Create a geocoder instance
     var directionsService = new google.maps.DirectionsService();
-  
+
     let markers: any[] = [];
-  
+
     // Create a DirectionsRenderer instance to display the directions on the map
-  
+
     // Geocode each location name and get the LatLng coordinates
     var waypoints = locationNames.map(function (locationName) {
       return {
         location: locationName,
       };
     });
-  
+
     // Configure the directions request
     var request = {
       origin: locationNames[0],
@@ -61,18 +61,21 @@ export class RideDetailComponent implements OnInit {
       waypoints: waypoints.slice(1, -1),
       travelMode: google.maps.TravelMode.DRIVING,
     };
-  
+
     // Send the directions request
-  
+
     directionsService.route(request, (response: any, status: any) => {
       if (status === google.maps.DirectionsStatus.OK) {
         // Extract the polyline from the directions response
         var polyline = response.routes[0].overview_polyline;
-  
+        console.log('polyline', polyline);
+
         // Decode the polyline into an array of LatLng coordinates
         var decodedPolyline =
           google.maps.geometry.encoding.decodePath(polyline);
-  
+
+        console.log('decodedPolyline', decodedPolyline);
+
         // Create a new polyline instance
         var drawnPolyline = new google.maps.Polyline({
           path: decodedPolyline,
@@ -81,12 +84,10 @@ export class RideDetailComponent implements OnInit {
           strokeOpacity: 1.0,
           strokeWeight: 5,
         });
-  
+
         // Display the polyline on the map
         drawnPolyline.setMap(this.map);
-  
-       
-  
+
         // Create a marker for the pickup point
         var pickupMarker = new google.maps.Marker({
           position: response.routes[0].legs[0].start_location,
@@ -94,7 +95,7 @@ export class RideDetailComponent implements OnInit {
           label: 'P',
         });
         markers.push(pickupMarker);
-  
+
         // Create markers for each location
         for (var i = 1; i < locationNames.length - 1; i++) {
           var marker = new google.maps.Marker({
@@ -104,18 +105,20 @@ export class RideDetailComponent implements OnInit {
           });
           markers.push(marker);
         }
-  
+
         // Create a marker for the destination place
         var destinationMarker = new google.maps.Marker({
-          position: response.routes[0].legs[response.routes[0].legs.length - 1].end_location,
+          position:
+            response.routes[0].legs[response.routes[0].legs.length - 1]
+              .end_location,
           map: this.map,
           label: 'D',
         });
         markers.push(destinationMarker);
-  
+
         this.map.fitBounds(response.routes[0]?.bounds);
         var mapCenter = response.routes[0]?.bounds.getCenter();
-  
+
         this.map.setCenter(mapCenter);
       }
     });

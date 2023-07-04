@@ -1,5 +1,5 @@
 const multer = require("multer");
-const maxSize = 2 * 1000 * 1000; // 2MB
+const maxSize = 6 * 1000 * 1000; // 2MB
 
 ///                                                 /////        Vehicle  multer      ////                                           ///////
 

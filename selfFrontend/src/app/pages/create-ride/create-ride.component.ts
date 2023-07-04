@@ -351,8 +351,6 @@ export class CreateRideComponent implements OnInit {
   }
 
   OnRideDetailsFormSubmit() {
-    console.log(this.RideDetailsForm.get('PaymentId').value);
-
     this.isSubmitted = true;
     if (!this.RideDetailsForm.valid) {
       this.toastr.error('Please Enter Valid Datails in Form');

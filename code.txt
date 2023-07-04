@@ -1113,3 +1113,29 @@ router.delete("/city/:id", auth, async (req, res) => {
     //     $and: filterConditions,
     //   };
     // }
+
+
+    // recieveMessasging() {
+//     this.afm.messages.subscribe(
+//       (payload) => {
+//         // console.log('new msg recieved',payload.data);
+//         const notificationTitle = payload.notification?.title;
+
+//         // const notificationOptions = {
+//         //   body: payload.notification.body
+//         // };
+//         const notificationOptions = {
+//           body: payload.notification.body,
+//           icon: "/assets/img/icons/history.png",
+//           vibrate: [200, 100, 200],
+//           sound: "/assets/soundss/success-fanfare-trumpets-6185.mp3",
+//         };
+
+//         new Notification(notificationTitle, notificationOptions);
+//         // this.currentMessage.next(payload)
+//       },
+//       (err) => {
+//         console.log(err);
+//       }
+//     );
+//   }

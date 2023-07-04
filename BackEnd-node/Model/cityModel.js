@@ -19,7 +19,8 @@ const citySchema = mongoose.Schema({
     type: Object,
     required: true,
   },
-});
+},
+{ timestamps: true },);
 const City = mongoose.model("Zone", citySchema);
 
 module.exports = City;

@@ -17,7 +17,7 @@ const VehicleSchema = mongoose.Schema({
   //   required: true,
   //   trim: true,
   // },
-});
+}, { timestamps: true });
 const Vehicle = mongoose.model("Taxi", VehicleSchema);
 
 module.exports = Vehicle;

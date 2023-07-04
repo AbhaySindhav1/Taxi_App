@@ -45,7 +45,7 @@ const UsersSchema = mongoose.Schema({
   defaultPayment: {
     type: String,
   },
-});
+}, { timestamps: true });
 
 const Users = mongoose.model("MyUser", UsersSchema);
 

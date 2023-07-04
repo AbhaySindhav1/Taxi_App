@@ -135,6 +135,14 @@ module.exports = function (io) {
 
   module.exports.AssignRide = AssignRide;
 
+  /////////////////////////////////////////////////////////////      Calll  Any Socket using this function    ////////////////////////////////////////////////////////////////////////
+
+  socketEmit = async (eventName, data = "") => {
+    io.emit(eventName, data);
+  };
+
+  module.exports.socketEmit = socketEmit;
+
   /////////////////////////////////////////////////////////////        Driver Accepted  Ride    ////////////////////////////////////////////////////////////////////////
 
   AcceptRide = async (RideID, DriverID, Status) => {
@@ -166,9 +174,13 @@ module.exports = function (io) {
 
   CancelRide = async (RideID, DriverID) => {
     try {
-      let ride = await Rides.findByIdAndUpdate(RideID, {
-        Status: 0,
-      });
+      let ride = await Rides.findByIdAndUpdate(
+        RideID,
+        {
+          Status: 0,
+        },
+        { new: true }
+      );
 
       if (!ride) return;
 
@@ -184,6 +196,7 @@ module.exports = function (io) {
           Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
         });
       } else {
+        console.log("ride.Status", ride);
         io.emit("CancelledRide", {
           Ride: { Status: ride.Status, RideId: ride._id },
         });
@@ -248,15 +261,15 @@ module.exports = function (io) {
       AssignDriver.status = "online";
 
       await AssignDriver.save();
+      ride.DriverId = null;
+      ride.Driver = null;
+      ride.RejectedRide.push(AssignDriver._id);
+      ride.AssignTime = new Date().getTime();
       if (ride.AssigningType == "single") {
         ride.Status = 1;
       } else {
         ride.Status = 100;
       }
-      ride.DriverId = null;
-      ride.Driver = null;
-      ride.RejectedRide.push(AssignDriver._id);
-      ride.AssignTime = new Date().getTime();
 
       await ride.save();
 

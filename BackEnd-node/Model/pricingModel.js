@@ -41,7 +41,8 @@ const citySchema = mongoose.Schema({
     type: Number,
     required: true,
   },
-});
+}, { timestamps: true }
+);
 
 const Price = mongoose.model("Price", citySchema);
 
