@@ -35,14 +35,14 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
     const myUser = new Users(req.body);
     await myUser.save();
 
-    // const StripeCustomer = await createCustomer(
-    //   myUser.UserEmail,
-    //   myUser.UserName
-    // );
+    const StripeCustomer = await createCustomer(
+      myUser.UserEmail,
+      myUser.UserName
+    );
 
-    // myUser.StripeId = StripeCustomer.id;
+    myUser.StripeId = StripeCustomer.id;
 
-    // await myUser.save();
+    await myUser.save();
 
     sendMail(myUser.UserEmail, "WelCome", "You Registred Successfully");
 
@@ -85,12 +85,12 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
 
 router.post("/MyUser/getUsers", auth, async (req, res) => {
   const searchQuery = req.body.searchValue || "";
-  const sortColumn = req.body.sortColomn || "UserName";
+  const sortColumn = req.body.sortColomn;
   const limit = req.body.limit || 10;
   const page = req.body.page || 1;
 
   const options = {
-    sort: { [sortColumn]: 1 },
+    sort: { [sortColumn ? sortColumn : "createdAt"]: sortColumn ? 1 : -1 },
     skip: (page - 1) * limit,
     limit: limit,
   };

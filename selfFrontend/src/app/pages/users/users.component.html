@@ -306,6 +306,12 @@
       </thead>
       <tbody>
         <tr
+        *ngIf="UsersData && UsersData.length === 0"
+        style="text-align: center; vertical-align: middle"
+      >
+        <td colspan="6">No Users Found</td>
+      </tr>
+        <tr
           *ngFor="
             let user of UsersData
               | paginate

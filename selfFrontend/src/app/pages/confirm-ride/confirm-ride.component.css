@@ -111,6 +111,14 @@ label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.table-city tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.table-city tbody tr:nth-child(odd) {
+  background-color: #6068a500;
+}
+
 /* .ellipsisRow:hover:after {
   content: attr(title);
   display: inline-block;
@@ -122,6 +130,8 @@ label {
   color: #fff;
   z-index: 9999;
 } */
+
+
 
 thead {
   background-color: #6d7ae0;
@@ -146,8 +156,11 @@ table {
 .d-column label {
   margin: 5px 40px;
 }
-.selected-row {
-  background-color: #3298fd54;
+.selected-rowsss {
+  background-color: #fd323254 !important; 
+  /* color: darkgoldenrod; */
+  /* font-size: 25px; */
+  /* font-size: 30px; */
 }
 
 .paginationlink /deep/ .ngx-pagination .current {

@@ -80,7 +80,7 @@ async function sendMail(to, Subject, Text, html) {
     }
 
     const result = await transpost.sendMail(mailOption);
-    console.log(result);
+    // console.log(result);
     return result;
   } catch (error) {
     console.log(error);

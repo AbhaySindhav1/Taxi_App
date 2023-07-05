@@ -109,7 +109,7 @@
             placeholder="Min Fare Value"
             id="MinFare"
             formControlName="MinFarePrice"
-            onKeyPress="if(this.value.length==2) return false;"
+            onKeyPress="if(this.value.length==2 || event.keyCode === 43) return false;"
           />
           <span
             *ngIf="issubmitted && !PricingForm.get('MinFarePrice')?.valid"

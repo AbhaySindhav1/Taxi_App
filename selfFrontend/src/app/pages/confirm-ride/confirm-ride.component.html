@@ -107,8 +107,8 @@
                   <span class="mx-2">{{ Ride?.ScheduleTime }}</span>
                 </div>
               </div>
-              <div class="ct-table-container">
-                <table class="table-city table table-striped">
+              <div >
+                <table class="table-city">
                   <thead>
                     <th>Driver ID</th>
                     <th>Name</th>
@@ -122,7 +122,7 @@
                     <tr
                       *ngFor="let driver of driverData; let i = index"
                       (click)="getTrData(i, driver)"
-                      [ngClass]="{ 'selected-row': i === selectedRowIndex }"
+                      [ngClass]="{ 'selected-rowsss': i === selectedRowIndex }"
                     >
                       <td>{{ driver._id }}</td>
                       <td>{{ driver.DriverName }}</td>
@@ -144,16 +144,6 @@
                 <span class="font-weight-bold">Time</span>
                 <span class="text-muted">{{ Ride?.Time }}</span>
               </div>
-
-              <!-- <div class="d-flex justify-content-between">
-                <span class="font-weight-bold">TripFee</span>
-                <span class="text-muted">{{ +Ride?.TripFee }}</span>
-              </div>
-
-              <div class="d-flex justify-content-between">
-                <small>Tax</small>
-                <small>{{ +(Ride?.TripFee * 18) / 100 }}</small>
-              </div> -->
 
               <div class="d-flex justify-content-between mt-3">
                 <span class="font-weight-bold">TripFee</span>
@@ -217,7 +207,7 @@
   </select>
 
   <div class="ct-table-container">
-    <table class="table-city table table-striped">
+    <table class="table-city">
       <thead>
         <tr>
           <th class="ellipsisRow">Ride ID</th>

@@ -31,7 +31,7 @@
             class="form-control"
             style="width: 75%; display: inline-block; margin-left: 2%"
             formControlName="UserPhone"
-            onKeyPress="if(this.value.length==10) return false;"
+            onKeyPress="if(this.value.length === 10 ) return false;"
           />
         </div>
 
@@ -109,7 +109,7 @@
         (click)="openDialog()"  
           pop
         </button> -->
-        <button type="button" class="btn bg-danger">Cancel</button>
+        <button type="button" class="btn bg-danger" (click)="Cencel()">Cancel</button>
       </div>
     </form>
 
@@ -122,6 +122,8 @@
       *ngIf="RideDetailsFormShow"
       class="col-3"
     >
+
+
       <div class="controller">
         <label for="PickupPoint">Pickup Point</label>
         <input
@@ -225,6 +227,7 @@
           >
         </div>
       </div>
+  
 
       <div class="controller">
         <label for="VehicleSelector">Vehicle Opitons</label>

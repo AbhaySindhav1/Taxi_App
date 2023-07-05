@@ -86,3 +86,10 @@ input {
 option {
   background-color: #fff;
 }
+
+
+
+/* CSS for striped rows */
+.table-city tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}

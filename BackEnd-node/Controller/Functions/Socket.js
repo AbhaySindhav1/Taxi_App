@@ -118,7 +118,7 @@ module.exports = function (io) {
       rides.Status = 100;
       rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
       rides.Driver = AssignDriver.DriverName;
-      rides.AssignTime = await getTime();
+      (rides.RideStatus = "Assigned"), (rides.AssignTime = await getTime());
       rides.AssigningType = AssigningType;
       rides.RejectedRide.push(AssignDriver._id);
 
@@ -355,14 +355,6 @@ module.exports = function (io) {
           },
           { new: true }
         );
-        // ride.Status = 1;
-        // ride.DriverId = null;
-        // ride.Driver = null;
-        // ride.RideStatus = "Assigned";
-        // ride.RejectedRide = [];
-        // ride.AssignTime = null;
-        // await ride.save();
-
         Ride = await GetRideDetail(Ride._id);
         io.emit("noDriverFound", {
           Ride,
@@ -381,16 +373,15 @@ module.exports = function (io) {
           },
           { new: true }
         );
-        // ride.Status = 1;
-        // ride.RideStatus = "Assigned";
-        // ride.RejectedRide = [];
-        // ride.AssignTime = null;
-        // await ride.save();
         Ride = await GetRideDetail(Ride._id);
         io.emit("noDriverFound", {
           Ride,
         });
       }
+
+      let count = await GetPendingDetail();
+      console.log(count);
+      await socketEmit("NoDriverIsThere", count);
     } catch (error) {
       console.log(error);
     }
@@ -399,6 +390,17 @@ module.exports = function (io) {
   module.exports.freeRide = freeRide;
 
   ///////////////////////////////////////////////////////////////       Get  FUll  Ride          //////////////////////////////////////////////////////////////////////
+
+  async function GetPendingDetail() {
+    const ride = await Rides.aggregate([
+      {
+        $match: {
+          $and: [{ RideStatus: "Assigned" }, { Status: 1 }],
+        },
+      },
+    ]);
+    return ride.length;
+  }
 
   async function GetRideDetail(ID) {
     try {

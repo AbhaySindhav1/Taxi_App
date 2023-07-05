@@ -45,13 +45,13 @@ router.post("/UserLogin", async (req, res) => {
   }
 });
 
-router.post("/Logout", auth, async (req, res) => {
+router.get("/Logout", auth, async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token;
     });
     await req.user.save();
-    res.send("token deleted");
+    res.status(200).json({ data: "logout Success" });
   } catch (e) {
     res.status(500).send("token required");
   }

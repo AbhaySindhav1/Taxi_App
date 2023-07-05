@@ -343,13 +343,6 @@ export class CityComponent implements OnInit {
   onReset() {
     this.selectElement.nativeElement.value = null;
     this.country = null;
-    // if (this.polygon) {
-    //   this.polygon.setMap(null);
-    //   this.polygon = [];
-    // }
-    // this.polygons.forEach((polygon: any) => {
-    //   polygon.setMap(null);
-    // });
     this.IsEditMode = false;
     this.zone = null;
     this.changed = false;

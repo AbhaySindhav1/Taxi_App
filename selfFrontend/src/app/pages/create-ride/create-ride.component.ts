@@ -9,7 +9,9 @@ import { CardComponent } from '../card/card.component';
 import { MatDialog } from '@angular/material/dialog';
 
 declare var google: any;
-let directionsRenderer = new google.maps.DirectionsRenderer();
+let directionsRenderer = new google.maps.DirectionsRenderer({
+  partialMatch: false,
+});
 let directionsService = new google.maps.DirectionsService();
 
 @Component({
@@ -102,13 +104,6 @@ export class CreateRideComponent implements OnInit {
       this.getCards();
       this.cd.detectChanges();
     }
-  }
-
-  openDialog(user: any) {
-    const dialogRef = this.dialog.open(CardComponent, {
-      width: '600px',
-      data: user,
-    });
   }
 
   ChangePayment(id: any) {
@@ -232,7 +227,6 @@ export class CreateRideComponent implements OnInit {
         types: [],
       }
     );
-
     autocomplete.addListener('place_changed', () => {
       if (directionsRenderer) {
         directionsRenderer.setDirections({ routes: [] });
@@ -272,7 +266,6 @@ export class CreateRideComponent implements OnInit {
             },
           });
       }
-
       this.initDirection();
     });
   }
@@ -283,7 +276,7 @@ export class CreateRideComponent implements OnInit {
     this.initDirection();
   }
 
-  initDirection() {
+  async initDirection() {
     this.wayPoints = [];
     for (let index = 1; index <= this.stops.length; index++) {
       this.wayPoints.push({
@@ -310,14 +303,27 @@ export class CreateRideComponent implements OnInit {
       waypoints: this.wayPoints,
       optimizeWaypoints: true,
     };
-    directionsService.route(request, (response: any, status: string) => {
+
+    let result;
+    await directionsService.route(request, (response: any, status: string) => {
+      console.log('SADNA', response);
+
       if (status == 'OK') {
         directionsRenderer.setDirections(response);
         this.SetDistance(response.routes);
+        result = true;
       } else if (status === 'ZERO_RESULTS') {
         this.toastr.error('No Direct Routes Are Available');
+        result = false;
+      } else if (status == 'NOT_FOUND') {
+        this.toastr.error('Please Enter Valid Info');
+        result = false;
+      } else {
+        this.toastr.error('Please Enter Valid Info');
+        result = false;
       }
     });
+    return result;
   }
 
   SetDistance(Routes: any) {
@@ -328,12 +334,10 @@ export class CreateRideComponent implements OnInit {
       total_time += Routes[0]?.legs[i].duration.value;
     }
     console.log(total_distance, total_time);
-    ///  Distance
 
     this.Distance = total_distance / 1000;
     this.tripDetails.Distance = this.Distance + 'Km';
 
-    ///  time
     this.Time =
       Math.floor(total_time / 3600) +
       '.' +
@@ -350,12 +354,15 @@ export class CreateRideComponent implements OnInit {
     this.initDirection();
   }
 
-  OnRideDetailsFormSubmit() {
+  async OnRideDetailsFormSubmit() {
     this.isSubmitted = true;
     if (!this.RideDetailsForm.valid) {
       this.toastr.error('Please Enter Valid Datails in Form');
       return;
     }
+    const Valid = await this.initDirection();
+    console.log(Valid);
+    if (!Valid) return;
     let confimed = confirm('Are You Want To Book Ride');
     if (!confimed) return;
     let formData = new FormData();
@@ -485,5 +492,9 @@ export class CreateRideComponent implements OnInit {
       bookingType: true,
       PaymentType: 'Cash',
     });
+  }
+
+  Cencel(){
+    this.RideForm.reset()
   }
 }
