@@ -76,3 +76,9 @@ table {
 .paginationlink /deep/ .ngx-pagination .ng-star-inserted {
   text-decoration: none;
 }
+
+
+.ellipsisRow{
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

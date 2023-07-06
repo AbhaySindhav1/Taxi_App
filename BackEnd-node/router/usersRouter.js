@@ -35,14 +35,14 @@ router.post("/MyUser", auth, handleUserUpload, async (req, res) => {
     const myUser = new Users(req.body);
     await myUser.save();
 
-    const StripeCustomer = await createCustomer(
-      myUser.UserEmail,
-      myUser.UserName
-    );
+    // const StripeCustomer = await createCustomer(
+    //   myUser.UserEmail,
+    //   myUser.UserName
+    // );
 
-    myUser.StripeId = StripeCustomer.id;
+    // myUser.StripeId = StripeCustomer.id;
 
-    await myUser.save();
+    // await myUser.save();
 
     sendMail(myUser.UserEmail, "WelCome", "You Registred Successfully");
 

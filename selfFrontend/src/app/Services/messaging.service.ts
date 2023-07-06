@@ -45,6 +45,7 @@ export class MessagingService {
   getToken(msg: any) {
     this.afm.getToken.subscribe({
       next: (token: any) => {
+        console.log("token",token);
         this.sendNotification(token, msg);
       },
       error: (error) => {
@@ -56,8 +57,9 @@ export class MessagingService {
   sendNotification(deviceToken: string, msg: any): void {
     const notification = {
       notification: {
-        title: 'Reassign Rides',
-        body: { count: msg, Alert: 'Driver Not Found' },
+        title:'Driver Not Found' ,
+        body: msg,
+        
         sound: '../../assets/Sound/notification.wav',
       },
       to: deviceToken,
@@ -66,7 +68,7 @@ export class MessagingService {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         Authorization:
-          'key=AAAA_gURmFo:APA91bEC_6XT-oCVChnDk6psqgkhxRVOq8tIdBURXpsbhJ9Ffkiz6HuIzc38dAveAqjINmQRiP_MspqZZMEhc6YLfsUKjk2enlVJ883icMEdBAlVOQuoJ8OohutIoHT4EKabz8WIN_xL',
+          'key=AAAA_gURmFo:APA91bG8DWHxhMffNT2_8l4sC5m48up0zhZ0cCvqzTSVjJefXi2G4X5mHEJUU6NsDdpVRduAGNtDPpuX4874Sr_hYnb6r7FN43kuBKHfTDEEOunhdfpVguIhzXsp7FPsm2wDx2wppiK0',
       }),
     };
 
@@ -74,7 +76,7 @@ export class MessagingService {
       .post('https://fcm.googleapis.com/fcm/send', notification, httpOptions)
       .subscribe({
         next: (data: any) => {
-          console.log('notification result', data);
+          // console.log('notification result', data);
         },
         error: (error) => {
           console.error(error);

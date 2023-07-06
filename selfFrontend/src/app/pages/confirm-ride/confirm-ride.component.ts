@@ -86,12 +86,12 @@ export class ConfirmRideComponent implements OnInit {
       this.replaceRow(data.Ride);
     });
 
-    this.socketService.socket.on('RideCompleted', (data: any) => {
-      console.log('RideCompleted', data);
-      this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data.Ride._id;
-      });
-    });
+    // this.socketService.socket.on('RideCompleted', (data: any) => {
+    //   console.log('RideCompleted', data);
+    //   this.RideList = this.RideList.filter((ride: any) => {
+    //     return ride._id !== data.Ride._id;
+    //   });
+    // });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
       console.log('CancelledRide', data);
@@ -105,7 +105,7 @@ export class ConfirmRideComponent implements OnInit {
       this.initRideDataChange(data?.RideId, data?.Status);
     });
     this.socketService.socket.on('NoDriverIsThere', (data: any) => {
-      this.msgService.getToken({ msg: data });
+      this.msgService.getToken(data);
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {

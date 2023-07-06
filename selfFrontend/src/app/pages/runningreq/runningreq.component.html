@@ -104,8 +104,8 @@
           <th class="ellipsisRow">Ride ID</th>
           <th class="ellipsisRow">User Name</th>
           <th class="ellipsisRow">PickUp Point</th>
-          <th class="ellipsisRow">Stops</th>
           <th class="ellipsisRow">Drop Point</th>
+          <th class="ellipsisRow">ScheduleTime</th>
           <th class="ellipsisRow">Driver ID</th>
           <th class="ellipsisRow">Status</th>
           <th style="min-width: 250px">Action</th>
@@ -116,7 +116,7 @@
           *ngIf="RideList && RideList.length === 0"
           style="text-align: center; vertical-align: middle"
         >
-          <td colspan="8">No Rides</td>
+          <td colspan="9">No Rides</td>
         </tr>
         <tr
           *ngFor="
@@ -136,6 +136,7 @@
           <td class="ellipsisRow" title="{{ Ride?.PickupPoint }}">
             {{ Ride?.PickupPoint }}
           </td>
+
           <td class="ellipsisRow" title="{{ Ride?.DropPoint }}">
             {{ Ride?.DropPoint }}
           </td>
@@ -181,10 +182,12 @@
                   />
                 </svg>
               </button>
+              <div *ngIf="Ride.Status == 100">
               <button
                 class="btn btn-primary"
                 style="width: 70px; padding: 5px; background-color: #6d7ae0"
                 (click)="OnAccept(Ride)"
+
                 [disabled]="Ride.Status != 100"
               >
                 Accept
@@ -196,9 +199,24 @@
                 style="width: 70px; padding: 5px"
                 [disabled]="Ride.Status == 0"
                 (click)="RejectRide(Ride)"
-                >
+              >
                 <!-- (click)="CancelRide(Ride)" -->
                 Reject
+              </button>
+            </div>
+              <button
+                *ngIf="Ride.Status == 2 || Ride.Status == 3 || Ride.Status == 4"
+                class="btn btn-success"
+                style="width: 70px; padding: 5px"
+                [disabled]="
+                  Ride.Status == 0 ||
+                  Ride.Status == 100 ||
+                  Ride.Status == 1 ||
+                  Ride.Status == 5
+                "
+                (click)="ChangeStatus(Ride._id, +Ride.Status + 1)"
+              >
+                Next
               </button>
             </div>
             <div>

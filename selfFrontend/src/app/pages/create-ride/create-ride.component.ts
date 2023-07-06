@@ -5,8 +5,9 @@ import { RideService } from 'src/app/Services/ride.service';
 import { UsersService } from 'src/app/Services/users.service';
 import { PricingService } from 'src/app/Services/pricing.service';
 import { SettingService } from 'src/app/Services/setting.service';
-import { CardComponent } from '../card/card.component';
 import { MatDialog } from '@angular/material/dialog';
+import { CountryService } from 'src/app/Services/country.service';
+import { SocketService } from 'src/app/Services/socket.service';
 
 declare var google: any;
 let directionsRenderer = new google.maps.DirectionsRenderer({
@@ -41,6 +42,7 @@ export class CreateRideComponent implements OnInit {
   ways: any;
   maxStops: any;
   Cards: any;
+  CountryCodes: any = [];
 
   constructor(
     private usersService: UsersService,
@@ -49,7 +51,9 @@ export class CreateRideComponent implements OnInit {
     private pricingService: PricingService,
     private SettingsService: SettingService,
     public dialog: MatDialog,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private countryService: CountryService,
+    private socketService: SocketService
   ) {
     this.RideForm = new FormGroup({
       UserPhone: new FormControl(null, [
@@ -57,7 +61,7 @@ export class CreateRideComponent implements OnInit {
         Validators.pattern('^((\\+91-?)|0)?[0-9\\s-]{10}$'),
       ]),
       UserName: new FormControl(null, [Validators.required]),
-      CountryCode: new FormControl(+91, [Validators.required]),
+      CountryCode: new FormControl('+91', [Validators.required]),
       UserEmail: new FormControl(null, [Validators.required, Validators.email]),
     });
 
@@ -75,6 +79,14 @@ export class CreateRideComponent implements OnInit {
   ngOnInit(): void {
     this.initMap();
     this.updateSettings();
+    this.countryService.initGetAllCountry().subscribe({
+      next: (data) => {
+        this.CountryCodes = data.map((obj: any) => obj.countrycode);
+      },
+      error: (error) => {
+        this.socketService.ToasterService('error', error);
+      },
+    });
   }
 
   updateSettings() {
@@ -89,13 +101,28 @@ export class CreateRideComponent implements OnInit {
     this.RideDetailsForm.patchValue({
       bookingType: type,
     });
-    if ((type = 'Cash')) {
-      this.RideDetailsForm.patchValue({
-        PaymentId: type,
-      });
+    if (type) {
+      this.RideDetailsForm.get('Time').clearValidators();
+    } else {
+      this.RideDetailsForm.get('Time').setValidators(Validators.required);
     }
+    this.RideDetailsForm.get('Time').updateValueAndValidity();
   }
 
+  isScheduleTimeSelected(): boolean {
+    return !this.RideDetailsForm.get('bookingType').value;
+  }
+
+  isTimeFieldEmpty(): boolean {
+    const timeControl = this.RideDetailsForm.get('Time');
+    return timeControl.value === null || timeControl.value === '';
+  }
+
+  getCurrentDateTime(): string {
+    const currentDate = new Date();
+    return currentDate.toISOString().slice(0, 16);
+  }
+  
   handlePaymentTypeChange(type: any) {
     this.RideDetailsForm.patchValue({
       PaymentType: type,
@@ -306,8 +333,6 @@ export class CreateRideComponent implements OnInit {
 
     let result;
     await directionsService.route(request, (response: any, status: string) => {
-      console.log('SADNA', response);
-
       if (status == 'OK') {
         directionsRenderer.setDirections(response);
         this.SetDistance(response.routes);
@@ -494,7 +519,7 @@ export class CreateRideComponent implements OnInit {
     });
   }
 
-  Cencel(){
-    this.RideForm.reset()
+  Cencel() {
+    this.RideForm.reset();
   }
 }

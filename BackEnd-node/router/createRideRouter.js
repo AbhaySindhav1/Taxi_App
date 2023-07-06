@@ -172,7 +172,7 @@ router.post("/History", upload.none(), auth, async (req, res) => {
 //                                                               //     Edit  Ride       //                                                                       //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
+router.patch("/RideStatus/:id", upload.none(), auth, async (req, res) => {
   console.log(req.body);
   if (!req.body.Status) return;
   try {
@@ -202,7 +202,12 @@ router.patch("/Ride/:id", upload.none(), auth, async (req, res) => {
         res.status(200).json("Ride Completed");
         return;
       }
-      if (ride && !ride.PaymentType && ride.PaymentType !== "Cash") {
+      if (
+        ride &&
+        ride.PaymentType &&
+        ride.PaymentType !== "Cash" &&
+        !ride.PaymentId
+      ) {
         throw new Error("No Card Found Please Add Card");
       }
       if (ride && ride.PaymentType && ride.PaymentType !== "Cash") {

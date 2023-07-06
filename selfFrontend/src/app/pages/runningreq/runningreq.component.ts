@@ -47,11 +47,12 @@ export class RunningreqComponent implements OnInit {
       this.initRideDataChange(data?.RideId, data?.Status);
     });
 
-    this.socketService.socket.on('RideCompleted', (data: any) => {
-      this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data.Ride._id;
-      });
-    });
+    // this.socketService.socket.on('RideCompleted', (data: any) => {
+    //   console.log("RideCompleted",data);
+    //   this.RideList = this.RideList.filter((ride: any) => {
+    //     return ride._id !== data.Ride._id;
+    //   });
+    // });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
       this.initChange(data);
@@ -153,6 +154,24 @@ export class RunningreqComponent implements OnInit {
 
   initStatus(status: any) {
     return this.rideService.initGetStatus(status);
+  }
+
+  ChangeStatus(id: any, Status: any) {
+    console.log(id, Status);
+    this.rideService.initProgressRide(id, Status).subscribe({
+      next: (data) => {
+        let updatedStatus = this.rideService.initGetStatus(Status);
+        if (Status == 5) {
+          this.RideList = this.RideList.filter((ride: any) => {
+            return ride._id !== id;
+          });
+        }
+        this.socketService.ToasterService('success', updatedStatus);
+      },
+      error: (error) => {
+        this.socketService.ToasterService('error', 'Something Went Wrong');
+      },
+    });
   }
 
   openDialog(Ride: any) {

@@ -9,7 +9,8 @@ export class MapService {
   constructor() {}
 
   onDownload(DataArray: any) {
-    if (DataArray.length < 0) return;
+    console.log(DataArray.length);
+    if (DataArray.length == 0) return;
 
     const stringifiedArray = DataArray.map((item: any) => {
       for (const key in item) {

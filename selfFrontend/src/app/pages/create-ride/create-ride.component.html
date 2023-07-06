@@ -13,7 +13,7 @@
       <div class="controller">
         <label for="UserPhone">Phone No.</label>
         <div>
-          <input
+          <!-- <input
             type="number"
             name="CountryCode"
             id="CountryCode"
@@ -21,13 +21,37 @@
             style="width: 23%; display: inline-block"
             formControlName="CountryCode"
             onKeyPress="if(this.value.length==2) return false;"
-          />
-
+          /> -->
+          <!-- <option
+            name="CountryCode"
+            id="CountryCode"
+            class="form-control"
+            style="width: 23%; display: inline-block"
+            formControlName="CountryCode"
+          >
+            <select name="" id="" [value]="">Heelo</select>
+          </option> -->
+          <select
+            name="CountryCode"
+            id="CountryCode"
+            class="form-control"
+            style="width: 23%; display: inline-block"
+            formControlName="CountryCode"
+          >
+            <option value="" hidden selected>Country Code</option>
+            <option
+              value="{{ CountryCodes }}"
+              *ngFor="let CountryCodes of CountryCodes"
+            >
+              {{ CountryCodes }}
+            </option>
+          </select>
           <input
             type="number"
             name="UserPhone"
             id="UserPhone"
             (input)="onInput($event.target)"
+            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
             class="form-control"
             style="width: 75%; display: inline-block; margin-left: 2%"
             formControlName="UserPhone"
@@ -109,7 +133,9 @@
         (click)="openDialog()"  
           pop
         </button> -->
-        <button type="button" class="btn bg-danger" (click)="Cencel()">Cancel</button>
+        <button type="button" class="btn bg-danger" (click)="Cencel()">
+          Cancel
+        </button>
       </div>
     </form>
 
@@ -122,8 +148,6 @@
       *ngIf="RideDetailsFormShow"
       class="col-3"
     >
-
-
       <div class="controller">
         <label for="PickupPoint">Pickup Point</label>
         <input
@@ -133,6 +157,7 @@
           class="form-control"
           formControlName="PickupPoint"
         />
+        <!-- (blur)="onInputBlur($event)" -->
         <div
           *ngIf="
             (d.PickupPoint.touched || isSubmitted) && d.PickupPoint.invalid
@@ -227,7 +252,6 @@
           >
         </div>
       </div>
-  
 
       <div class="controller">
         <label for="VehicleSelector">Vehicle Opitons</label>
@@ -270,6 +294,7 @@
             />
             Schedule Time
           </label>
+          
         </div>
         <div>
           <input
@@ -278,9 +303,11 @@
             id="Time"
             class="form-control"
             formControlName="Time"
+            [min]="getCurrentDateTime()"
             *ngIf="!RideDetailsForm.get('bookingType').value"
           />
         </div>
+        <span *ngIf="isScheduleTimeSelected() && isTimeFieldEmpty() && (f?.Time?.touched || isSubmitted)" class="error-msg">Please select a time.</span>
       </div>
 
       <div class="controller" style="margin: 10px 0px">

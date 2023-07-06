@@ -38,7 +38,7 @@ module.exports = function (io) {
       const Setting = await Settings.find({});
       reqTimeOut = Setting[0].ReqCronTime * 1000; // Assuming the fetched value is stored in the 'privateKey' field
     } catch (error) {
-      console.log("updategetTime", error);
+      // console.log("updategetTime", error);
     }
   }
 
@@ -48,9 +48,9 @@ module.exports = function (io) {
     try {
       await initializereqTimeOut();
       socket.on("login", (userId) => {
-        console.log(userId);
+        // console.log(userId);
         users[userId] = socket.id;
-        console.log(users);
+        // console.log(users);
       });
     } catch (error) {
       console.log("initializereqTimeOut", error);
@@ -196,7 +196,7 @@ module.exports = function (io) {
           Driver: { DriverID: FoundDriver._id, Status: FoundDriver.status },
         });
       } else {
-        console.log("ride.Status", ride);
+        // console.log("ride.Status", ride);
         io.emit("CancelledRide", {
           Ride: { Status: ride.Status, RideId: ride._id },
         });
@@ -281,6 +281,7 @@ module.exports = function (io) {
         ride,
         Driver: { id: AssignDriver._id, Status: AssignDriver.status },
       });
+      await Assign(ride._id);
     } catch (error) {
       console.log(error);
     }
@@ -323,6 +324,8 @@ module.exports = function (io) {
           rides,
         });
       }
+
+      await Assign(rides._id);
     } catch (error) {
       console.log(error);
     }
@@ -380,7 +383,7 @@ module.exports = function (io) {
       }
 
       let count = await GetPendingDetail();
-      console.log(count);
+      // console.log(count);
       await socketEmit("NoDriverIsThere", count);
     } catch (error) {
       console.log(error);
@@ -400,6 +403,21 @@ module.exports = function (io) {
       },
     ]);
     return ride.length;
+  }
+
+  async function Assign(RideID) {
+    try {
+      let ride = await Rides.findById(RideID);
+      let driver = await getAvailableDrivers(
+        ride.type,
+        ride.RideCity,
+        ride.RejectedRide
+      );
+      if (!driver) return;
+      await AssignRide(RideID, driver._id);
+    } catch (error) {
+      console.log("Assign function ", error);
+    }
   }
 
   async function GetRideDetail(ID) {

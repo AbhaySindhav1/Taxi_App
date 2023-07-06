@@ -15,6 +15,11 @@
   border: 2px dotted black;
   border-radius: 5%;
 }
+.error-msg {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
 label {
   font-size: 17px;
   font-weight: 500;

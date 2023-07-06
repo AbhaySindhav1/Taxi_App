@@ -49,6 +49,11 @@ export class RideService {
     return this.http.post<any>('http://localhost:3000/History', data);
   }
 
+  initProgressRide(id: any, Status: any) {
+    let data = { Status: Status };
+    return this.http.patch<any>('http://localhost:3000/RideStatus/' + id, data);
+  }
+
   initGetStatus(Status: any) {
     if (Status == 0) {
       return 'Cancelled';

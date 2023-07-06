@@ -46,6 +46,8 @@ export class SocketService {
         this.error = msg.error.error;
       } else if (msg && msg.error) {
         this.error = msg.error;
+      } else {
+        this.error = msg;
       }
       this.toaster.warning(this.error);
     } else if ((type = 'Delete')) {
