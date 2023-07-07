@@ -240,6 +240,8 @@ router.patch("/RideStatus/:id", upload.none(), auth, async (req, res) => {
 async function FilterQuery(Search, Status, Type, FromDate, toDate) {
   let filterConditions = [];
 
+  console.log(FromDate, toDate);
+
   if (Search && Search !== null && Search !== "null") {
     if (mongoose.Types.ObjectId.isValid(Search)) {
       filterConditions.push({

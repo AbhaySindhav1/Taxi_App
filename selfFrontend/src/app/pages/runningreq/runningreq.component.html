@@ -182,7 +182,7 @@
                   />
                 </svg>
               </button>
-              <div *ngIf="Ride.Status == 100">
+              <div *ngIf="Ride.Status == 100 && Ride.Driver" style="display: flex;justify-content: center; gap: 20px;">
               <button
                 class="btn btn-primary"
                 style="width: 70px; padding: 5px; background-color: #6d7ae0"

@@ -49,7 +49,7 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
-      console.log('reqtoSendDriver', data);
+      // console.log('reqtoSendDriver', data);    
       this.replaceRow(data);
       if (data.DriverId) {
         const index = this.driverData?.findIndex(
@@ -62,7 +62,7 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('NotReactedRide', (data: any) => {
-      console.log('NotReactedRide', data);
+      // console.log('NotReactedRide', data);
       this.replaceRow(data.rides);
       if (data.Driver && this.driverData) {
         const index = this.driverData.findIndex(
@@ -77,12 +77,12 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('RejectRide', (data: any) => {
-      console.log('RejectRide', data);
+      // console.log('RejectRide', data);
       this.replaceRow(data.ride);
     });
 
     this.socketService.socket.on('noDriverFound', (data: any) => {
-      console.log('noDriverFound', data);
+      // console.log('noDriverFound', data);
       this.replaceRow(data.Ride);
     });
 
@@ -94,14 +94,14 @@ export class ConfirmRideComponent implements OnInit {
     // });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
-      console.log('CancelledRide', data);
+      // console.log('CancelledRide', data);                                                 
       this.RideList = this.RideList.filter((ride: any) => {
         return ride._id !== data.Ride.RideId;
       });
     });
 
     this.socketService.socket.on('RideStatus', (data: any) => {
-      console.log('RideStatus', data);
+      // console.log('RideStatus', data);
       this.initRideDataChange(data?.RideId, data?.Status);
     });
     this.socketService.socket.on('NoDriverIsThere', (data: any) => {
@@ -109,7 +109,7 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('ReqAcceptedByDriver', (data: any) => {
-      console.log('ReqAcceptedByDriver', data);
+      // console.log('ReqAcceptedByDriver', data);
       if (data.DriverInfo._id && data.DriverInfo.DriverName) {
         this.initRideDataChange(
           data._id,
@@ -228,7 +228,7 @@ export class ConfirmRideComponent implements OnInit {
     let data = {
       limit: +this.limit,
       page: event ? event : this.page,
-      status: [1, 2, 3, 4, 5, 100],
+      status: [1,  100], //2, 3, 4, 5,
       filter: formdata ? formdata : null,
     };
 
@@ -259,7 +259,7 @@ export class ConfirmRideComponent implements OnInit {
     };
 
     let data = {
-      status: [1, 2, 3, 4, 5, 100],
+      status: [1,  100], //2, 3, 4, 5,
       filter: Find ? Find : null,
     };
 
@@ -274,14 +274,14 @@ export class ConfirmRideComponent implements OnInit {
 
   ////////////////////////////////////////////////////////////    Get  Rides  Details     /////////////////////////////////////////////////////////////////////
   openDialog(Ride: any) {
-    console.log('ahugdhu');
+    // console.log('ahugdhu');
     const dialogRef = this.dialog.open(RideDetailComponent, {
       data: Ride,
     });
   }
 
   replaceRow(data: any) {
-    console.log(data);
+    // console.log(data);
     const index = this.RideList.findIndex((ride: any) => ride._id === data._id);
     if (this.isJSON(data.Stops)) {
       data.Stops = JSON.parse(data.Stops);

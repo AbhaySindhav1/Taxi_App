@@ -357,7 +357,7 @@
             <div>
               DriverCity
 
-                <!-- <svg
+              <!-- <svg
                   (click)="onSearchDriver('DriverCity')"
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -434,7 +434,50 @@
             >
           </td>
           <td>{{ driver.approval }}</td>
-          <td>{{ driver.status }}</td>
+          <td>
+            <div
+              style="
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              {{ driver.status }}
+              <div class="dropdown" style="display: inline-block">
+                <button
+                  class="btn bg-primary dropdown-toggle"
+                  type="button"
+                  id="dropdownMenuButton1"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                ></button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      (click)="onDriverStatus(driver._id, 'online')"
+                      >Online</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      (click)="onDriverStatus(driver._id, 'busy')"
+                      >busy</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      (click)="onDriverStatus(driver._id, 'onRequest')"
+                      >onRequest</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </td>
           <td>
             <button
               class="btn btn-success button"
@@ -549,7 +592,7 @@
           (click)="onAssignService()"
           data-bs-dismiss="modal"
           [disabled]="VehicleList?.length == 0"
-          >
+        >
           Assign
         </button>
       </div>

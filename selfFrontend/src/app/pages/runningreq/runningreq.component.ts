@@ -35,12 +35,11 @@ export class RunningreqComponent implements OnInit {
     });
 
     this.socketService.socket.on('RejectRide', (data: any) => {
-      console.log(data);
-
+      console.log("RejectRide");
       this.initChange(data?.ride);
-      this.RideList = this.RideList.filter((ride: any) => {
-        return ride._id !== data.ride._id;
-      });
+      // this.RideList = this.RideList.filter((ride: any) => {
+      //   return ride._id !== data.ride._id;
+      // });
     });
 
     this.socketService.socket.on('RideStatus', (data: any) => {
@@ -59,20 +58,15 @@ export class RunningreqComponent implements OnInit {
     });
 
     this.socketService.socket.on('noDriverFound', (data: any) => {
+      console.log("noDriverFound");
       this.RideList = this.RideList.filter((ride: any) => {
         return ride._id !== data.Ride._id;
       });
     });
 
     this.socketService.socket.on('NotReactedRide', (data: any) => {
-      console.log(data);
+      // console.log(data);
       this.initChange(data.rides);
-      // this.initRideDataChange(
-      //   data.rides._id,
-      //   data.rides.Status,
-      //   data.rides.DriverId,
-      //   data.rides.Driver
-      // );
     });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
@@ -122,8 +116,7 @@ export class RunningreqComponent implements OnInit {
 
     this.rideService.initGetAllRides(data).subscribe({
       next: (data) => {
-        console.log(data);
-
+        // console.log(data);
         this.RideList = data.Rides;
         this.totalRides = data.totalRide;
       },
@@ -157,7 +150,7 @@ export class RunningreqComponent implements OnInit {
   }
 
   ChangeStatus(id: any, Status: any) {
-    console.log(id, Status);
+    // console.log(id, Status);
     this.rideService.initProgressRide(id, Status).subscribe({
       next: (data) => {
         let updatedStatus = this.rideService.initGetStatus(Status);
@@ -183,8 +176,10 @@ export class RunningreqComponent implements OnInit {
   initChange(data: any) {
     const index = this.RideList.findIndex((ride: any) => ride._id === data._id);
     if (index !== -1) {
+      console.log("initChange");
       this.RideList[index] = data;
     } else {
+      console.log("initChange push");
       this.RideList.push(data);
     }
   }

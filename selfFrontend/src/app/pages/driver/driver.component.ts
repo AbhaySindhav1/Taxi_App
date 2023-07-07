@@ -335,6 +335,29 @@ export class DriverComponent implements OnInit {
       },
     });
   }
+  onDriverStatus(id: any, data: any) {
+    this.DriverId = id;
+    let formData = new FormData();
+    formData.append('status', data);
+    this.driverService.initEditDriver(id, formData).subscribe({
+      next: (data) => {
+        this.getDriverReq();
+        this.initReset();
+      },
+      error: (error) => {
+        console.log(error);
+
+        if (error.error && error.error.sizeError) {
+          this.error = error.error.sizeError;
+        } else if (error.error && error.error.fileError) {
+          this.error = error.error.fileError;
+        } else {
+          this.error = error.error;
+        }
+        this.displayerror = true;
+      },
+    });
+  }
 
   onStatusUpdate(id: any, data: any) {
     this.DriverId = id;

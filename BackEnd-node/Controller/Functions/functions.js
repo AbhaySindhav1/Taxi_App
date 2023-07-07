@@ -15,7 +15,7 @@ async function initializeMessage() {
   try {
     if (client === null) {
       const Setting = await Settings.find({});
-       client = require("twilio")(Setting[0].smsID, Setting[0].smsToken);
+      client = require("twilio")(Setting[0].smsID, Setting[0].smsToken);
     }
     return client;
   } catch (error) {
@@ -68,6 +68,23 @@ async function getUnassignedRequests() {
     return rides;
   } catch (error) {
     console.log(error);
+  }
+}
+
+async function CheckRide(RideID) {
+  let Ride = await CreateRide.findById(RideID);
+  if (Ride.Status == 1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+async function CheckFirstRide(RideID) {
+  let Ride = await CreateRide.findById(RideID);
+  if (Ride.Status == 100) {
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -139,11 +156,11 @@ async function sendMessages(
       from: from,
       to: to,
     })
-    .then((message) => console.log(message.sid)).catch((e)=>{
-      console.log("message",e);
+    .then((message) => console.log(message.sid))
+    .catch((e) => {
+      console.log("message", e);
     });
 }
-
 
 module.exports = {
   getAvailableDrivers,
@@ -151,4 +168,6 @@ module.exports = {
   getBusyDrivers,
   sendMessages,
   UpdateValueTwilio,
+  CheckRide,
+  CheckFirstRide
 };

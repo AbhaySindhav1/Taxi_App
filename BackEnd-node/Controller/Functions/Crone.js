@@ -1,28 +1,27 @@
 let cron = require("node-cron");
-let CroneTime = 10;
-let ReqVar;
+let variable;
 
 const {
   getAvailableDrivers,
   getUnassignedRequests,
   getBusyDrivers,
+  CheckRide,
+  CheckFirstRide,
 } = require("./functions");
 const Sockets = require("./Socket");
 
-let schedule = `*/${CroneTime} * * * * *`;
-
 module.exports = function (io) {
-  cron.schedule(schedule, async () => {
+  cron.schedule(`*/10 * * * * *`, async () => {
     try {
       let rides = await getUnassignedRequests();
-      AssignRideToDriver(rides);
+      await AssignRideToDriver(rides);
     } catch (error) {}
   });
 
   async function AssignRideToDriver(rides) {
     if (!rides) return;
     for await (const ride of rides) {
-      // ReqVar = 1;
+      variable = 1;
       await CheckTimeOut(ride);
     }
   }
@@ -30,18 +29,21 @@ module.exports = function (io) {
   async function CheckTimeOut(ride) {
     async function CheckTime(ride) {
       if (ride.AssignTime && ride.AssignTime <= Date.now()) {
-        // ReqVar++;
-        // if (ReqVar == 2) {
+        let checks = await CheckFirstRide(ride._id);
+        if (!checks) return;
         await AssignDriverToRide(ride);
-        // }
       } else {
-        setImmediate(() => CheckTime(ride));
+        setImmediate(async () => await CheckTime(ride));
       }
     }
-   await CheckTime(ride);
+    if (variable == 1) {
+      await CheckTime(ride);
+      ++variable;
+    }
   }
 
   async function GetDriver(ride) {
+    console.log("GetDriver");
     let drivers = await getAvailableDrivers(
       ride.type,
       ride.RideCity,
@@ -51,6 +53,7 @@ module.exports = function (io) {
   }
 
   async function NoDriverFound(ride) {
+    console.log("NoDriverFound");
     let hasBusyDriver = await getBusyDrivers(
       ride.type,
       ride.RideCity,
@@ -60,6 +63,7 @@ module.exports = function (io) {
   }
 
   async function AssignDriverToRide(ride) {
+    console.log("AssignDriverToRide");
     if (ride.AssigningType == "single") {
       await Sockets.freeRide(ride._id);
       return;
@@ -72,9 +76,15 @@ module.exports = function (io) {
         return;
       } else {
         await Sockets.freeRide(ride._id);
+        console.log("freeRide");
       }
     } else {
-      await Sockets.AssignRide(ride._id, newdriver._id);
+      // let Check = await CheckRide(ride._id);
+      // console.log(Check);
+      // if (Check) {
+      //   console.log("Check");
+      //   await Sockets.AssignRide(ride._id, newdriver._id);
+      // }
     }
   }
 };

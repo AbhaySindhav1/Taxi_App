@@ -2,9 +2,10 @@ const { default: mongoose } = require("mongoose");
 const Driver = require("../../Model/driverModel");
 const Rides = require("../../Model/createRideModel");
 const Settings = require("../../Model/settingModel");
-const { getAvailableDrivers } = require("./functions");
+const { getAvailableDrivers, getBusyDrivers } = require("./functions");
 
 const path = require("path");
+const { escape } = require("querystring");
 const envPath = path.join(__dirname, "../key.env");
 require("dotenv").config({ path: envPath });
 
@@ -63,6 +64,7 @@ module.exports = function (io) {
           CancelRide(data.rideID, data.driverID);
         }
         if (data.Status == "Assign") {
+          console.log("RideAssignNearestDriver", 1);
           AssignRide(data.rideID, data.driverID, "single");
         }
       } catch (error) {
@@ -74,7 +76,7 @@ module.exports = function (io) {
       try {
         if (!data) return;
         if (data.Status == 0) {
-          await RejectRide(data.Ride._id, data.Ride.DriverId);
+          await RejectRide(data.Ride._id); //RejectRide
         } else if (data.Status == 1) {
           await NotReactedRide(data.Ride._id, data.Status);
         }
@@ -105,26 +107,36 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
   AssignRide = async (RideID, AsDriverID, AssigningType = "Cron") => {
+    
     try {
-      let rides = await Rides.findById(RideID);
+      if (!RideID || !AsDriverID) return;
+      let newRides = await Rides.findByIdAndUpdate(
+        RideID,
+        { Status: 100 },
+        { new: true }
+      );
+      if (!newRides) return;
 
-      if (rides.Status != 1 && rides.Status != 100) return;
+      if (newRides.Status != 100) return;
 
-      let AssignDriver = await Driver.findById(AsDriverID);
-      if (!AssignDriver) return;
-      AssignDriver.status = "onRequest";
-      await AssignDriver.save();
+      let AssignDriver = await Driver.findByIdAndUpdate(
+        AsDriverID,
+        { status: "onRequest" },
+        { new: true }
+      );
 
-      rides.Status = 100;
-      rides.DriverId = new mongoose.Types.ObjectId(AssignDriver._id);
-      rides.Driver = AssignDriver.DriverName;
-      (rides.RideStatus = "Assigned"), (rides.AssignTime = await getTime());
-      rides.AssigningType = AssigningType;
-      rides.RejectedRide.push(AssignDriver._id);
-
-      await rides.save();
-
-      if (!rides) return;
+      let rides = await Rides.findByIdAndUpdate(
+        newRides._id,
+        {
+          DriverId: new mongoose.Types.ObjectId(AssignDriver._id),
+          Driver: AssignDriver.DriverName,
+          RideStatus: "Assigned",
+          AssignTime: await getTime(),
+          AssigningType: AssigningType,
+          $push: { RejectedRide: AssignDriver._id },
+        },
+        { new: true }
+      );
 
       rides = await GetRideDetail(rides._id);
       io.emit("reqtoSendDriver", rides);
@@ -211,9 +223,13 @@ module.exports = function (io) {
 
   StatusChange = async (RideID, RideStatus) => {
     try {
-      let ride = await Rides.findByIdAndUpdate(RideID, {
-        Status: RideStatus,
-      });
+      let ride = await Rides.findByIdAndUpdate(
+        RideID,
+        {
+          Status: RideStatus,
+        },
+        { new: true }
+      );
 
       if (RideStatus == 5) {
         if (mongoose.Types.ObjectId.isValid(ride.DriverId)) {
@@ -248,32 +264,34 @@ module.exports = function (io) {
 
   ///////////////////////////////////////////////////////////////     Driver Reject  Ride          //////////////////////////////////////////////////////////////////////
 
-  RejectRide = async (RideID, AsDriverID) => {
+  RejectRide = async (RideID) => {
     try {
+      let AssignDriver;
       let ride = await Rides.findById(RideID);
-
       if (!ride) return;
-
-      if (!AsDriverID) return;
-      let AssignDriver = await Driver.findById(AsDriverID);
-      if (!AssignDriver) return;
-
-      AssignDriver.status = "online";
-
-      await AssignDriver.save();
-      ride.DriverId = null;
-      ride.Driver = null;
-      ride.RejectedRide.push(AssignDriver._id);
-      ride.AssignTime = new Date().getTime();
-      if (ride.AssigningType == "single") {
-        ride.Status = 1;
-      } else {
-        ride.Status = 100;
+      if (ride.DriverId) {
+        AssignDriver = await Driver.findByIdAndUpdate(
+          ride.DriverId,
+          { status: "online" },
+          { new: true }
+        );
       }
 
-      await ride.save();
-
-      if (!ride) return;
+      if (ride.AssigningType == "single") {
+        await freeRide(ride._id);
+        return;
+      } else {
+        ride = await Rides.findByIdAndUpdate(
+          ride._id,
+          {
+            Status: 100,
+            DriverId: null,
+            Driver: null,
+            AssignTime: new Date().getTime(),
+          },
+          { new: true }
+        );
+      }
 
       ride = await GetRideDetail(ride._id);
 
@@ -281,6 +299,7 @@ module.exports = function (io) {
         ride,
         Driver: { id: AssignDriver._id, Status: AssignDriver.status },
       });
+
       await Assign(ride._id);
     } catch (error) {
       console.log(error);
@@ -325,7 +344,7 @@ module.exports = function (io) {
         });
       }
 
-      await Assign(rides._id);
+      await Assign(ride._id);
     } catch (error) {
       console.log(error);
     }
@@ -406,6 +425,7 @@ module.exports = function (io) {
   }
 
   async function Assign(RideID) {
+    console.log("AssignAssign ", 2);
     try {
       let ride = await Rides.findById(RideID);
       let driver = await getAvailableDrivers(
@@ -413,8 +433,22 @@ module.exports = function (io) {
         ride.RideCity,
         ride.RejectedRide
       );
-      if (!driver) return;
-      await AssignRide(RideID, driver._id);
+      if (!driver) {
+        let hasBusyDriver = await getBusyDrivers(
+          ride.type,
+          ride.RideCity,
+          ride.RejectedRide
+        );
+        if (!(hasBusyDriver.length >= 1)) {
+          await freeRide(ride._id);
+        } else {
+          return;
+        }
+      } else {
+        if (!ride.driverID) {
+          await AssignRide(RideID, driver._id);
+        }
+      }
     } catch (error) {
       console.log("Assign function ", error);
     }

@@ -41,7 +41,6 @@ export class MessagingService {
       },
     });
   }
-
   getToken(msg: any) {
     this.afm.getToken.subscribe({
       next: (token: any) => {
