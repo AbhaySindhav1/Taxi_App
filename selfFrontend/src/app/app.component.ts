@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
       },
     });
 
-    this.bnIdle.startWatching(20*60).subscribe((isTimedOut: boolean) => {
+    this.bnIdle.startWatching(20 * 60).subscribe((isTimedOut: boolean) => {
       console.log(isTimedOut, this.authService.user.getValue());
 
       if (this.authService.user.getValue()) {

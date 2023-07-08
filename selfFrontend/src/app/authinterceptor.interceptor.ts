@@ -26,23 +26,30 @@ export class AuthinterceptorInterceptor implements HttpInterceptor {
 
     if (userdata !== null) {
       user = JSON.parse(userdata);
-    }   
+    }
 
-    if (user && user._token && request.url != 'https://fcm.googleapis.com/fcm/send') {
+    if (
+      user &&
+      user._token &&
+      request.url != 'https://fcm.googleapis.com/fcm/send'
+    ) {
       const modifiedReq = request.clone({
         setHeaders: {
           Authorization: `Bearer ${user._token}`,
         },
       });
-    
+
       return next.handle(modifiedReq).pipe(
         catchError((error) => {
+          console.log(error.error);
+          console.log(error);
+
           if (
             error.error === 'Authentication Failed' ||
-            error.error === 'please auth'
+            error === 'Authentication Failed'
           ) {
             this.authService.logout();
-            return EMPTY
+            return EMPTY;
           }
           throw error;
         })
@@ -52,17 +59,3 @@ export class AuthinterceptorInterceptor implements HttpInterceptor {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

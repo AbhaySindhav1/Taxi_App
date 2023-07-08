@@ -107,7 +107,6 @@ module.exports = function (io) {
   /////////////////////////////////////////////////////////////       Assign Driver to  Ride    ////////////////////////////////////////////////////////////////////////
 
   AssignRide = async (RideID, AsDriverID, AssigningType = "Cron") => {
-    
     try {
       if (!RideID || !AsDriverID) return;
       let newRides = await Rides.findByIdAndUpdate(
@@ -355,6 +354,7 @@ module.exports = function (io) {
   ///////////////////////////////////////////////////////////////       Free  Ride          //////////////////////////////////////////////////////////////////////
 
   freeRide = async (RideID) => {
+    console.log("freeeeeeeee rideeeeee");
     try {
       let ride = await Rides.findById(RideID);
       if (!ride) return;

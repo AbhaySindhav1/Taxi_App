@@ -49,7 +49,7 @@ export class ConfirmRideComponent implements OnInit {
     });
 
     this.socketService.socket.on('reqtoSendDriver', (data: any) => {
-      // console.log('reqtoSendDriver', data);    
+      // console.log('reqtoSendDriver', data);
       this.replaceRow(data);
       if (data.DriverId) {
         const index = this.driverData?.findIndex(
@@ -94,7 +94,7 @@ export class ConfirmRideComponent implements OnInit {
     // });
 
     this.socketService.socket.on('CancelledRide', (data: any) => {
-      // console.log('CancelledRide', data);                                                 
+      // console.log('CancelledRide', data);
       this.RideList = this.RideList.filter((ride: any) => {
         return ride._id !== data.Ride.RideId;
       });
@@ -105,6 +105,8 @@ export class ConfirmRideComponent implements OnInit {
       this.initRideDataChange(data?.RideId, data?.Status);
     });
     this.socketService.socket.on('NoDriverIsThere', (data: any) => {
+      console.log('aava ketli var che', data);
+
       this.msgService.getToken(data);
     });
 
@@ -228,7 +230,7 @@ export class ConfirmRideComponent implements OnInit {
     let data = {
       limit: +this.limit,
       page: event ? event : this.page,
-      status: [1,  100], //2, 3, 4, 5,
+      status: [1, 100], //2, 3, 4, 5,
       filter: formdata ? formdata : null,
     };
 
@@ -259,7 +261,7 @@ export class ConfirmRideComponent implements OnInit {
     };
 
     let data = {
-      status: [1,  100], //2, 3, 4, 5,
+      status: [1, 100], //2, 3, 4, 5,
       filter: Find ? Find : null,
     };
 
